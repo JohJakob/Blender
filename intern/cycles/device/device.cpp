@@ -41,6 +41,7 @@ vector<DeviceInfo> Device::cuda_devices;
 vector<DeviceInfo> Device::optix_devices;
 vector<DeviceInfo> Device::cpu_devices;
 vector<DeviceInfo> Device::network_devices;
+vector<DeviceInfo> Device::metal_devices;
 uint Device::devices_initialized_mask = 0;
 
 /* Device Requested Features */
@@ -410,6 +411,14 @@ Device *Device::create(DeviceInfo &info, Stats &stats, Profiler &profiler, bool 
         device = NULL;
       break;
 #endif
+#ifdef APPLE
+    case DEVICE_METAL:
+      if (device_metal_init())
+        device = device_metal_create(info, stats, profiler, background);
+      else
+        device = NULL;
+      break;
+#endif
     default:
       return NULL;
   }
@@ -431,6 +440,8 @@ DeviceType Device::type_from_string(const char *name)
     return DEVICE_NETWORK;
   else if (strcmp(name, "MULTI") == 0)
     return DEVICE_MULTI;
+  else if (strcmp(name, "METAL") == 0)
+    return DEVICE_METAL;
 
   return DEVICE_NONE;
 }
@@ -449,6 +460,8 @@ string Device::string_from_type(DeviceType type)
     return "NETWORK";
   else if (type == DEVICE_MULTI)
     return "MULTI";
+  else if (type == DEVICE_METAL)
+    return "METAL";
 
   return "";
 }
@@ -468,6 +481,9 @@ vector<DeviceType> Device::available_types()
 #endif
 #ifdef WITH_NETWORK
   types.push_back(DEVICE_NETWORK);
+#endif
+#ifdef APPLE
+  types.push_back(DEVICE_METAL);
 #endif
   return types;
 }
@@ -539,6 +555,20 @@ vector<DeviceInfo> Device::available_devices(uint mask)
       devices_initialized_mask |= DEVICE_MASK_NETWORK;
     }
     foreach (DeviceInfo &info, network_devices) {
+      devices.push_back(info);
+    }
+  }
+#endif
+
+#ifdef APPLE
+  if (mask & DEVICE_MASK_METAL) {
+    if (!(devices_initialized_mask & DEVICE_MASK_METAL)) {
+      if (device_metal_init()) {
+        device_metal_info(metal_devices);
+      }
+      devices_initialized_mask |= DEVICE_MASK_METAL;
+    }
+    foreach (DeviceInfo &info, metal_devices) {
       devices.push_back(info);
     }
   }
@@ -661,6 +691,7 @@ void Device::free_memory()
   opencl_devices.free_memory();
   cpu_devices.free_memory();
   network_devices.free_memory();
+  metal_devices.free_memory();
 }
 
 CCL_NAMESPACE_END

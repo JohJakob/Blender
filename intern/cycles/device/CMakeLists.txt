@@ -53,6 +53,12 @@ if(WITH_CYCLES_NETWORK)
   )
 endif()
 
+if(APPLE)
+  list(APPEND SRC
+    device_metal.mm
+  )
+endif()
+
 set(SRC_HEADERS
   device.h
   device_denoising.h
@@ -62,6 +68,12 @@ set(SRC_HEADERS
   device_split_kernel.h
   device_task.h
 )
+
+if(APPLE)
+  list(APPEND SRC_HEADERS
+    device_metal.h
+  )
+endif()
 
 set(LIB
   cycles_render
@@ -97,6 +109,9 @@ if(WITH_CYCLES_DEVICE_OPTIX)
 endif()
 if(WITH_CYCLES_DEVICE_MULTI)
   add_definitions(-DWITH_MULTI)
+endif()
+if(APPLE)
+  add_definitions(-DAPPLE)
 endif()
 
 include_directories(${INC})
