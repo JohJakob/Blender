@@ -17,6 +17,14 @@
 #ifndef __UTIL_MATH_H__
 #define __UTIL_MATH_H__
 
+#ifndef __device_space
+#define __device_space
+#endif // __device_space
+
+#ifndef __thread_space
+#define __thread_space
+#endif // __thread_space
+
 /* Math
  *
  * Basic math functions on scalar and vector types. This header is used by
@@ -26,11 +34,11 @@
 #  include <cmath>
 #endif
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 #  include <float.h>
 #  include <math.h>
 #  include <stdio.h>
-#endif /* __KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 #include "util/util_types.h"
 
@@ -166,7 +174,7 @@ ccl_device_inline float max4(float a, float b, float c, float d)
   return max(max(a, b), max(c, d));
 }
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 /* Int/Float conversion */
 
 ccl_device_inline int as_int(uint i)
@@ -238,7 +246,6 @@ ccl_device_inline float __uint_as_float(uint i)
   u.i = i;
   return u.f;
 }
-
 ccl_device_inline int4 __float4_as_int4(float4 f)
 {
 #  ifdef __KERNEL_SSE__
@@ -258,7 +265,7 @@ ccl_device_inline float4 __int4_as_float4(int4 i)
       __int_as_float(i.x), __int_as_float(i.y), __int_as_float(i.z), __int_as_float(i.w));
 #  endif
 }
-#endif /* __KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 /* Versions of functions which are safe for fast math. */
 ccl_device_inline bool isnan_safe(float f)
@@ -279,7 +286,7 @@ ccl_device_inline float ensure_finite(float v)
   return isfinite_safe(v) ? v : 0.0f;
 }
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline int clamp(int a, int mn, int mx)
 {
   return min(max(a, mn), mx);
@@ -311,12 +318,12 @@ ccl_device_inline float smoothstep(float edge0, float edge1, float x)
 
 #endif /* __KERNEL_OPENCL__ */
 
-#ifndef __KERNEL_CUDA__
+#if !defined(__KERNEL_CUDA__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float saturate(float a)
 {
   return clamp(a, 0.0f, 1.0f);
 }
-#endif /* __KERNEL_CUDA__ */
+#endif /* __KERNEL_CUDA__ && __KERNEL_METAL__ */
 
 ccl_device_inline int float_to_int(float f)
 {
@@ -333,11 +340,14 @@ ccl_device_inline int quick_floor_to_int(float x)
   return float_to_int(x) - ((x < 0) ? 1 : 0);
 }
 
+#ifndef __KERNEL_METAL__
 ccl_device_inline float floorfrac(float x, int *i)
 {
   *i = quick_floor_to_int(x);
   return x - *i;
 }
+
+#endif /* __KERNEL_METAL__ */
 
 ccl_device_inline int ceil_to_int(float f)
 {
@@ -451,7 +461,7 @@ CCL_NAMESPACE_END
 
 CCL_NAMESPACE_BEGIN
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 /* Interpolation */
 
 template<class A, class B> A lerp(const A &a, const A &b, const B &t)
@@ -459,11 +469,11 @@ template<class A, class B> A lerp(const A &a, const A &b, const B &t)
   return (A)(a * ((B)1 - t) + b * t);
 }
 
-#endif /* __KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 /* Triangle */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float triangle_area(const float3 &v1, const float3 &v2, const float3 &v3)
 #else
 ccl_device_inline float triangle_area(const float3 v1, const float3 v2, const float3 v3)
@@ -474,7 +484,7 @@ ccl_device_inline float triangle_area(const float3 v1, const float3 v2, const fl
 
 /* Orthonormal vectors */
 
-ccl_device_inline void make_orthonormals(const float3 N, float3 *a, float3 *b)
+ccl_device_inline void make_orthonormals(const float3 N, __thread_space float3 *a, __thread_space float3 *b)
 {
 #if 0
   if (fabsf(N.y) >= 0.999f) {

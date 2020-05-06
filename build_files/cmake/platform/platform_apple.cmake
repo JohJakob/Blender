@@ -188,7 +188,7 @@ endif()
 
 set(PLATFORM_CFLAGS "-pipe -funsigned-char")
 set(PLATFORM_LINKFLAGS
-  "-fexceptions -framework CoreServices -framework Foundation -framework IOKit -framework AppKit -framework Cocoa -framework Carbon -framework AudioUnit -framework AudioToolbox -framework CoreAudio -framework Metal -framework QuartzCore"
+  "-fexceptions -framework CoreServices -framework Foundation -framework IOKit -framework AppKit -framework Cocoa -framework Carbon -framework AudioUnit -framework AudioToolbox -framework CoreAudio -framework Metal -framework QuartzCore -framework MetalPerformanceShaders"
 )
 
 list(APPEND PLATFORM_LINKLIBS c++)

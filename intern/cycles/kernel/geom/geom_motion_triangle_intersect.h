@@ -32,8 +32,11 @@ CCL_NAMESPACE_BEGIN
  * a closer distance.
  */
 
-ccl_device_inline float3 motion_triangle_refine(
-    KernelGlobals *kg, ShaderData *sd, const Intersection *isect, const Ray *ray, float3 verts[3])
+ccl_device_inline float3 motion_triangle_refine(__device_space KernelGlobals *kg,
+                                                __thread_space ShaderData *sd,
+                                                __thread_space const Intersection *isect,
+                                                __thread_space const Ray *ray,
+                                                float3 verts[3])
 {
   float3 P = ray->P;
   float3 D = ray->D;
@@ -97,10 +100,10 @@ ccl_device_noinline
 ccl_device_inline
 #  endif
     float3
-    motion_triangle_refine_local(KernelGlobals *kg,
-                                 ShaderData *sd,
-                                 const Intersection *isect,
-                                 const Ray *ray,
+    motion_triangle_refine_local(__device_space KernelGlobals *kg,
+                                 __thread_space ShaderData *sd,
+                                 __thread_space const Intersection *isect,
+                                 __thread_space const Ray *ray,
                                  float3 verts[3])
 {
 #  ifdef __KERNEL_OPTIX__
@@ -160,8 +163,8 @@ ccl_device_inline
  * time and do a ray intersection with the resulting triangle.
  */
 
-ccl_device_inline bool motion_triangle_intersect(KernelGlobals *kg,
-                                                 Intersection *isect,
+ccl_device_inline bool motion_triangle_intersect(__device_space KernelGlobals *kg,
+                                                 __thread_space Intersection *isect,
                                                  float3 P,
                                                  float3 dir,
                                                  float time,
@@ -215,8 +218,8 @@ ccl_device_inline bool motion_triangle_intersect(KernelGlobals *kg,
  * Returns whether traversal should be stopped.
  */
 #ifdef __BVH_LOCAL__
-ccl_device_inline bool motion_triangle_intersect_local(KernelGlobals *kg,
-                                                       LocalIntersection *local_isect,
+ccl_device_inline bool motion_triangle_intersect_local(__device_space KernelGlobals *kg,
+                                                       __thread_space LocalIntersection *local_isect,
                                                        float3 P,
                                                        float3 dir,
                                                        float time,
@@ -224,7 +227,7 @@ ccl_device_inline bool motion_triangle_intersect_local(KernelGlobals *kg,
                                                        int local_object,
                                                        int prim_addr,
                                                        float tmax,
-                                                       uint *lcg_state,
+                                                       __thread_space uint *lcg_state,
                                                        int max_hits)
 {
   /* Only intersect with matching object, for instanced objects we
@@ -298,7 +301,7 @@ ccl_device_inline bool motion_triangle_intersect_local(KernelGlobals *kg,
   }
 
   /* Record intersection. */
-  Intersection *isect = &local_isect->hits[hit];
+  __thread_space Intersection *isect = &local_isect->hits[hit];
   isect->t = t;
   isect->u = u;
   isect->v = v;

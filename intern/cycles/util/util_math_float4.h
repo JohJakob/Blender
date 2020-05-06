@@ -27,7 +27,7 @@ CCL_NAMESPACE_BEGIN
  * Declaration.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float4 operator-(const float4 &a);
 ccl_device_inline float4 operator*(const float4 &a, const float4 &b);
 ccl_device_inline float4 operator*(const float4 &a, float f);
@@ -66,7 +66,7 @@ ccl_device_inline float4 clamp(const float4 &a, const float4 &mn, const float4 &
 ccl_device_inline float4 fabs(const float4 &a);
 ccl_device_inline float4 floor(const float4 &a);
 ccl_device_inline float4 mix(const float4 &a, const float4 &b, float t);
-#endif /* !__KERNEL_OPENCL__*/
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 ccl_device_inline float4 safe_divide_float4_float(const float4 a, const float b);
 
@@ -98,7 +98,7 @@ ccl_device_inline float4 reduce_add(const float4 &a);
  * Definition.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float4 operator-(const float4 &a)
 {
 #  ifdef __KERNEL_SSE__
@@ -380,7 +380,7 @@ ccl_device_inline float4 mix(const float4 &a, const float4 &b, float t)
   return a + t * (b - a);
 }
 
-#endif /* !__KERNEL_OPENCL__*/
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 #ifdef __KERNEL_SSE__
 template<size_t index_0, size_t index_1, size_t index_2, size_t index_3>

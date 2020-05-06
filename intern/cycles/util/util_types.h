@@ -18,7 +18,9 @@
 #define __UTIL_TYPES_H__
 
 #ifndef __KERNEL_OPENCL__
+#ifndef __KERNEL_METAL__
 #  include <stdlib.h>
+#endif
 #endif
 
 /* Standard Integer Types */

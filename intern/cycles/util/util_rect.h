@@ -54,7 +54,7 @@ ccl_device_inline int coord_to_local_index(int4 rect, int x, int y)
 
 /* Finds the coordinates of a pixel given by its row-major index in the rect,
  * and returns whether the pixel is inside it. */
-ccl_device_inline bool local_index_to_coord(int4 rect, int idx, int *x, int *y)
+ccl_device_inline bool local_index_to_coord(int4 rect, int idx, __device_space int *x, __device_space int *y)
 {
   int w = rect.z - rect.x;
   *x = (idx % w) + rect.x;

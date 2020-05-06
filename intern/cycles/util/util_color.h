@@ -24,6 +24,10 @@
 #  include "util/util_simd.h"
 #endif
 
+#ifndef __device_space
+#define __device_space
+#endif // __device_space
+
 CCL_NAMESPACE_BEGIN
 
 ccl_device uchar float_to_byte(float val)
@@ -275,7 +279,7 @@ ccl_device float4 color_srgb_to_linear_v4(float4 c)
 #endif
 }
 
-ccl_device float3 color_highlight_compress(float3 color, float3 *variance)
+ccl_device float3 color_highlight_compress(float3 color, __device_space float3 *variance)
 {
   color += make_float3(1.0f, 1.0f, 1.0f);
   if (variance) {

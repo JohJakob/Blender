@@ -30,7 +30,9 @@ typedef struct PatchHandle {
   int array_index, patch_index, vert_index;
 } PatchHandle;
 
-ccl_device_inline int patch_map_resolve_quadrant(float median, float *u, float *v)
+ccl_device_inline int patch_map_resolve_quadrant(float median,
+                                                 __thread_space float *u,
+                                                 __thread_space float *v)
 {
   int quadrant = -1;
 
@@ -60,7 +62,8 @@ ccl_device_inline int patch_map_resolve_quadrant(float median, float *u, float *
 /* retrieve PatchHandle from patch coords */
 
 ccl_device_inline PatchHandle
-patch_map_find_patch(KernelGlobals *kg, int object, int patch, float u, float v)
+patch_map_find_patch(__device_space KernelGlobals *kg,
+                     int object, int patch, float u, float v)
 {
   PatchHandle handle;
 
@@ -106,7 +109,7 @@ patch_map_find_patch(KernelGlobals *kg, int object, int patch, float u, float v)
   return handle;
 }
 
-ccl_device_inline void patch_eval_bspline_weights(float t, float *point, float *deriv)
+ccl_device_inline void patch_eval_bspline_weights(float t, __thread_space float *point, __thread_space float *deriv)
 {
   /* The four uniform cubic B-Spline basis functions evaluated at t */
   float inv_6 = 1.0f / 6.0f;
@@ -126,7 +129,7 @@ ccl_device_inline void patch_eval_bspline_weights(float t, float *point, float *
   deriv[3] = 0.5f * t2;
 }
 
-ccl_device_inline void patch_eval_adjust_boundary_weights(uint bits, float *s, float *t)
+ccl_device_inline void patch_eval_adjust_boundary_weights(uint bits, __thread_space float *s, __thread_space float *t)
 {
   int boundary = ((bits >> 8) & 0xf);
 
@@ -173,7 +176,7 @@ ccl_device_inline float patch_eval_param_fraction(uint patch_bits)
   }
 }
 
-ccl_device_inline void patch_eval_normalize_coords(uint patch_bits, float *u, float *v)
+ccl_device_inline void patch_eval_normalize_coords(uint patch_bits, __thread_space float *u, __thread_space float *v)
 {
   float frac = patch_eval_param_fraction(patch_bits);
 
@@ -191,8 +194,8 @@ ccl_device_inline void patch_eval_normalize_coords(uint patch_bits, float *u, fl
 
 /* retrieve patch control indices */
 
-ccl_device_inline int patch_eval_indices(KernelGlobals *kg,
-                                         const PatchHandle *handle,
+ccl_device_inline int patch_eval_indices(__device_space KernelGlobals *kg,
+                                         __thread_space const PatchHandle *handle,
                                          int channel,
                                          int indices[PATCH_MAX_CONTROL_VERTS])
 {
@@ -208,8 +211,8 @@ ccl_device_inline int patch_eval_indices(KernelGlobals *kg,
 
 /* evaluate patch basis functions */
 
-ccl_device_inline void patch_eval_basis(KernelGlobals *kg,
-                                        const PatchHandle *handle,
+ccl_device_inline void patch_eval_basis(__device_space KernelGlobals *kg,
+                                        __thread_space const PatchHandle *handle,
                                         float u,
                                         float v,
                                         float weights[PATCH_MAX_CONTROL_VERTS],
@@ -247,7 +250,7 @@ ccl_device_inline void patch_eval_basis(KernelGlobals *kg,
 
 /* generic function for evaluating indices and weights from patch coords */
 
-ccl_device_inline int patch_eval_control_verts(KernelGlobals *kg,
+ccl_device_inline int patch_eval_control_verts(__device_space KernelGlobals *kg,
                                                int object,
                                                int patch,
                                                float u,
@@ -269,15 +272,15 @@ ccl_device_inline int patch_eval_control_verts(KernelGlobals *kg,
 
 /* functions for evaluating attributes on patches */
 
-ccl_device float patch_eval_float(KernelGlobals *kg,
-                                  const ShaderData *sd,
+ccl_device float patch_eval_float(__device_space KernelGlobals *kg,
+                                  __thread_space const ShaderData *sd,
                                   int offset,
                                   int patch,
                                   float u,
                                   float v,
                                   int channel,
-                                  float *du,
-                                  float *dv)
+                                  __thread_space float *du,
+                                  __thread_space float *dv)
 {
   int indices[PATCH_MAX_CONTROL_VERTS];
   float weights[PATCH_MAX_CONTROL_VERTS];
@@ -306,15 +309,15 @@ ccl_device float patch_eval_float(KernelGlobals *kg,
   return val;
 }
 
-ccl_device float2 patch_eval_float2(KernelGlobals *kg,
-                                    const ShaderData *sd,
+ccl_device float2 patch_eval_float2(__device_space KernelGlobals *kg,
+                                    __thread_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,
                                     float v,
                                     int channel,
-                                    float2 *du,
-                                    float2 *dv)
+                                    __thread_space float2 *du,
+                                    __thread_space float2 *dv)
 {
   int indices[PATCH_MAX_CONTROL_VERTS];
   float weights[PATCH_MAX_CONTROL_VERTS];
@@ -343,15 +346,15 @@ ccl_device float2 patch_eval_float2(KernelGlobals *kg,
   return val;
 }
 
-ccl_device float3 patch_eval_float3(KernelGlobals *kg,
-                                    const ShaderData *sd,
+ccl_device float3 patch_eval_float3(__device_space KernelGlobals *kg,
+                                    __thread_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,
                                     float v,
                                     int channel,
-                                    float3 *du,
-                                    float3 *dv)
+                                    __thread_space float3 *du,
+                                    __thread_space float3 *dv)
 {
   int indices[PATCH_MAX_CONTROL_VERTS];
   float weights[PATCH_MAX_CONTROL_VERTS];
@@ -380,15 +383,15 @@ ccl_device float3 patch_eval_float3(KernelGlobals *kg,
   return val;
 }
 
-ccl_device float4 patch_eval_uchar4(KernelGlobals *kg,
-                                    const ShaderData *sd,
+ccl_device float4 patch_eval_uchar4(__device_space KernelGlobals *kg,
+                                    __thread_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,
                                     float v,
                                     int channel,
-                                    float4 *du,
-                                    float4 *dv)
+                                    __thread_space float4 *du,
+                                    __thread_space float4 *dv)
 {
   int indices[PATCH_MAX_CONTROL_VERTS];
   float weights[PATCH_MAX_CONTROL_VERTS];

@@ -160,7 +160,7 @@ ccl_device_inline int cmj_isqrt(int value)
 #  endif
 }
 
-ccl_device void cmj_sample_2D(int s, int N, int p, float *fx, float *fy)
+ccl_device void cmj_sample_2D(int s, int N, int p, __device_space float *fx, __device_space float *fy)
 {
   kernel_assert(s < N);
 

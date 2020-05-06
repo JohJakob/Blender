@@ -208,9 +208,22 @@ ccl_device_inline void kernel_set_buffer_info(KernelGlobals *kg)
 
 #endif /* __KERNEL_OPENCL__ */
 
+#ifdef __KERNEL_METAL__
+typedef struct KernelGlobals {
+  /* NOTE: Keep the size in sync with SHADOW_STACK_MAX_HITS. */
+  Intersection hits_stack[64];
+  constant KernelData *data;
+  #  define KERNEL_TEX(type, name) device type *name;
+  #  include "kernel/kernel_textures.h"
+} KernelGlobals;
+
+#define kernel_tex_fetch(t, index) kg->t[(index)]
+
+#endif // metal
+
 /* Interpolated lookup table access */
 
-ccl_device float lookup_table_read(KernelGlobals *kg, float x, int offset, int size)
+ccl_device float lookup_table_read(__device_space KernelGlobals *kg, float x, int offset, int size)
 {
   x = saturate(x) * (size - 1);
 
@@ -227,7 +240,7 @@ ccl_device float lookup_table_read(KernelGlobals *kg, float x, int offset, int s
 }
 
 ccl_device float lookup_table_read_2D(
-    KernelGlobals *kg, float x, float y, int offset, int xsize, int ysize)
+    __device_space KernelGlobals *kg, float x, float y, int offset, int xsize, int ysize)
 {
   y = saturate(y) * (ysize - 1);
 

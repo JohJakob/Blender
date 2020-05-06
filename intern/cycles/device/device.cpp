@@ -605,6 +605,15 @@ string Device::device_capabilities(uint mask)
   }
 #endif
 
+#ifdef APPLE
+  if (mask & DEVICE_MASK_METAL) {
+    if (device_metal_init()) {
+      capabilities += "\nApple Metal device capabilities:\n";
+      capabilities += device_metal_capabilities();
+    }
+  }
+#endif
+
   return capabilities;
 }
 

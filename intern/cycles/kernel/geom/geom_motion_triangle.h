@@ -29,10 +29,10 @@ CCL_NAMESPACE_BEGIN
 
 /* Time interpolation of vertex positions and normals */
 
-ccl_device_inline int find_attribute_motion(KernelGlobals *kg,
+ccl_device_inline int find_attribute_motion(__device_space KernelGlobals *kg,
                                             int object,
                                             uint id,
-                                            AttributeElement *elem)
+                                            __thread_space AttributeElement *elem)
 {
   /* todo: find a better (faster) solution for this, maybe store offset per object */
   uint attr_offset = object_attribute_map_offset(kg, object);
@@ -49,7 +49,7 @@ ccl_device_inline int find_attribute_motion(KernelGlobals *kg,
   return (attr_map.y == ATTR_ELEMENT_NONE) ? (int)ATTR_STD_NOT_FOUND : (int)attr_map.z;
 }
 
-ccl_device_inline void motion_triangle_verts_for_step(KernelGlobals *kg,
+ccl_device_inline void motion_triangle_verts_for_step(__device_space KernelGlobals *kg,
                                                       uint4 tri_vindex,
                                                       int offset,
                                                       int numverts,
@@ -76,7 +76,7 @@ ccl_device_inline void motion_triangle_verts_for_step(KernelGlobals *kg,
   }
 }
 
-ccl_device_inline void motion_triangle_normals_for_step(KernelGlobals *kg,
+ccl_device_inline void motion_triangle_normals_for_step(__device_space KernelGlobals *kg,
                                                         uint4 tri_vindex,
                                                         int offset,
                                                         int numverts,
@@ -104,7 +104,7 @@ ccl_device_inline void motion_triangle_normals_for_step(KernelGlobals *kg,
 }
 
 ccl_device_inline void motion_triangle_vertices(
-    KernelGlobals *kg, int object, int prim, float time, float3 verts[3])
+    __device_space KernelGlobals *kg, int object, int prim, float time, float3 verts[3])
 {
   /* get motion info */
   int numsteps, numverts;
@@ -134,7 +134,7 @@ ccl_device_inline void motion_triangle_vertices(
 }
 
 ccl_device_inline float3 motion_triangle_smooth_normal(
-    KernelGlobals *kg, float3 Ng, int object, int prim, float u, float v, float time)
+    __device_space KernelGlobals *kg, float3 Ng, int object, int prim, float u, float v, float time)
 {
   /* get motion info */
   int numsteps, numverts;

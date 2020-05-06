@@ -18,6 +18,9 @@
 #ifndef __KERNEL_COMPAT_OPTIX_H__
 #define __KERNEL_COMPAT_OPTIX_H__
 
+#define __device_space
+#define __thread_space
+
 #define OPTIX_DONT_INCLUDE_CUDA
 #include <optix.h>
 

@@ -28,6 +28,8 @@ CCL_NAMESPACE_BEGIN
 
 /* Half Floats */
 
+#ifndef __KERNEL_METAL__
+
 #ifdef __KERNEL_OPENCL__
 
 #  define float4_store_half(h, f, scale) vstore_half4(f *(scale), 0, h);
@@ -164,6 +166,14 @@ ccl_device_inline half float_to_half(float f)
 
 #endif
 
+#else
+inline void float4_store_half(device half *h, float4 f, float scale) {
+  h[0] = (half)(f.x * scale);
+  h[1] = (half)(f.y * scale);
+  h[2] = (half)(f.z * scale);
+  h[3] = (half)(f.w * scale);
+}
+#endif
 CCL_NAMESPACE_END
 
 #endif /* __UTIL_HALF_H__ */

@@ -27,7 +27,7 @@ CCL_NAMESPACE_BEGIN
  * Declaration.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float2 operator-(const float2 &a);
 ccl_device_inline float2 operator*(const float2 &a, const float2 &b);
 ccl_device_inline float2 operator*(const float2 &a, float f);
@@ -64,7 +64,7 @@ ccl_device_inline float2 fabs(const float2 &a);
 ccl_device_inline float2 as_float2(const float4 &a);
 ccl_device_inline float2 interp(const float2 &a, const float2 &b, float t);
 ccl_device_inline float2 floor(const float2 &a);
-#endif /* !__KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 ccl_device_inline float2 safe_divide_float2_float(const float2 a, const float b);
 
@@ -72,7 +72,7 @@ ccl_device_inline float2 safe_divide_float2_float(const float2 a, const float b)
  * Definition.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float2 operator-(const float2 &a)
 {
   return make_float2(-a.x, -a.y);
@@ -252,7 +252,7 @@ ccl_device_inline float2 floor(const float2 &a)
   return make_float2(floorf(a.x), floorf(a.y));
 }
 
-#endif /* !__KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 ccl_device_inline float2 safe_divide_float2_float(const float2 a, const float b)
 {

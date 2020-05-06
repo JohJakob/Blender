@@ -52,8 +52,11 @@ ccl_device_inline float3 curvepoint(float t, float3 p0, float3 p1, float3 p2, fl
 
 /* Reading attributes on various curve elements */
 
-ccl_device float curve_attribute_float(
-    KernelGlobals *kg, const ShaderData *sd, const AttributeDescriptor desc, float *dx, float *dy)
+ccl_device float curve_attribute_float(__device_space KernelGlobals *kg,
+                                       __thread_space const ShaderData *sd,
+                                       const AttributeDescriptor desc,
+                                       __thread_space float *dx,
+                                       __thread_space float *dy)
 {
   if (desc.element == ATTR_ELEMENT_CURVE) {
 #  ifdef __RAY_DIFFERENTIALS__
@@ -105,11 +108,11 @@ ccl_device float curve_attribute_float(
   }
 }
 
-ccl_device float2 curve_attribute_float2(KernelGlobals *kg,
-                                         const ShaderData *sd,
+ccl_device float2 curve_attribute_float2(__device_space KernelGlobals *kg,
+                                         __thread_space const ShaderData *sd,
                                          const AttributeDescriptor desc,
-                                         float2 *dx,
-                                         float2 *dy)
+                                         __thread_space float2 *dx,
+                                         __thread_space float2 *dy)
 {
   if (desc.element == ATTR_ELEMENT_CURVE) {
     /* idea: we can't derive any useful differentials here, but for tiled
@@ -165,11 +168,11 @@ ccl_device float2 curve_attribute_float2(KernelGlobals *kg,
   }
 }
 
-ccl_device float3 curve_attribute_float3(KernelGlobals *kg,
-                                         const ShaderData *sd,
+ccl_device float3 curve_attribute_float3(__device_space KernelGlobals *kg,
+                                         __thread_space const ShaderData *sd,
                                          const AttributeDescriptor desc,
-                                         float3 *dx,
-                                         float3 *dy)
+                                         __thread_space float3 *dx,
+                                         __thread_space float3 *dy)
 {
   if (desc.element == ATTR_ELEMENT_CURVE) {
     /* idea: we can't derive any useful differentials here, but for tiled
@@ -227,7 +230,7 @@ ccl_device float3 curve_attribute_float3(KernelGlobals *kg,
 
 /* Curve thickness */
 
-ccl_device float curve_thickness(KernelGlobals *kg, ShaderData *sd)
+ccl_device float curve_thickness(__device_space KernelGlobals *kg, __thread_space ShaderData *sd)
 {
   float r = 0.0f;
 
@@ -255,7 +258,7 @@ ccl_device float curve_thickness(KernelGlobals *kg, ShaderData *sd)
 /* Curve location for motion pass, linear interpolation between keys and
  * ignoring radius because we do the same for the motion keys */
 
-ccl_device float3 curve_motion_center_location(KernelGlobals *kg, ShaderData *sd)
+ccl_device float3 curve_motion_center_location(__device_space KernelGlobals *kg, __thread_space ShaderData *sd)
 {
   float4 curvedata = kernel_tex_fetch(__curves, sd->prim);
   int k0 = __float_as_int(curvedata.x) + PRIMITIVE_UNPACK_SEGMENT(sd->type);
@@ -271,7 +274,7 @@ ccl_device float3 curve_motion_center_location(KernelGlobals *kg, ShaderData *sd
 
 /* Curve tangent normal */
 
-ccl_device float3 curve_tangent_normal(KernelGlobals *kg, ShaderData *sd)
+ccl_device float3 curve_tangent_normal(__device_space KernelGlobals *kg, __thread_space ShaderData *sd)
 {
   float3 tgN = make_float3(0.0f, 0.0f, 0.0f);
 
@@ -291,12 +294,12 @@ ccl_device float3 curve_tangent_normal(KernelGlobals *kg, ShaderData *sd)
 
 /* Curve bounds utility function */
 
-ccl_device_inline void curvebounds(float *lower,
-                                   float *upper,
-                                   float *extremta,
-                                   float *extrema,
-                                   float *extremtb,
-                                   float *extremb,
+ccl_device_inline void curvebounds(__thread_space float *lower,
+                                   __thread_space float *upper,
+                                   __thread_space float *extremta,
+                                   __thread_space float *extrema,
+                                   __thread_space float *extremtb,
+                                   __thread_space float *extremb,
                                    float p0,
                                    float p1,
                                    float p2,

@@ -27,7 +27,7 @@ CCL_NAMESPACE_BEGIN
  * Declaration.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float3 operator-(const float3 &a);
 ccl_device_inline float3 operator*(const float3 &a, const float3 &b);
 ccl_device_inline float3 operator*(const float3 &a, const float f);
@@ -63,7 +63,7 @@ ccl_device_inline float3 rcp(const float3 &a);
 ccl_device_inline float3 sqrt(const float3 &a);
 ccl_device_inline float3 floor(const float3 &a);
 ccl_device_inline float3 ceil(const float3 &a);
-#endif /* !__KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 ccl_device_inline float min3(float3 a);
 ccl_device_inline float max3(float3 a);
@@ -75,8 +75,10 @@ ccl_device_inline float3 project(const float3 v, const float3 v_proj);
 
 ccl_device_inline float3 saturate3(float3 a);
 ccl_device_inline float3 safe_normalize(const float3 a);
+#ifndef __KERNEL_METAL__
 ccl_device_inline float3 normalize_len(const float3 a, float *t);
 ccl_device_inline float3 safe_normalize_len(const float3 a, float *t);
+#endif //metal
 ccl_device_inline float3 safe_divide_float3_float3(const float3 a, const float3 b);
 ccl_device_inline float3 safe_divide_float3_float(const float3 a, const float b);
 ccl_device_inline float3 interp(float3 a, float3 b, float t);
@@ -91,7 +93,7 @@ ccl_device_inline bool isequal_float3(const float3 a, const float3 b);
  * Definition.
  */
 
-#ifndef __KERNEL_OPENCL__
+#if !defined(__KERNEL_OPENCL__) && !defined(__KERNEL_METAL__)
 ccl_device_inline float3 operator-(const float3 &a)
 {
 #  ifdef __KERNEL_SSE__
@@ -338,7 +340,7 @@ ccl_device_inline float3 rcp(const float3 &a)
   return make_float3(1.0f / a.x, 1.0f / a.y, 1.0f / a.z);
 #  endif
 }
-#endif /* !__KERNEL_OPENCL__ */
+#endif /* __KERNEL_OPENCL__ && __KERNEL_METAL__ */
 
 ccl_device_inline float min3(float3 a)
 {
@@ -382,7 +384,7 @@ ccl_device_inline float3 saturate3(float3 a)
   return make_float3(saturate(a.x), saturate(a.y), saturate(a.z));
 }
 
-ccl_device_inline float3 normalize_len(const float3 a, float *t)
+ccl_device_inline float3 normalize_len(const float3 a, __thread_space float *t)
 {
   *t = len(a);
   float x = 1.0f / *t;
@@ -395,7 +397,7 @@ ccl_device_inline float3 safe_normalize(const float3 a)
   return (t != 0.0f) ? a * (1.0f / t) : a;
 }
 
-ccl_device_inline float3 safe_normalize_len(const float3 a, float *t)
+ccl_device_inline float3 safe_normalize_len(const float3 a, __device_space float *t)
 {
   *t = len(a);
   return (*t != 0.0f) ? a / (*t) : a;
@@ -444,7 +446,7 @@ ccl_device_inline float average(const float3 a)
 
 ccl_device_inline bool isequal_float3(const float3 a, const float3 b)
 {
-#ifdef __KERNEL_OPENCL__
+#if defined(__KERNEL_OPENCL__) || defined(__KERNEL_METAL__)
   return all(a == b);
 #else
   return a == b;
