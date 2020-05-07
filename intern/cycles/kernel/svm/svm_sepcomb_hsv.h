@@ -16,13 +16,13 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_combine_hsv(KernelGlobals *kg,
-                                     ShaderData *sd,
-                                     float *stack,
+ccl_device void svm_node_combine_hsv(__thread_space KernelGlobals *kg,
+                                     __thread_space ShaderData *sd,
+                                     __thread_space float *stack,
                                      uint hue_in,
                                      uint saturation_in,
                                      uint value_in,
-                                     int *offset)
+                                     __thread_space int *offset)
 {
   uint4 node1 = read_node(kg, offset);
   uint color_out = node1.y;
@@ -38,13 +38,13 @@ ccl_device void svm_node_combine_hsv(KernelGlobals *kg,
     stack_store_float3(stack, color_out, color);
 }
 
-ccl_device void svm_node_separate_hsv(KernelGlobals *kg,
-                                      ShaderData *sd,
-                                      float *stack,
+ccl_device void svm_node_separate_hsv(__thread_space KernelGlobals *kg,
+                                      __thread_space ShaderData *sd,
+                                      __thread_space float *stack,
                                       uint color_in,
                                       uint hue_out,
                                       uint saturation_out,
-                                      int *offset)
+                                      __thread_space int *offset)
 {
   uint4 node1 = read_node(kg, offset);
   uint value_out = node1.y;

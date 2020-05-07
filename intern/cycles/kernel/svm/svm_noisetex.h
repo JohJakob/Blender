@@ -55,8 +55,8 @@ ccl_device void noise_texture_1d(float co,
                                  float roughness,
                                  float distortion,
                                  bool color_is_needed,
-                                 float *value,
-                                 float3 *color)
+                                 __thread_space float *value,
+                                 __thread_space float3 *color)
 {
   float p = co;
   if (distortion != 0.0f) {
@@ -76,8 +76,8 @@ ccl_device void noise_texture_2d(float2 co,
                                  float roughness,
                                  float distortion,
                                  bool color_is_needed,
-                                 float *value,
-                                 float3 *color)
+                                 __thread_space float *value,
+                                 __thread_space float3 *color)
 {
   float2 p = co;
   if (distortion != 0.0f) {
@@ -98,8 +98,8 @@ ccl_device void noise_texture_3d(float3 co,
                                  float roughness,
                                  float distortion,
                                  bool color_is_needed,
-                                 float *value,
-                                 float3 *color)
+                                 __thread_space float *value,
+                                 __thread_space float3 *color)
 {
   float3 p = co;
   if (distortion != 0.0f) {
@@ -121,8 +121,8 @@ ccl_device void noise_texture_4d(float4 co,
                                  float roughness,
                                  float distortion,
                                  bool color_is_needed,
-                                 float *value,
-                                 float3 *color)
+                                 __thread_space float *value,
+                                 __thread_space float3 *color)
 {
   float4 p = co;
   if (distortion != 0.0f) {
@@ -140,13 +140,13 @@ ccl_device void noise_texture_4d(float4 co,
   }
 }
 
-ccl_device void svm_node_tex_noise(KernelGlobals *kg,
-                                   ShaderData *sd,
-                                   float *stack,
+ccl_device void svm_node_tex_noise(__thread_space KernelGlobals *kg,
+                                   __thread_space ShaderData *sd,
+                                   __thread_space float *stack,
                                    uint dimensions,
                                    uint offsets1,
                                    uint offsets2,
-                                   int *offset)
+                                   __thread_space int *offset)
 {
   uint vector_stack_offset, w_stack_offset, scale_stack_offset;
   uint detail_stack_offset, roughness_stack_offset, distortion_stack_offset;

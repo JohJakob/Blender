@@ -340,22 +340,24 @@ ccl_device float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, floa
 #define tanhf tanh
 
 #define ATTR_FALLTHROUGH
+#define ccl_loop_no_unroll
+#define ccl_optional_struct_init
+//#include "bvh/bvh.h"
 
+#ifdef __SHADER_RAYTRACE__
+#undef __SHADER_RAYTRACE__
+#endif
+
+#include "kernel/kernel_montecarlo.h"
 #include "kernel/kernel_projection.h"
-#include "kernel/geom/geom_triangle.h"
-#include "kernel/geom/geom_object.h"
-#include "kernel/geom/geom_attribute.h"
-#include "kernel/geom/geom_volume.h"
-#include "kernel/geom/geom_motion_curve.h"
-#include "kernel/geom/geom_curve.h"
-#include "kernel/geom/geom_patch.h"
-#include "kernel/geom/geom_subd_triangle.h"
-#include "kernel/geom/geom_primitive.h"
+
+#include "kernel/kernel_random.h"
+#include "kernel/geom/geom.h"
+#include "kernel/kernel_differential.h"
+#include "kernel/kernel_camera.h"
+
 #include "kernel/kernel_write_passes.h"
 #include "kernel/kernel_accumulate.h"
-#include "kernel/kernel_random.h"
-//#include "kernel/kernel_jitter.h"
-#include "kernel/kernel_montecarlo.h"
 #include "kernel/kernel_shader.h"
 #include "kernel/kernel_volume.h"
 #include "kernel/kernel_path_state.h"

@@ -18,13 +18,13 @@ CCL_NAMESPACE_BEGIN
 
 /* Mapping Node */
 
-ccl_device void svm_node_mapping(KernelGlobals *kg,
-                                 ShaderData *sd,
-                                 float *stack,
+ccl_device void svm_node_mapping(__thread_space KernelGlobals *kg,
+                                 __thread_space ShaderData *sd,
+                                 __thread_space float *stack,
                                  uint type,
                                  uint inputs_stack_offsets,
                                  uint result_stack_offset,
-                                 int *offset)
+                                 __thread_space int *offset)
 {
   uint vector_stack_offset, location_stack_offset, rotation_stack_offset, scale_stack_offset;
   svm_unpack_node_uchar4(inputs_stack_offsets,
@@ -45,7 +45,7 @@ ccl_device void svm_node_mapping(KernelGlobals *kg,
 /* Texture Mapping */
 
 ccl_device void svm_node_texture_mapping(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint vec_offset, uint out_offset, int *offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
 {
   float3 v = stack_load_float3(stack, vec_offset);
 
@@ -59,7 +59,7 @@ ccl_device void svm_node_texture_mapping(
 }
 
 ccl_device void svm_node_min_max(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint vec_offset, uint out_offset, int *offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
 {
   float3 v = stack_load_float3(stack, vec_offset);
 

@@ -28,7 +28,7 @@ ccl_device float sky_angle_between(float thetav, float phiv, float theta, float 
  * "A Practical Analytic Model for Daylight"
  * A. J. Preetham, Peter Shirley, Brian Smits
  */
-ccl_device float sky_perez_function(float *lam, float theta, float gamma)
+ccl_device float sky_perez_function(__thread_space float *lam, float theta, float gamma)
 {
   float ctheta = cosf(theta);
   float cgamma = cosf(gamma);
@@ -37,16 +37,16 @@ ccl_device float sky_perez_function(float *lam, float theta, float gamma)
          (1.0f + lam[2] * expf(lam[3] * gamma) + lam[4] * cgamma * cgamma);
 }
 
-ccl_device float3 sky_radiance_old(KernelGlobals *kg,
+ccl_device float3 sky_radiance_old(__thread_space KernelGlobals *kg,
                                    float3 dir,
                                    float sunphi,
                                    float suntheta,
                                    float radiance_x,
                                    float radiance_y,
                                    float radiance_z,
-                                   float *config_x,
-                                   float *config_y,
-                                   float *config_z)
+                                   __thread_space float *config_x,
+                                   __thread_space float *config_y,
+                                   __thread_space float *config_z)
 {
   /* convert vector to spherical coordinates */
   float2 spherical = direction_to_spherical(dir);
@@ -73,7 +73,7 @@ ccl_device float3 sky_radiance_old(KernelGlobals *kg,
  * "An Analytic Model for Full Spectral Sky-Dome Radiance"
  * Lukas Hosek, Alexander Wilkie
  */
-ccl_device float sky_radiance_internal(float *configuration, float theta, float gamma)
+ccl_device float sky_radiance_internal(__thread_space float *configuration, float theta, float gamma)
 {
   float ctheta = cosf(theta);
   float cgamma = cosf(gamma);
@@ -90,16 +90,16 @@ ccl_device float sky_radiance_internal(float *configuration, float theta, float 
           configuration[6] * mieM + configuration[7] * zenith);
 }
 
-ccl_device float3 sky_radiance_new(KernelGlobals *kg,
+ccl_device float3 sky_radiance_new(__thread_space KernelGlobals *kg,
                                    float3 dir,
                                    float sunphi,
                                    float suntheta,
                                    float radiance_x,
                                    float radiance_y,
                                    float radiance_z,
-                                   float *config_x,
-                                   float *config_y,
-                                   float *config_z)
+                                   __thread_space float *config_x,
+                                   __thread_space float *config_y,
+                                   __thread_space float *config_z)
 {
   /* convert vector to spherical coordinates */
   float2 spherical = direction_to_spherical(dir);
@@ -122,7 +122,7 @@ ccl_device float3 sky_radiance_new(KernelGlobals *kg,
 }
 
 ccl_device void svm_node_tex_sky(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node, int *offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   /* Define variables */
   float sunphi, suntheta, radiance_x, radiance_y, radiance_z;

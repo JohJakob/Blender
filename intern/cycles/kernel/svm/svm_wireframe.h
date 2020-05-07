@@ -35,7 +35,7 @@ CCL_NAMESPACE_BEGIN
 /* Wireframe Node */
 
 ccl_device_inline float wireframe(
-    KernelGlobals *kg, ShaderData *sd, float size, int pixel_size, float3 *P)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, float size, int pixel_size, __thread_space float3 *P)
 {
 #ifdef __HAIR__
   if (sd->prim != PRIM_NONE && sd->type & PRIMITIVE_ALL_TRIANGLE)
@@ -88,7 +88,7 @@ ccl_device_inline float wireframe(
   return 0.0f;
 }
 
-ccl_device void svm_node_wireframe(KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node)
+ccl_device void svm_node_wireframe(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint in_size = node.y;
   uint out_fac = node.z;

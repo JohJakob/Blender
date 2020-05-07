@@ -16,13 +16,13 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_math(KernelGlobals *kg,
-                              ShaderData *sd,
-                              float *stack,
+ccl_device void svm_node_math(__thread_space KernelGlobals *kg,
+                              __thread_space ShaderData *sd,
+                              __thread_space float *stack,
                               uint type,
                               uint inputs_stack_offsets,
                               uint result_stack_offset,
-                              int *offset)
+                              __thread_space int *offset)
 {
   uint a_stack_offset, b_stack_offset, c_stack_offset;
   svm_unpack_node_uchar3(inputs_stack_offsets, &a_stack_offset, &b_stack_offset, &c_stack_offset);
@@ -35,13 +35,13 @@ ccl_device void svm_node_math(KernelGlobals *kg,
   stack_store_float(stack, result_stack_offset, result);
 }
 
-ccl_device void svm_node_vector_math(KernelGlobals *kg,
-                                     ShaderData *sd,
-                                     float *stack,
+ccl_device void svm_node_vector_math(__thread_space KernelGlobals *kg,
+                                     __thread_space ShaderData *sd,
+                                     __thread_space float *stack,
                                      uint type,
                                      uint inputs_stack_offsets,
                                      uint outputs_stack_offsets,
-                                     int *offset)
+                                     __thread_space int *offset)
 {
   uint value_stack_offset, vector_stack_offset;
   uint a_stack_offset, b_stack_offset, scale_stack_offset;
