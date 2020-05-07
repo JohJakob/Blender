@@ -160,7 +160,7 @@ ccl_device_inline int cmj_isqrt(int value)
 #  endif
 }
 
-ccl_device void cmj_sample_2D(int s, int N, int p, __device_space float *fx, __device_space float *fy)
+ccl_device void cmj_sample_2D(int s, int N, int p, __thread_space float *fx, __thread_space float *fy)
 {
   kernel_assert(s < N);
 
@@ -195,7 +195,7 @@ ccl_device void cmj_sample_2D(int s, int N, int p, __device_space float *fx, __d
 }
 #endif
 
-ccl_device float pmj_sample_1D(KernelGlobals *kg, int sample, int rng_hash, int dimension)
+ccl_device float pmj_sample_1D(__thread_space KernelGlobals *kg, int sample, int rng_hash, int dimension)
 {
   /* Fallback to random */
   if (sample >= NUM_PMJ_SAMPLES) {
@@ -209,7 +209,7 @@ ccl_device float pmj_sample_1D(KernelGlobals *kg, int sample, int rng_hash, int 
   }
 }
 
-ccl_device float2 pmj_sample_2D(KernelGlobals *kg, int sample, int rng_hash, int dimension)
+ccl_device float2 pmj_sample_2D(__thread_space KernelGlobals *kg, int sample, int rng_hash, int dimension)
 {
   if (sample >= NUM_PMJ_SAMPLES) {
     const int p = rng_hash + dimension;

@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device float4 svm_image_texture(KernelGlobals *kg, int id, float x, float y, uint flags)
+ccl_device float4 svm_image_texture(__thread_space KernelGlobals *kg, int id, float x, float y, uint flags)
 {
   if (id == -1) {
     return make_float4(
@@ -45,7 +45,7 @@ ccl_device_inline float3 texco_remap_square(float3 co)
 }
 
 ccl_device void svm_node_tex_image(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node, int *offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint co_offset, out_offset, alpha_offset, flags;
 
@@ -116,7 +116,7 @@ ccl_device void svm_node_tex_image(
     stack_store_float(stack, alpha_offset, f.w);
 }
 
-ccl_device void svm_node_tex_image_box(KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node)
+ccl_device void svm_node_tex_image_box(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   /* get object space normal */
   float3 N = sd->N;
@@ -215,9 +215,9 @@ ccl_device void svm_node_tex_image_box(KernelGlobals *kg, ShaderData *sd, float 
     stack_store_float(stack, alpha_offset, f.w);
 }
 
-ccl_device void svm_node_tex_environment(KernelGlobals *kg,
-                                         ShaderData *sd,
-                                         float *stack,
+ccl_device void svm_node_tex_environment(__thread_space KernelGlobals *kg,
+                                         __thread_space ShaderData *sd,
+                                         __thread_space float *stack,
                                          uint4 node)
 {
   uint id = node.y;

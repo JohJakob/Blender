@@ -38,11 +38,11 @@ typedef struct VolumeShaderCoefficients {
 #ifdef __VOLUME__
 
 /* evaluate shader to get extinction coefficient at P */
-ccl_device_inline bool volume_shader_extinction_sample(KernelGlobals *kg,
-                                                       ShaderData *sd,
-                                                       ccl_addr_space PathState *state,
+ccl_device_inline bool volume_shader_extinction_sample(__thread_space KernelGlobals *kg,
+                                                       __thread_space ShaderData *sd,
+                                                       __thread_space ccl_addr_space PathState *state,
                                                        float3 P,
-                                                       float3 *extinction)
+                                                       __thread_space float3 *extinction)
 {
   sd->P = P;
   shader_eval_volume(kg, sd, state, state->volume_stack, PATH_RAY_SHADOW);
@@ -58,11 +58,11 @@ ccl_device_inline bool volume_shader_extinction_sample(KernelGlobals *kg,
 }
 
 /* evaluate shader to get absorption, scattering and emission at P */
-ccl_device_inline bool volume_shader_sample(KernelGlobals *kg,
-                                            ShaderData *sd,
-                                            ccl_addr_space PathState *state,
+ccl_device_inline bool volume_shader_sample(__thread_space KernelGlobals *kg,
+                                            __thread_space ShaderData *sd,
+                                            __thread_space ccl_addr_space PathState *state,
                                             float3 P,
-                                            VolumeShaderCoefficients *coeff)
+                                            __thread_space VolumeShaderCoefficients *coeff)
 {
   sd->P = P;
   shader_eval_volume(kg, sd, state, state->volume_stack, state->flag);
@@ -78,7 +78,7 @@ ccl_device_inline bool volume_shader_sample(KernelGlobals *kg,
 
   if (sd->flag & SD_SCATTER) {
     for (int i = 0; i < sd->num_closure; i++) {
-      const ShaderClosure *sc = &sd->closure[i];
+      __thread_space const ShaderClosure *sc = &sd->closure[i];
 
       if (CLOSURE_IS_VOLUME(sc->type))
         coeff->sigma_s += sc->weight;
@@ -107,7 +107,7 @@ ccl_device float kernel_volume_channel_get(float3 value, int channel)
 
 #ifdef __VOLUME__
 
-ccl_device float volume_stack_step_size(KernelGlobals *kg, ccl_addr_space VolumeStack *stack)
+ccl_device float volume_stack_step_size(__thread_space KernelGlobals *kg, __thread_space ccl_addr_space VolumeStack *stack)
 {
   float step_size = FLT_MAX;
 
@@ -142,7 +142,7 @@ ccl_device float volume_stack_step_size(KernelGlobals *kg, ccl_addr_space Volume
   return step_size;
 }
 
-ccl_device int volume_stack_sampling_method(KernelGlobals *kg, VolumeStack *stack)
+ccl_device int volume_stack_sampling_method(__thread_space KernelGlobals *kg, __thread_space VolumeStack *stack)
 {
   if (kernel_data.integrator.num_all_lights == 0)
     return 0;
@@ -172,12 +172,12 @@ ccl_device int volume_stack_sampling_method(KernelGlobals *kg, VolumeStack *stac
   return method;
 }
 
-ccl_device_inline void kernel_volume_step_init(KernelGlobals *kg,
-                                               ccl_addr_space PathState *state,
+ccl_device_inline void kernel_volume_step_init(__thread_space KernelGlobals *kg,
+                                               __thread_space ccl_addr_space PathState *state,
                                                const float object_step_size,
                                                float t,
-                                               float *step_size,
-                                               float *step_offset)
+                                               __thread_space float *step_size,
+                                               __thread_space float *step_offset)
 {
   const int max_steps = kernel_data.integrator.volume_max_steps;
   float step = min(object_step_size, t);
@@ -198,11 +198,11 @@ ccl_device_inline void kernel_volume_step_init(KernelGlobals *kg,
 
 /* homogeneous volume: assume shader evaluation at the starts gives
  * the extinction coefficient for the entire line segment */
-ccl_device void kernel_volume_shadow_homogeneous(KernelGlobals *kg,
-                                                 ccl_addr_space PathState *state,
-                                                 Ray *ray,
-                                                 ShaderData *sd,
-                                                 float3 *throughput)
+ccl_device void kernel_volume_shadow_homogeneous(__thread_space KernelGlobals *kg,
+                                                 __thread_space ccl_addr_space PathState *state,
+                                                 __thread_space Ray *ray,
+                                                 __thread_space ShaderData *sd,
+                                                 __thread_space float3 *throughput)
 {
   float3 sigma_t = make_float3(0.0f, 0.0f, 0.0f);
 
@@ -212,11 +212,11 @@ ccl_device void kernel_volume_shadow_homogeneous(KernelGlobals *kg,
 
 /* heterogeneous volume: integrate stepping through the volume until we
  * reach the end, get absorbed entirely, or run out of iterations */
-ccl_device void kernel_volume_shadow_heterogeneous(KernelGlobals *kg,
-                                                   ccl_addr_space PathState *state,
-                                                   Ray *ray,
-                                                   ShaderData *sd,
-                                                   float3 *throughput,
+ccl_device void kernel_volume_shadow_heterogeneous(__thread_space KernelGlobals *kg,
+                                                   __thread_space ccl_addr_space PathState *state,
+                                                   __thread_space Ray *ray,
+                                                   __thread_space ShaderData *sd,
+                                                   __thread_space float3 *throughput,
                                                    const float object_step_size)
 {
   float3 tp = *throughput;
@@ -274,11 +274,11 @@ ccl_device void kernel_volume_shadow_heterogeneous(KernelGlobals *kg,
 
 /* get the volume attenuation over line segment defined by ray, with the
  * assumption that there are no surfaces blocking light between the endpoints */
-ccl_device_noinline void kernel_volume_shadow(KernelGlobals *kg,
-                                              ShaderData *shadow_sd,
-                                              ccl_addr_space PathState *state,
-                                              Ray *ray,
-                                              float3 *throughput)
+ccl_device_noinline void kernel_volume_shadow(__thread_space KernelGlobals *kg,
+                                              __thread_space ShaderData *shadow_sd,
+                                              __thread_space ccl_addr_space PathState *state,
+                                              __thread_space Ray *ray,
+                                              __thread_space float3 *throughput)
 {
   shader_setup_from_volume(kg, shadow_sd, ray);
 
@@ -294,7 +294,7 @@ ccl_device_noinline void kernel_volume_shadow(KernelGlobals *kg,
 /* Equi-angular sampling as in:
  * "Importance Sampling Techniques for Path Tracing in Participating Media" */
 
-ccl_device float kernel_volume_equiangular_sample(Ray *ray, float3 light_P, float xi, float *pdf)
+ccl_device float kernel_volume_equiangular_sample(__thread_space Ray *ray, float3 light_P, float xi, __thread_space float *pdf)
 {
   float t = ray->t;
 
@@ -316,7 +316,7 @@ ccl_device float kernel_volume_equiangular_sample(Ray *ray, float3 light_P, floa
   return min(t, delta + t_); /* min is only for float precision errors */
 }
 
-ccl_device float kernel_volume_equiangular_pdf(Ray *ray, float3 light_P, float sample_t)
+ccl_device float kernel_volume_equiangular_pdf(__thread_space Ray *ray, float3 light_P, float sample_t)
 {
   float delta = dot((light_P - ray->P), ray->D);
   float D = safe_sqrtf(len_squared(light_P - ray->P) - delta * delta);
@@ -341,7 +341,7 @@ ccl_device float kernel_volume_equiangular_pdf(Ray *ray, float3 light_P, float s
 /* Distance sampling */
 
 ccl_device float kernel_volume_distance_sample(
-    float max_t, float3 sigma_t, int channel, float xi, float3 *transmittance, float3 *pdf)
+    float max_t, float3 sigma_t, int channel, float xi, __thread_space float3 *transmittance, __thread_space float3 *pdf)
 {
   /* xi is [0, 1[ so log(0) should never happen, division by zero is
    * avoided because sample_sigma_t > 0 when SD_SCATTER is set */
@@ -373,7 +373,7 @@ ccl_device float3 kernel_volume_distance_pdf(float max_t, float3 sigma_t, float 
 
 /* Emission */
 
-ccl_device float3 kernel_volume_emission_integrate(VolumeShaderCoefficients *coeff,
+ccl_device float3 kernel_volume_emission_integrate(__thread_space VolumeShaderCoefficients *coeff,
                                                    int closure_flag,
                                                    float3 transmittance,
                                                    float t)
@@ -402,7 +402,7 @@ ccl_device float3 kernel_volume_emission_integrate(VolumeShaderCoefficients *coe
 ccl_device int kernel_volume_sample_channel(float3 albedo,
                                             float3 throughput,
                                             float rand,
-                                            float3 *pdf)
+                                            __thread_space float3 *pdf)
 {
   /* Sample color channel proportional to throughput and single scattering
    * albedo, to significantly reduce noise with many bounce, following:
@@ -439,12 +439,12 @@ ccl_device int kernel_volume_sample_channel(float3 albedo,
 /* homogeneous volume: assume shader evaluation at the start gives
  * the volume shading coefficient for the entire line segment */
 ccl_device VolumeIntegrateResult
-kernel_volume_integrate_homogeneous(KernelGlobals *kg,
-                                    ccl_addr_space PathState *state,
-                                    Ray *ray,
-                                    ShaderData *sd,
-                                    PathRadiance *L,
-                                    ccl_addr_space float3 *throughput,
+kernel_volume_integrate_homogeneous(__thread_space KernelGlobals *kg,
+                                    __thread_space ccl_addr_space PathState *state,
+                                    __thread_space Ray *ray,
+                                    __thread_space ShaderData *sd,
+                                    __thread_space PathRadiance *L,
+                                    __thread_space ccl_addr_space float3 *throughput,
                                     bool probalistic_scatter)
 {
   VolumeShaderCoefficients coeff ccl_optional_struct_init;
@@ -547,12 +547,12 @@ kernel_volume_integrate_homogeneous(KernelGlobals *kg,
  * iterations. this does probabilistically scatter or get transmitted through
  * for path tracing where we don't want to branch. */
 ccl_device VolumeIntegrateResult
-kernel_volume_integrate_heterogeneous_distance(KernelGlobals *kg,
-                                               ccl_addr_space PathState *state,
-                                               Ray *ray,
-                                               ShaderData *sd,
-                                               PathRadiance *L,
-                                               ccl_addr_space float3 *throughput,
+kernel_volume_integrate_heterogeneous_distance(__thread_space KernelGlobals *kg,
+                                               __thread_space ccl_addr_space PathState *state,
+                                               __thread_space Ray *ray,
+                                               __thread_space ShaderData *sd,
+                                               __thread_space PathRadiance *L,
+                                               __thread_space ccl_addr_space float3 *throughput,
                                                const float object_step_size)
 {
   float3 tp = *throughput;

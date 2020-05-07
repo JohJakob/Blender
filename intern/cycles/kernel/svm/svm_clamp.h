@@ -18,13 +18,13 @@ CCL_NAMESPACE_BEGIN
 
 /* Clamp Node */
 
-ccl_device void svm_node_clamp(KernelGlobals *kg,
-                               ShaderData *sd,
-                               float *stack,
+ccl_device void svm_node_clamp(__thread_space KernelGlobals *kg,
+                               __thread_space ShaderData *sd,
+                               __thread_space float *stack,
                                uint value_stack_offset,
                                uint parameters_stack_offsets,
                                uint result_stack_offset,
-                               int *offset)
+                               __thread_space int *offset)
 {
   uint min_stack_offset, max_stack_offset, type;
   svm_unpack_node_uchar3(parameters_stack_offsets, &min_stack_offset, &max_stack_offset, &type);

@@ -29,7 +29,7 @@ CCL_NAMESPACE_BEGIN
 
 /* Return position normalized to 0..1 in mesh bounds */
 
-ccl_device_inline float3 volume_normalized_position(__device_space KernelGlobals *kg,
+ccl_device_inline float3 volume_normalized_position(__thread_space KernelGlobals *kg,
                                                     __thread_space const ShaderData *sd,
                                                     float3 P)
 {
@@ -47,7 +47,7 @@ ccl_device_inline float3 volume_normalized_position(__device_space KernelGlobals
   return P;
 }
 
-ccl_device float volume_attribute_float(__device_space KernelGlobals *kg,
+ccl_device float volume_attribute_float(__thread_space KernelGlobals *kg,
                                         __thread_space const ShaderData *sd,
                                         const AttributeDescriptor desc)
 {
@@ -62,7 +62,7 @@ ccl_device float volume_attribute_float(__device_space KernelGlobals *kg,
   return average(float4_to_float3(r));
 }
 
-ccl_device float3 volume_attribute_float3(__device_space KernelGlobals *kg,
+ccl_device float3 volume_attribute_float3(__thread_space KernelGlobals *kg,
                                           __thread_space const ShaderData *sd,
                                           const AttributeDescriptor desc)
 {

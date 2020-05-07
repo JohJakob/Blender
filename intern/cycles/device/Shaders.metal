@@ -107,6 +107,7 @@ inline float lgammaf(float x) {
 #define kernel_assert
 #define kernel_tex_array(tex) (kg->tex)
 
+#include "util/util_transform.h"
 #include "util/util_atomic.h"
 #include "kernel/kernel_math.h"
 #include "kernel/kernel_types.h"
@@ -163,9 +164,9 @@ constexpr sampler s(coord::normalized,
                     filter::linear);
 
 /* Fast bicubic texture lookup using 4 bilinear lookups, adapted from CUDA samples. */
-template<typename T>
+template<typename T, typename U>
 ccl_device T
-kernel_tex_image_interp_bicubic(thread const TextureInfo &info, texture2d<T> tex, float x, float y)
+kernel_tex_image_interp_bicubic(constant const TextureInfo &info, texture2d<U> tex, float x, float y)
 {
   x = (x * info.width) - 0.5f;
   y = (y * info.height) - 0.5f;
@@ -187,9 +188,9 @@ kernel_tex_image_interp_bicubic(thread const TextureInfo &info, texture2d<T> tex
 }
 
 /* Fast tricubic texture lookup using 8 trilinear lookups. */
-template<typename T>
+template<typename T, typename U>
 ccl_device T kernel_tex_image_interp_bicubic_3d(
-    thread const TextureInfo &info, texture3d<T> tex, float x, float y, float z)
+    constant const TextureInfo &info, texture3d<U> tex, float x, float y, float z)
 {
   x = (x * info.width) - 0.5f;
   y = (y * info.height) - 0.5f;
@@ -222,89 +223,155 @@ ccl_device T kernel_tex_image_interp_bicubic_3d(
                 g1y * (g0x * tex.sample(s, float3(x0, y1, z1)) + g1x * tex.sample(s, float3(x1, y1, z1))));
 }
 
-ccl_device float4 kernel_tex_image_interp(device KernelGlobals *kg, int id, float x, float y)
+
+
+ccl_device float4 kernel_tex_image_interp_3d(thread KernelGlobals *kg,
+                                             int id,
+                                             float3 P,
+                                             InterpolationType interp)
 {
-  device const TextureInfo &info = kernel_tex_fetch(__texture_info, id);
-  texture2d<float> tex = as_type<texture2d<float>>(info.data);
+    const constant TextureInfo &info = kg->textureInfo[id];
 
-  /* float4, byte4, ushort4 and half4 */
-  const int texture_type = kernel_tex_type(id);
-  if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
-      texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
+    if (info.use_transform_3d) {
+        Transform tf = info.transform_3d;
+        P = transform_point(&tf, P);
+    }
 
-    if (info.interpolation == INTERPOLATION_CUBIC) {
-      return kernel_tex_image_interp_bicubic<float4>(info, tex, x, y);
+    const float x = P.x;
+    const float y = P.y;
+    const float z = P.z;
+
+    constexpr sampler s(coord::pixel,
+                        address::clamp_to_zero,
+                        filter::nearest);
+
+    const constant texture3d<float> &tex = *info.data3d;
+    uint interpolation = (interp == INTERPOLATION_NONE) ? info.interpolation : interp;
+
+    const int texture_type = info.data_type;
+    if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
+        texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
+      if (interpolation == INTERPOLATION_CUBIC) {
+        return kernel_tex_image_interp_bicubic_3d<float4, float>(info, tex, x, y, z);
+      }
+      else {
+          return tex.sample(s, P);
+      }
     }
     else {
-      return tex.sample(s, float2(x, y));
-    }
-  }
-  /* float, byte and half */
-  else {
-    float f;
+      float f;
 
-    if (info.interpolation == INTERPOLATION_CUBIC) {
-      f = kernel_tex_image_interp_bicubic<float>(info, tex, x, y);
-    }
-    else {
-      f = tex.sample(s, float2(x, y));
+      if (interpolation == INTERPOLATION_CUBIC) {
+        f = kernel_tex_image_interp_bicubic_3d<float, float>(info, tex, x, y, z);
+      }
+      else {
+          f = tex.sample(s, P).x;
+      }
+
+      return make_float4(f, f, f, 1.0f);
     }
 
-    return make_float4(f, f, f, 1.0f);
-  }
 }
 
-ccl_device float4 kernel_tex_image_interp_3d(
-    device KernelGlobals *kg, int id, float x, float y, float z, InterpolationType interp)
-{
-  const TextureInfo &info = kernel_tex_fetch(__texture_info, id);
-  CUtexObject tex = (CUtexObject)info.data;
-  uint interpolation = (interp == INTERPOLATION_NONE) ? info.interpolation : interp;
+ccl_device float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x, float y) {
 
-  const int texture_type = kernel_tex_type(id);
-  if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
-      texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
-    if (interpolation == INTERPOLATION_CUBIC) {
-      return kernel_tex_image_interp_bicubic_3d<float4>(info, tex, x, y, z);
+    const constant TextureInfo &info = kg->textureInfo[id];
+    const constant texture2d<float> &tex = *info.data2d;
+
+    float2 P = float2(x, y);
+
+    /* float4, byte4, ushort4 and half4 */
+    const int texture_type = info.data_type;
+    if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
+        texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
+        if (info.interpolation == INTERPOLATION_CUBIC) {
+            return kernel_tex_image_interp_bicubic<float4, float>(info, tex, x, y);
+        }
+        else {
+            return tex.sample(s, P);
+        }
     }
+    /* float, byte and half */
     else {
-      return tex3D<float4>(tex, x, y, z);
-    }
-  }
-  else {
-    float f;
+        float f;
 
-    if (interpolation == INTERPOLATION_CUBIC) {
-      f = kernel_tex_image_interp_bicubic_3d<float>(info, tex, x, y, z);
-    }
-    else {
-      f = tex3D<float>(tex, x, y, z);
-    }
+        if (info.interpolation == INTERPOLATION_CUBIC) {
+            f = kernel_tex_image_interp_bicubic<float, float>(info, tex, x, y);
+        }
+        else {
+            f = tex.sample(s, P).x;
+        }
 
-    return make_float4(f, f, f, 1.0f);
-  }
+        return make_float4(f, f, f, 1.0f);
+    }
 }
 
-#include "kernel/kernel_film.h"
-#include "kernel/kernel_path.h"
-#include "kernel/kernel_path_branched.h"
+//
+//#include "kernel/kernel_film.h"
+//#include "kernel/kernel_path.h"
+//#include "kernel/kernel_path_branched.h"
+//#include "kernel/kernel_bake.h"
+//#include "kernel/kernel_work_stealing.h"
+//
+//kernel void
+//path_trace(device WorkTile* tile,
+//           device uint *total_work_size,
+//           uint2 grid_size [[grid_size]],
+//           uint2 thread_position [[thread_position_in_grid]]) {
+//  uint thread_index = thread_position.y * grid_size.x + thread_position.x;
+//
+//  bool thread_is_active = thread_index < *total_work_size;
+//
+//  uint x, y, sample;
+//  KernelGlobals kg;
+//  if (thread_is_active) {
+//    get_work_pixel(tile, work_index, &x, &y, &sample);
+//
+//
+//  }
+//}
+
+#define ccl_device_noinline_cpu
+#define ccl_static_constant constant
+#define tanf tan
+#define atanf atan
+#define sinhf sinh
+#define coshf cosh
+#define tanhf tanh
+
+#define ATTR_FALLTHROUGH
+
+#include "kernel/kernel_projection.h"
+#include "kernel/geom/geom_triangle.h"
+#include "kernel/geom/geom_object.h"
+#include "kernel/geom/geom_attribute.h"
+#include "kernel/geom/geom_volume.h"
+#include "kernel/geom/geom_motion_curve.h"
+#include "kernel/geom/geom_curve.h"
+#include "kernel/geom/geom_patch.h"
+#include "kernel/geom/geom_subd_triangle.h"
+#include "kernel/geom/geom_primitive.h"
+#include "kernel/kernel_write_passes.h"
+#include "kernel/kernel_accumulate.h"
+#include "kernel/kernel_random.h"
+//#include "kernel/kernel_jitter.h"
+#include "kernel/kernel_montecarlo.h"
+#include "kernel/kernel_shader.h"
+#include "kernel/kernel_volume.h"
+#include "kernel/kernel_path_state.h"
 #include "kernel/kernel_bake.h"
-#include "kernel/kernel_work_stealing.h"
 
-kernel void
-path_trace(device WorkTile* tile,
-           device uint *total_work_size,
-           uint2 grid_size [[grid_size]],
-           uint2 thread_position [[thread_position_in_grid]]) {
-  uint thread_index = thread_position.y * grid_size.x + thread_position.x;
+kernel void kernel_metal_background(device uint4 *input,
+                                    device float4 *output,
+                                    device int *type,
+                                    device int *filterType,
+                                    uint2 grid_size [[grid_size]],
+                                    uint2 thread_position [[thread_position_in_grid]]) {
+    uint x = thread_position.x;
 
-  bool thread_is_active = thread_index < *total_work_size;
-
-  uint x, y, sample;
-  KernelGlobals kg;
-  if (thread_is_active) {
-    get_work_pixel(tile, work_index, &x, &y, &sample);
-
-
-  }
+    if (x < grid_size.x) {
+        // do stuff
+        KernelGlobals kg;
+        kernel_bake_evaluate(&kg, input, output, (ShaderEvalType)*type, *filterType, x, 0, 0);
+    }
 }

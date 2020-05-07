@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Attribute Node */
 
 ccl_device AttributeDescriptor svm_node_attr_init(
-    KernelGlobals *kg, ShaderData *sd, uint4 node, NodeAttributeType *type, uint *out_offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, uint4 node, __thread_space NodeAttributeType *type, __thread_space uint *out_offset)
 {
   *out_offset = node.z;
   *type = (NodeAttributeType)node.w;
@@ -44,7 +44,7 @@ ccl_device AttributeDescriptor svm_node_attr_init(
   return desc;
 }
 
-ccl_device void svm_node_attr(KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node)
+ccl_device void svm_node_attr(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   NodeAttributeType type = NODE_ATTR_FLOAT;
   uint out_offset = 0;
@@ -89,7 +89,7 @@ ccl_device void svm_node_attr(KernelGlobals *kg, ShaderData *sd, float *stack, u
   }
 }
 
-ccl_device void svm_node_attr_bump_dx(KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node)
+ccl_device void svm_node_attr_bump_dx(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   NodeAttributeType type = NODE_ATTR_FLOAT;
   uint out_offset = 0;
@@ -138,7 +138,7 @@ ccl_device void svm_node_attr_bump_dx(KernelGlobals *kg, ShaderData *sd, float *
   }
 }
 
-ccl_device void svm_node_attr_bump_dy(KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node)
+ccl_device void svm_node_attr_bump_dy(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   NodeAttributeType type = NODE_ATTR_FLOAT;
   uint out_offset = 0;

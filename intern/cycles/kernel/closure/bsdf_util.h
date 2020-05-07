@@ -38,17 +38,17 @@ CCL_NAMESPACE_BEGIN
 ccl_device float fresnel_dielectric(float eta,
                                     const float3 N,
                                     const float3 I,
-                                    float3 *R,
-                                    float3 *T,
+                                    __thread_space float3 *R,
+                                    __thread_space float3 *T,
 #ifdef __RAY_DIFFERENTIALS__
                                     const float3 dIdx,
                                     const float3 dIdy,
-                                    float3 *dRdx,
-                                    float3 *dRdy,
-                                    float3 *dTdx,
-                                    float3 *dTdy,
+                                    __thread_space float3 *dRdx,
+                                    __thread_space float3 *dRdy,
+                                    __thread_space float3 *dTdx,
+                                    __thread_space float3 *dTdy,
 #endif
-                                    bool *is_inside)
+                                    __thread_space bool *is_inside)
 {
   float cos = dot(N, I), neta;
   float3 Nn;

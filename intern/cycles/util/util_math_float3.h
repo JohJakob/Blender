@@ -70,7 +70,9 @@ ccl_device_inline float max3(float3 a);
 ccl_device_inline float len(const float3 a);
 ccl_device_inline float len_squared(const float3 a);
 
+#ifndef __KERNEL_METAL__
 ccl_device_inline float3 reflect(const float3 incident, const float3 normal);
+#endif
 ccl_device_inline float3 project(const float3 v, const float3 v_proj);
 
 ccl_device_inline float3 saturate3(float3 a);
@@ -366,11 +368,13 @@ ccl_device_inline float len_squared(const float3 a)
   return dot(a, a);
 }
 
+#ifndef __KERNEL_METAL__
 ccl_device_inline float3 reflect(const float3 incident, const float3 normal)
 {
   float3 unit_normal = normalize(normal);
   return incident - 2.0f * unit_normal * dot(incident, unit_normal);
 }
+#endif // metal
 
 ccl_device_inline float3 project(const float3 v, const float3 v_proj)
 {
@@ -397,7 +401,7 @@ ccl_device_inline float3 safe_normalize(const float3 a)
   return (t != 0.0f) ? a * (1.0f / t) : a;
 }
 
-ccl_device_inline float3 safe_normalize_len(const float3 a, __device_space float *t)
+ccl_device_inline float3 safe_normalize_len(const float3 a, __thread_space float *t)
 {
   *t = len(a);
   return (*t != 0.0f) ? a / (*t) : a;

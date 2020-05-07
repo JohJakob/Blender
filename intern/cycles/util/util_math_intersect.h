@@ -26,8 +26,8 @@ ccl_device bool ray_sphere_intersect(float3 ray_P,
                                      float ray_t,
                                      float3 sphere_P,
                                      float sphere_radius,
-                                     __device_space float3 *isect_P,
-                                     __device_space float *isect_t)
+                                     __thread_space float3 *isect_P,
+                                     __thread_space float *isect_t)
 {
   const float3 d = sphere_P - ray_P;
   const float radiussq = sphere_radius * sphere_radius;
@@ -60,8 +60,8 @@ ccl_device bool ray_aligned_disk_intersect(float3 ray_P,
                                            float ray_t,
                                            float3 disk_P,
                                            float disk_radius,
-                                           __device_space float3 *isect_P,
-                                           __device_space float *isect_t)
+                                           __thread_space float3 *isect_P,
+                                           __thread_space float *isect_t)
 {
   /* Aligned disk normal. */
   float disk_t;
@@ -207,10 +207,10 @@ ccl_device bool ray_quad_intersect(float3 ray_P,
                                    float3 quad_u,
                                    float3 quad_v,
                                    float3 quad_n,
-                                   __device_space float3 *isect_P,
-                                   __device_space float *isect_t,
-                                   __device_space float *isect_u,
-                                   __device_space float *isect_v,
+                                   __thread_space float3 *isect_P,
+                                   __thread_space float *isect_t,
+                                   __thread_space float *isect_u,
+                                   __thread_space float *isect_v,
                                    bool ellipse)
 {
   /* Perform intersection test. */

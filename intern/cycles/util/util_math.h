@@ -17,9 +17,9 @@
 #ifndef __UTIL_MATH_H__
 #define __UTIL_MATH_H__
 
-#ifndef __device_space
-#define __device_space
-#endif // __device_space
+#ifndef __thread_space
+#define __thread_space
+#endif // __thread_space
 
 #ifndef __thread_space
 #define __thread_space
@@ -340,14 +340,11 @@ ccl_device_inline int quick_floor_to_int(float x)
   return float_to_int(x) - ((x < 0) ? 1 : 0);
 }
 
-#ifndef __KERNEL_METAL__
-ccl_device_inline float floorfrac(float x, int *i)
+ccl_device_inline float floorfrac(float x, __thread_space int *i)
 {
   *i = quick_floor_to_int(x);
   return x - *i;
 }
-
-#endif /* __KERNEL_METAL__ */
 
 ccl_device_inline int ceil_to_int(float f)
 {

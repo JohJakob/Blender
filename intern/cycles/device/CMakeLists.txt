@@ -56,6 +56,7 @@ endif()
 if(APPLE)
   list(APPEND SRC
     device_metal.mm
+    Shaders.metal
   )
 endif()
 

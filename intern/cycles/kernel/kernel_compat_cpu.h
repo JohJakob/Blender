@@ -19,7 +19,7 @@
 
 #define __KERNEL_CPU__
 
-#define __device_space
+#define __thread_space
 #define __thread_space
 
 /* Release kernel has too much false-positive maybe-uninitialized warnings,

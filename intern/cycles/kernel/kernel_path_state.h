@@ -16,12 +16,12 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline void path_state_init(KernelGlobals *kg,
-                                       ShaderData *stack_sd,
-                                       ccl_addr_space PathState *state,
+ccl_device_inline void path_state_init(__thread_space KernelGlobals *kg,
+                                       __thread_space ShaderData *stack_sd,
+                                       __thread_space ccl_addr_space PathState *state,
                                        uint rng_hash,
                                        int sample,
-                                       ccl_addr_space Ray *ray)
+                                       __thread_space ccl_addr_space Ray *ray)
 {
   state->flag = PATH_RAY_CAMERA | PATH_RAY_MIS_SKIP | PATH_RAY_TRANSPARENT_BACKGROUND;
 
@@ -69,8 +69,8 @@ ccl_device_inline void path_state_init(KernelGlobals *kg,
 #endif
 }
 
-ccl_device_inline void path_state_next(KernelGlobals *kg,
-                                       ccl_addr_space PathState *state,
+ccl_device_inline void path_state_next(__thread_space KernelGlobals *kg,
+                                       __thread_space ccl_addr_space PathState *state,
                                        int label)
 {
   /* ray through transparent keeps same flags from previous ray and is
@@ -169,7 +169,7 @@ ccl_device_inline void path_state_next(KernelGlobals *kg,
 }
 
 #ifdef __VOLUME__
-ccl_device_inline bool path_state_volume_next(KernelGlobals *kg, ccl_addr_space PathState *state)
+ccl_device_inline bool path_state_volume_next(__thread_space KernelGlobals *kg, __thread_space ccl_addr_space PathState *state)
 {
   /* For volume bounding meshes we pass through without counting transparent
    * bounces, only sanity check in case self intersection gets us stuck. */
@@ -187,8 +187,8 @@ ccl_device_inline bool path_state_volume_next(KernelGlobals *kg, ccl_addr_space 
 }
 #endif
 
-ccl_device_inline uint path_state_ray_visibility(KernelGlobals *kg,
-                                                 ccl_addr_space PathState *state)
+ccl_device_inline uint path_state_ray_visibility(__thread_space KernelGlobals *kg,
+                                                 __thread_space ccl_addr_space PathState *state)
 {
   uint flag = state->flag & PATH_RAY_ALL_VISIBILITY;
 
@@ -202,8 +202,8 @@ ccl_device_inline uint path_state_ray_visibility(KernelGlobals *kg,
   return flag;
 }
 
-ccl_device_inline float path_state_continuation_probability(KernelGlobals *kg,
-                                                            ccl_addr_space PathState *state,
+ccl_device_inline float path_state_continuation_probability(__thread_space KernelGlobals *kg,
+                                                            __thread_space ccl_addr_space PathState *state,
                                                             const float3 throughput)
 {
   if (state->flag & PATH_RAY_TERMINATE_IMMEDIATE) {
@@ -241,7 +241,7 @@ ccl_device_inline float path_state_continuation_probability(KernelGlobals *kg,
 }
 
 /* TODO(DingTo): Find more meaningful name for this */
-ccl_device_inline void path_state_modify_bounce(ccl_addr_space PathState *state, bool increase)
+ccl_device_inline void path_state_modify_bounce(__thread_space ccl_addr_space PathState *state, bool increase)
 {
   /* Modify bounce temporarily for shader eval */
   if (increase)
@@ -250,7 +250,7 @@ ccl_device_inline void path_state_modify_bounce(ccl_addr_space PathState *state,
     state->bounce -= 1;
 }
 
-ccl_device_inline bool path_state_ao_bounce(KernelGlobals *kg, ccl_addr_space PathState *state)
+ccl_device_inline bool path_state_ao_bounce(__thread_space KernelGlobals *kg, __thread_space ccl_addr_space PathState *state)
 {
   if (state->bounce <= kernel_data.integrator.ao_bounces) {
     return false;
@@ -260,7 +260,7 @@ ccl_device_inline bool path_state_ao_bounce(KernelGlobals *kg, ccl_addr_space Pa
   return (bounce > kernel_data.integrator.ao_bounces);
 }
 
-ccl_device_inline void path_state_branch(ccl_addr_space PathState *state,
+ccl_device_inline void path_state_branch(__thread_space ccl_addr_space PathState *state,
                                          int branch,
                                          int num_branches)
 {

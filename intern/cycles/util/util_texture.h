@@ -92,7 +92,12 @@ typedef enum ExtensionType {
 
 typedef struct TextureInfo {
   /* Pointer, offset or texture depending on device. */
+#ifndef __KERNEL_METAL__
   uint64_t data;
+#else
+    constant texture3d<float> *data3d;
+    constant texture2d<float> *data2d;
+#endif
   /* Data Type */
   uint data_type;
   /* Buffer number for OpenCL. */

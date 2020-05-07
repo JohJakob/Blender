@@ -443,7 +443,7 @@ ccl_device_inline void transform_compose(__thread_space Transform *tfm, thread c
 }
 
 #else
-ccl_device_inline void transform_compose(__device_space Transform *tfm, __device_space const DecomposedTransform *decomp)
+ccl_device_inline void transform_compose(__thread_space Transform *tfm, __thread_space const DecomposedTransform *decomp)
 {
   /* rotation */
   float q0, q1, q2, q3, qda, qdb, qdc, qaa, qab, qac, qbb, qbc, qcc;

@@ -25,9 +25,9 @@ CCL_NAMESPACE_BEGIN
  * Lookup of attributes is different between OSL and SVM, as OSL is ustring
  * based while for SVM we use integer ids. */
 
-ccl_device_inline uint subd_triangle_patch(__device_space KernelGlobals *kg, __thread_space const ShaderData *sd);
+ccl_device_inline uint subd_triangle_patch(__thread_space KernelGlobals *kg, __thread_space const ShaderData *sd);
 
-ccl_device_inline uint attribute_primitive_type(__device_space KernelGlobals *kg, __thread_space const ShaderData *sd)
+ccl_device_inline uint attribute_primitive_type(__thread_space KernelGlobals *kg, __thread_space const ShaderData *sd)
 {
   if ((sd->type & PRIMITIVE_ALL_TRIANGLE) && subd_triangle_patch(kg, sd) != ~0) {
     return ATTR_PRIM_SUBD;
@@ -46,12 +46,12 @@ ccl_device_inline AttributeDescriptor attribute_not_found()
 
 /* Find attribute based on ID */
 
-ccl_device_inline uint object_attribute_map_offset(__device_space KernelGlobals *kg, int object)
+ccl_device_inline uint object_attribute_map_offset(__thread_space KernelGlobals *kg, int object)
 {
   return kernel_tex_fetch(__objects, object).attribute_map_offset;
 }
 
-ccl_device_inline AttributeDescriptor find_attribute(__device_space KernelGlobals *kg,
+ccl_device_inline AttributeDescriptor find_attribute(__thread_space KernelGlobals *kg,
                                                      __thread_space const ShaderData *sd,
                                                      uint id)
 {
@@ -90,7 +90,7 @@ ccl_device_inline AttributeDescriptor find_attribute(__device_space KernelGlobal
 
 /* Transform matrix attribute on meshes */
 
-ccl_device Transform primitive_attribute_matrix(__device_space KernelGlobals *kg,
+ccl_device Transform primitive_attribute_matrix(__thread_space KernelGlobals *kg,
                                                 __thread_space const ShaderData *sd,
                                                 const AttributeDescriptor desc)
 {

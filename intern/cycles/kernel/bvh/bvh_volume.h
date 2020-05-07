@@ -43,9 +43,9 @@ ccl_device
 #else
 ccl_device_inline
 #endif
-    bool BVH_FUNCTION_FULL_NAME(BVH)(KernelGlobals *kg,
-                                     const Ray *ray,
-                                     Intersection *isect,
+    bool BVH_FUNCTION_FULL_NAME(BVH)(__thread_space KernelGlobals *kg,
+                                     __thread_space const Ray *ray,
+                                     __thread_space Intersection *isect,
                                      const uint visibility)
 {
   /* todo:
@@ -299,9 +299,9 @@ ccl_device_inline
   return (isect->prim != PRIM_NONE);
 }
 
-ccl_device_inline bool BVH_FUNCTION_NAME(KernelGlobals *kg,
-                                         const Ray *ray,
-                                         Intersection *isect,
+ccl_device_inline bool BVH_FUNCTION_NAME(__thread_space KernelGlobals *kg,
+                                         __thread_space const Ray *ray,
+                                         __thread_space Intersection *isect,
                                          const uint visibility)
 {
   switch (kernel_data.bvh.bvh_layout) {

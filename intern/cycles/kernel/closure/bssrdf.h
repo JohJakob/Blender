@@ -62,7 +62,7 @@ ccl_device float bssrdf_gaussian_pdf(const float radius, float r)
   return bssrdf_gaussian_eval(radius, r) * (1.0f / (area_truncated));
 }
 
-ccl_device void bssrdf_gaussian_sample(const float radius, float xi, float *r, float *h)
+ccl_device void bssrdf_gaussian_sample(const float radius, float xi, __thread_space float *r, __thread_space float *h)
 {
   /* xi = integrate (2*pi*r * exp(-r*r/(2*v)))/(2*pi*v)) = -exp(-r^2/(2*v))
    * r = sqrt(-2*v*logf(xi)) */
@@ -165,7 +165,7 @@ ccl_device_forceinline float bssrdf_cubic_quintic_root_find(float xi)
 }
 
 ccl_device void bssrdf_cubic_sample(
-    const float radius, const float sharpness, float xi, float *r, float *h)
+    const float radius, const float sharpness, float xi, __thread_space float *r, __thread_space float *h)
 {
   float Rm = radius;
   float r_ = bssrdf_cubic_quintic_root_find(xi);
@@ -207,7 +207,7 @@ ccl_device_inline float3 bssrdf_burley_compatible_mfp(float3 r)
   return 0.25f * M_1_PI_F * r;
 }
 
-ccl_device void bssrdf_burley_setup(Bssrdf *bssrdf)
+ccl_device void bssrdf_burley_setup(__thread_space Bssrdf *bssrdf)
 {
   /* Mean free path length. */
   const float3 l = bssrdf_burley_compatible_mfp(bssrdf->radius);
@@ -284,7 +284,7 @@ ccl_device_forceinline float bssrdf_burley_root_find(float xi)
   return r;
 }
 
-ccl_device void bssrdf_burley_sample(const float d, float xi, float *r, float *h)
+ccl_device void bssrdf_burley_sample(const float d, float xi, __thread_space float *r, __thread_space float *h)
 {
   const float Rm = BURLEY_TRUNCATE * d;
   const float r_ = bssrdf_burley_root_find(xi * BURLEY_TRUNCATE_CDF) * d;
@@ -314,7 +314,7 @@ ccl_device float bssrdf_none_pdf(const float radius, float r)
   return bssrdf_none_eval(radius, r) / area;
 }
 
-ccl_device void bssrdf_none_sample(const float radius, float xi, float *r, float *h)
+ccl_device void bssrdf_none_sample(const float radius, float xi, __thread_space float *r, __thread_space float *h)
 {
   /* xi = integrate (2*pi*r)/(pi*Rm*Rm) = r^2/Rm^2
    * r = sqrt(xi)*Rm */
@@ -329,9 +329,9 @@ ccl_device void bssrdf_none_sample(const float radius, float xi, float *r, float
 
 /* Generic */
 
-ccl_device_inline Bssrdf *bssrdf_alloc(ShaderData *sd, float3 weight)
+ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__thread_space ShaderData *sd, float3 weight)
 {
-  Bssrdf *bssrdf = (Bssrdf *)closure_alloc(sd, sizeof(Bssrdf), CLOSURE_NONE_ID, weight);
+  __thread_space Bssrdf *bssrdf = (__thread_space Bssrdf *)closure_alloc(sd, sizeof(Bssrdf), CLOSURE_NONE_ID, weight);
 
   if (bssrdf == NULL) {
     return NULL;
@@ -342,7 +342,7 @@ ccl_device_inline Bssrdf *bssrdf_alloc(ShaderData *sd, float3 weight)
   return (sample_weight >= CLOSURE_WEIGHT_CUTOFF) ? bssrdf : NULL;
 }
 
-ccl_device int bssrdf_setup(ShaderData *sd, Bssrdf *bssrdf, ClosureType type)
+ccl_device int bssrdf_setup(__thread_space ShaderData *sd, __thread_space Bssrdf *bssrdf, ClosureType type)
 {
   int flag = 0;
   int bssrdf_channels = 3;
@@ -375,7 +375,7 @@ ccl_device int bssrdf_setup(ShaderData *sd, Bssrdf *bssrdf, ClosureType type)
       float roughness = bssrdf->roughness;
       float3 N = bssrdf->N;
 
-      PrincipledDiffuseBsdf *bsdf = (PrincipledDiffuseBsdf *)bsdf_alloc(
+      __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)bsdf_alloc(
           sd, sizeof(PrincipledDiffuseBsdf), diffuse_weight);
 
       if (bsdf) {
@@ -388,7 +388,7 @@ ccl_device int bssrdf_setup(ShaderData *sd, Bssrdf *bssrdf, ClosureType type)
     else
 #endif /* __PRINCIPLED__ */
     {
-      DiffuseBsdf *bsdf = (DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), diffuse_weight);
+      __thread_space DiffuseBsdf *bsdf = (__thread_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), diffuse_weight);
 
       if (bsdf) {
         bsdf->type = CLOSURE_BSDF_BSSRDF_ID;
@@ -422,9 +422,9 @@ ccl_device int bssrdf_setup(ShaderData *sd, Bssrdf *bssrdf, ClosureType type)
   return flag;
 }
 
-ccl_device void bssrdf_sample(const ShaderClosure *sc, float xi, float *r, float *h)
+ccl_device void bssrdf_sample(__thread_space const ShaderClosure *sc, float xi, __thread_space float *r, __thread_space float *h)
 {
-  const Bssrdf *bssrdf = (const Bssrdf *)sc;
+  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
   float radius;
 
   /* Sample color channel and reuse random number. Only a subset of channels
@@ -458,7 +458,7 @@ ccl_device void bssrdf_sample(const ShaderClosure *sc, float xi, float *r, float
   }
 }
 
-ccl_device float bssrdf_channel_pdf(const Bssrdf *bssrdf, float radius, float r)
+ccl_device float bssrdf_channel_pdf(__thread_space const Bssrdf *bssrdf, float radius, float r)
 {
   if (radius == 0.0f) {
     return 0.0f;
@@ -475,18 +475,18 @@ ccl_device float bssrdf_channel_pdf(const Bssrdf *bssrdf, float radius, float r)
   }
 }
 
-ccl_device_forceinline float3 bssrdf_eval(const ShaderClosure *sc, float r)
+ccl_device_forceinline float3 bssrdf_eval(__thread_space const ShaderClosure *sc, float r)
 {
-  const Bssrdf *bssrdf = (const Bssrdf *)sc;
+  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
 
   return make_float3(bssrdf_channel_pdf(bssrdf, bssrdf->radius.x, r),
                      bssrdf_channel_pdf(bssrdf, bssrdf->radius.y, r),
                      bssrdf_channel_pdf(bssrdf, bssrdf->radius.z, r));
 }
 
-ccl_device_forceinline float bssrdf_pdf(const ShaderClosure *sc, float r)
+ccl_device_forceinline float bssrdf_pdf(__thread_space const ShaderClosure *sc, float r)
 {
-  const Bssrdf *bssrdf = (const Bssrdf *)sc;
+  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
   float3 pdf = bssrdf_eval(sc, r);
 
   return (pdf.x + pdf.y + pdf.z) / bssrdf->channels;

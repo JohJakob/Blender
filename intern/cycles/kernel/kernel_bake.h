@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 #ifdef __BAKING__
 
 ccl_device_inline void compute_light_pass(
-    KernelGlobals *kg, ShaderData *sd, PathRadiance *L, uint rng_hash, int pass_filter, int sample)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space PathRadiance *L, uint rng_hash, int pass_filter, int sample)
 {
   kernel_assert(kernel_data.film.use_light_pass);
 
@@ -225,7 +225,7 @@ ccl_device float3 kernel_bake_evaluate_direct_indirect(KernelGlobals *kg,
   return out;
 }
 
-ccl_device void kernel_bake_evaluate(KernelGlobals *kg,
+ccl_device void kernel_bake_evaluate(__thread_space KernelGlobals *kg,
                                      ccl_global uint4 *input,
                                      ccl_global float4 *output,
                                      ShaderEvalType type,

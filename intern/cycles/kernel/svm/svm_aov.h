@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline bool svm_node_aov_check(ccl_addr_space PathState *state,
+ccl_device_inline bool svm_node_aov_check(__thread_space ccl_addr_space PathState *state,
                                           ccl_global float *buffer)
 {
   int path_flag = state->flag;
@@ -27,7 +27,7 @@ ccl_device_inline bool svm_node_aov_check(ccl_addr_space PathState *state,
 }
 
 ccl_device void svm_node_aov_color(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node, ccl_global float *buffer)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, ccl_global float *buffer)
 {
   float3 val = stack_load_float3(stack, node.y);
 
@@ -38,7 +38,7 @@ ccl_device void svm_node_aov_color(
 }
 
 ccl_device void svm_node_aov_value(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint4 node, ccl_global float *buffer)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, ccl_global float *buffer)
 {
   float val = stack_load_float(stack, node.y);
 

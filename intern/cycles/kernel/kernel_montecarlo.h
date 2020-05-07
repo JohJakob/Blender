@@ -47,7 +47,7 @@ ccl_device void to_unit_disk(__thread_space float *x, __thread_space float *y)
 
 /* return an orthogonal tangent and bitangent given a normal and tangent that
  * may not be exactly orthogonal */
-ccl_device void make_orthonormals_tangent(const float3 N, const float3 T, __device_space float3 *a, __device_space float3 *b)
+ccl_device void make_orthonormals_tangent(const float3 N, const float3 T, __thread_space float3 *a, __thread_space float3 *b)
 {
   *b = normalize(cross(N, T));
   *a = cross(*b, N);
@@ -55,7 +55,7 @@ ccl_device void make_orthonormals_tangent(const float3 N, const float3 T, __devi
 
 /* sample direction with cosine weighted distributed in hemisphere */
 ccl_device_inline void sample_cos_hemisphere(
-    const float3 N, float randu, float randv, __device_space float3 *omega_in, __device_space float *pdf)
+    const float3 N, float randu, float randv, __thread_space float3 *omega_in, __thread_space float *pdf)
 {
   to_unit_disk(&randu, &randv);
   float costheta = sqrtf(max(1.0f - randu * randu - randv * randv, 0.0f));
@@ -67,7 +67,7 @@ ccl_device_inline void sample_cos_hemisphere(
 
 /* sample direction uniformly distributed in hemisphere */
 ccl_device_inline void sample_uniform_hemisphere(
-    const float3 N, float randu, float randv, __device_space float3 *omega_in, __device_space float *pdf)
+    const float3 N, float randu, float randv, __thread_space float3 *omega_in, __thread_space float *pdf)
 {
   float z = randu;
   float r = sqrtf(max(0.0f, 1.0f - z * z));
@@ -83,7 +83,7 @@ ccl_device_inline void sample_uniform_hemisphere(
 
 /* sample direction uniformly distributed in cone */
 ccl_device_inline void sample_uniform_cone(
-    const float3 N, float angle, float randu, float randv, __device_space float3 *omega_in, __device_space float *pdf)
+    const float3 N, float angle, float randu, float randv, __thread_space float3 *omega_in, __thread_space float *pdf)
 {
   float z = cosf(angle * randu);
   float r = sqrtf(max(0.0f, 1.0f - z * z));

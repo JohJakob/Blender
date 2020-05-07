@@ -37,42 +37,42 @@ CCL_NAMESPACE_BEGIN
 
 /* REFRACTION */
 
-ccl_device int bsdf_refraction_setup(MicrofacetBsdf *bsdf)
+ccl_device int bsdf_refraction_setup(__thread_space MicrofacetBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_REFRACTION_ID;
   return SD_BSDF;
 }
 
-ccl_device float3 bsdf_refraction_eval_reflect(const ShaderClosure *sc,
+ccl_device float3 bsdf_refraction_eval_reflect(__thread_space const ShaderClosure *sc,
                                                const float3 I,
                                                const float3 omega_in,
-                                               float *pdf)
+                                               __thread_space float *pdf)
 {
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_refraction_eval_transmit(const ShaderClosure *sc,
+ccl_device float3 bsdf_refraction_eval_transmit(__thread_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
-                                                float *pdf)
+                                                __thread_space float *pdf)
 {
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_refraction_sample(const ShaderClosure *sc,
+ccl_device int bsdf_refraction_sample(__thread_space const ShaderClosure *sc,
                                       float3 Ng,
                                       float3 I,
                                       float3 dIdx,
                                       float3 dIdy,
                                       float randu,
                                       float randv,
-                                      float3 *eval,
-                                      float3 *omega_in,
-                                      float3 *domega_in_dx,
-                                      float3 *domega_in_dy,
-                                      float *pdf)
+                                      __thread_space float3 *eval,
+                                      __thread_space float3 *omega_in,
+                                      __thread_space float3 *domega_in_dx,
+                                      __thread_space float3 *domega_in_dy,
+                                      __thread_space float *pdf)
 {
-  const MicrofacetBsdf *bsdf = (const MicrofacetBsdf *)sc;
+  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
   float m_eta = bsdf->ior;
   float3 N = bsdf->N;
 

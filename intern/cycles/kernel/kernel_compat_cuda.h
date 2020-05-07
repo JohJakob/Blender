@@ -17,7 +17,7 @@
 #ifndef __KERNEL_COMPAT_CUDA_H__
 #define __KERNEL_COMPAT_CUDA_H__
 
-#define __device_space
+#define __thread_space
 #define __thread_space
 
 #define __KERNEL_GPU__

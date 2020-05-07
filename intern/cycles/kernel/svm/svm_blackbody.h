@@ -35,7 +35,7 @@ CCL_NAMESPACE_BEGIN
 /* Blackbody Node */
 
 ccl_device void svm_node_blackbody(
-    KernelGlobals *kg, ShaderData *sd, float *stack, uint temperature_offset, uint col_offset)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint temperature_offset, uint col_offset)
 {
   /* Input */
   float temperature = stack_load_float(stack, temperature_offset);

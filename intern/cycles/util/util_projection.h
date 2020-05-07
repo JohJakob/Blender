@@ -54,7 +54,7 @@ ccl_device_inline float3 transform_perspective(const __thread_space ProjectionTr
   return (w != 0.0f) ? c / w : make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device_inline float3 transform_perspective_direction(const __device_space ProjectionTransform *t,
+ccl_device_inline float3 transform_perspective_direction(const __thread_space ProjectionTransform *t,
                                                          const float3 a)
 {
   float3 c = make_float3(a.x * t->x.x + a.y * t->x.y + a.z * t->x.z,
