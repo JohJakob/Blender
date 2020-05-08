@@ -342,25 +342,34 @@ ccl_device float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, floa
 #define ATTR_FALLTHROUGH
 #define ccl_loop_no_unroll
 #define ccl_optional_struct_init
-//#include "bvh/bvh.h"
 
 #ifdef __SHADER_RAYTRACE__
 #undef __SHADER_RAYTRACE__
 #endif
 
+#define __KERNEL_OPTIX__
+
+//#include "bvh/bvh.h"
+
+#undef __KERNEL_OPTIX__
+
+//#undef __VOLUME__
+
 #include "kernel/kernel_montecarlo.h"
 #include "kernel/kernel_projection.h"
+#include "kernel/kernel_path.h"
 
-#include "kernel/kernel_random.h"
-#include "kernel/geom/geom.h"
-#include "kernel/kernel_differential.h"
-#include "kernel/kernel_camera.h"
+#undef __BRANCHED_PATH__
+//#include "kernel/kernel_random.h"
+//#include "kernel/geom/geom.h"
+//#include "kernel/kernel_differential.h"
+//#include "kernel/kernel_camera.h"
 
-#include "kernel/kernel_write_passes.h"
-#include "kernel/kernel_accumulate.h"
-#include "kernel/kernel_shader.h"
-#include "kernel/kernel_volume.h"
-#include "kernel/kernel_path_state.h"
+//#include "kernel/kernel_write_passes.h"
+//#include "kernel/kernel_accumulate.h"
+//#include "kernel/kernel_shader.h"
+//#include "kernel/kernel_volume.h"
+//#include "kernel/kernel_path_state.h"
 #include "kernel/kernel_bake.h"
 
 kernel void kernel_metal_background(device uint4 *input,

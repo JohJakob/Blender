@@ -693,12 +693,12 @@ kernel_volume_integrate_heterogeneous_distance(__thread_space KernelGlobals *kg,
  * between the endpoints. distance sampling is used to decide if we will
  * scatter or not. */
 ccl_device_noinline_cpu VolumeIntegrateResult
-kernel_volume_integrate(KernelGlobals *kg,
-                        ccl_addr_space PathState *state,
-                        ShaderData *sd,
-                        Ray *ray,
-                        PathRadiance *L,
-                        ccl_addr_space float3 *throughput,
+kernel_volume_integrate(__thread_space KernelGlobals *kg,
+                        __thread_space ccl_addr_space PathState *state,
+                        __thread_space ShaderData *sd,
+                        __thread_space Ray *ray,
+                        __thread_space PathRadiance *L,
+                        __thread_space ccl_addr_space float3 *throughput,
                         float step_size)
 {
   shader_setup_from_volume(kg, sd, ray);
@@ -733,7 +733,7 @@ typedef struct VolumeStep {
 
 typedef struct VolumeSegment {
   VolumeStep stack_step; /* stack storage for homogeneous step, to avoid malloc */
-  VolumeStep *steps;     /* recorded steps */
+  __thread_space VolumeStep *steps;     /* recorded steps */
   int numsteps;          /* number of steps */
   int closure_flag;      /* accumulated closure flags from all steps */
 
@@ -931,15 +931,15 @@ ccl_device void kernel_volume_decoupled_free(KernelGlobals *kg, VolumeSegment *s
  * marching.
  *
  * function is expected to return VOLUME_PATH_SCATTERED when probalistic_scatter is false */
-ccl_device VolumeIntegrateResult kernel_volume_decoupled_scatter(KernelGlobals *kg,
-                                                                 PathState *state,
-                                                                 Ray *ray,
-                                                                 ShaderData *sd,
-                                                                 float3 *throughput,
+ccl_device VolumeIntegrateResult kernel_volume_decoupled_scatter(__thread_space KernelGlobals *kg,
+                                                                 __thread_space PathState *state,
+                                                                 __thread_space Ray *ray,
+                                                                 __thread_space ShaderData *sd,
+                                                                 __thread_space float3 *throughput,
                                                                  float rphase,
                                                                  float rscatter,
-                                                                 const VolumeSegment *segment,
-                                                                 const float3 *light_P,
+                                                                 __thread_space const VolumeSegment *segment,
+                                                                 __thread_space const float3 *light_P,
                                                                  bool probalistic_scatter)
 {
   kernel_assert(segment->closure_flag & SD_SCATTER);
@@ -965,7 +965,7 @@ ccl_device VolumeIntegrateResult kernel_volume_decoupled_scatter(KernelGlobals *
     }
   }
 
-  VolumeStep *step;
+  __thread_space VolumeStep *step;
   float3 transmittance;
   float pdf, sample_t;
   float mis_weight = 1.0f;
@@ -1130,7 +1130,7 @@ ccl_device VolumeIntegrateResult kernel_volume_decoupled_scatter(KernelGlobals *
 #  endif /* __SPLIT_KERNEL */
 
 /* decide if we need to use decoupled or not */
-ccl_device bool kernel_volume_use_decoupled(KernelGlobals *kg,
+ccl_device bool kernel_volume_use_decoupled(__thread_space KernelGlobals *kg,
                                             bool heterogeneous,
                                             bool direct,
                                             int sampling_method)
@@ -1163,11 +1163,11 @@ ccl_device bool kernel_volume_use_decoupled(KernelGlobals *kg,
  * This is an array of object/shared ID's that the current segment of the path
  * is inside of. */
 
-ccl_device void kernel_volume_stack_init(KernelGlobals *kg,
-                                         ShaderData *stack_sd,
-                                         ccl_addr_space const PathState *state,
-                                         ccl_addr_space const Ray *ray,
-                                         ccl_addr_space VolumeStack *stack)
+ccl_device void kernel_volume_stack_init(__thread_space KernelGlobals *kg,
+                                         __thread_space ShaderData *stack_sd,
+                                         __thread_space ccl_addr_space const PathState *state,
+                                         __thread_space ccl_addr_space const Ray *ray,
+                                         __thread_space ccl_addr_space VolumeStack *stack)
 {
   /* NULL ray happens in the baker, does it need proper initialization of
    * camera in volume?
@@ -1305,9 +1305,9 @@ ccl_device void kernel_volume_stack_init(KernelGlobals *kg,
   }
 }
 
-ccl_device void kernel_volume_stack_enter_exit(KernelGlobals *kg,
-                                               ShaderData *sd,
-                                               ccl_addr_space VolumeStack *stack)
+ccl_device void kernel_volume_stack_enter_exit(__thread_space KernelGlobals *kg,
+                                               __thread_space ShaderData *sd,
+                                               __thread_space ccl_addr_space VolumeStack *stack)
 {
   /* todo: we should have some way for objects to indicate if they want the
    * world shader to work inside them. excluding it by default is problematic
@@ -1352,10 +1352,10 @@ ccl_device void kernel_volume_stack_enter_exit(KernelGlobals *kg,
 }
 
 #  ifdef __SUBSURFACE__
-ccl_device void kernel_volume_stack_update_for_subsurface(KernelGlobals *kg,
-                                                          ShaderData *stack_sd,
-                                                          Ray *ray,
-                                                          ccl_addr_space VolumeStack *stack)
+ccl_device void kernel_volume_stack_update_for_subsurface(__thread_space KernelGlobals *kg,
+                                                          __thread_space ShaderData *stack_sd,
+                                                          __thread_space Ray *ray,
+                                                          __thread_space ccl_addr_space VolumeStack *stack)
 {
   kernel_assert(kernel_data.integrator.use_volumes);
 
@@ -1409,8 +1409,8 @@ ccl_device void kernel_volume_stack_update_for_subsurface(KernelGlobals *kg,
  * Use this function after the last bounce to get rid of all volumes apart from
  * the world's one after the last bounce to avoid render artifacts.
  */
-ccl_device_inline void kernel_volume_clean_stack(KernelGlobals *kg,
-                                                 ccl_addr_space VolumeStack *volume_stack)
+ccl_device_inline void kernel_volume_clean_stack(__thread_space KernelGlobals *kg,
+                                                 __thread_space ccl_addr_space VolumeStack *volume_stack)
 {
   if (kernel_data.background.volume_shader != SHADER_NONE) {
     /* Keep the world's volume in stack. */

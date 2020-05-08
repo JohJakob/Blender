@@ -44,12 +44,12 @@ ccl_device
 #else
 ccl_device_inline
 #endif
-    bool BVH_FUNCTION_FULL_NAME(BVH)(KernelGlobals *kg,
-                                     const Ray *ray,
-                                     Intersection *isect_array,
+    bool BVH_FUNCTION_FULL_NAME(BVH)(__thread_space KernelGlobals *kg,
+                                     __thread_space const Ray *ray,
+                                     __thread_space Intersection *isect_array,
                                      const uint visibility,
                                      const uint max_hits,
-                                     uint *num_hits)
+                                     __thread_space uint *num_hits)
 {
   /* todo:
    * - likely and unlikely for if() statements
@@ -374,12 +374,12 @@ ccl_device_inline
   return false;
 }
 
-ccl_device_inline bool BVH_FUNCTION_NAME(KernelGlobals *kg,
-                                         const Ray *ray,
-                                         Intersection *isect_array,
+ccl_device_inline bool BVH_FUNCTION_NAME(__thread_space KernelGlobals *kg,
+                                         __thread_space const Ray *ray,
+                                         __thread_space Intersection *isect_array,
                                          const uint visibility,
                                          const uint max_hits,
-                                         uint *num_hits)
+                                         __thread_space uint *num_hits)
 {
   switch (kernel_data.bvh.bvh_layout) {
 #ifdef __KERNEL_AVX2__

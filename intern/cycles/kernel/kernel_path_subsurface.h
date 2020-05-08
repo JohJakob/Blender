@@ -23,21 +23,21 @@ ccl_device
 ccl_device_inline
 #  endif
     bool
-    kernel_path_subsurface_scatter(KernelGlobals *kg,
-                                   ShaderData *sd,
-                                   ShaderData *emission_sd,
-                                   PathRadiance *L,
-                                   ccl_addr_space PathState *state,
-                                   ccl_addr_space Ray *ray,
-                                   ccl_addr_space float3 *throughput,
-                                   ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
+    kernel_path_subsurface_scatter(__thread_space KernelGlobals *kg,
+                                   __thread_space ShaderData *sd,
+                                   __thread_space ShaderData *emission_sd,
+                                   __thread_space PathRadiance *L,
+                                   __thread_space ccl_addr_space PathState *state,
+                                   __thread_space ccl_addr_space Ray *ray,
+                                   __thread_space ccl_addr_space float3 *throughput,
+                                   __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
 {
   PROFILING_INIT(kg, PROFILING_SUBSURFACE);
 
   float bssrdf_u, bssrdf_v;
   path_state_rng_2D(kg, state, PRNG_BSDF_U, &bssrdf_u, &bssrdf_v);
 
-  const ShaderClosure *sc = shader_bssrdf_pick(sd, throughput, &bssrdf_u);
+  __thread_space const ShaderClosure *sc = shader_bssrdf_pick(sd, throughput, &bssrdf_u);
 
   /* do bssrdf scatter step if we picked a bssrdf closure */
   if (sc) {
@@ -58,7 +58,7 @@ ccl_device_inline
 #  endif /* __VOLUME__ */
 
     /* Closure memory will be overwritten, so read required variables now. */
-    Bssrdf *bssrdf = (Bssrdf *)sc;
+    __thread_space Bssrdf *bssrdf = (__thread_space Bssrdf *)sc;
     ClosureType bssrdf_type = sc->type;
     float bssrdf_roughness = bssrdf->roughness;
 
@@ -71,10 +71,10 @@ ccl_device_inline
 
       kernel_path_surface_connect_light(kg, sd, emission_sd, *throughput, state, L);
 
-      ccl_addr_space PathState *hit_state = &ss_indirect->state[ss_indirect->num_rays];
-      ccl_addr_space Ray *hit_ray = &ss_indirect->rays[ss_indirect->num_rays];
-      ccl_addr_space float3 *hit_tp = &ss_indirect->throughputs[ss_indirect->num_rays];
-      PathRadianceState *hit_L_state = &ss_indirect->L_state[ss_indirect->num_rays];
+      __thread_space ccl_addr_space PathState *hit_state = &ss_indirect->state[ss_indirect->num_rays];
+      __thread_space ccl_addr_space Ray *hit_ray = &ss_indirect->rays[ss_indirect->num_rays];
+      __thread_space ccl_addr_space float3 *hit_tp = &ss_indirect->throughputs[ss_indirect->num_rays];
+      __thread_space PathRadianceState *hit_L_state = &ss_indirect->L_state[ss_indirect->num_rays];
 
       *hit_state = *state;
       *hit_ray = *ray;
@@ -107,18 +107,18 @@ ccl_device_inline
 }
 
 ccl_device_inline void kernel_path_subsurface_init_indirect(
-    ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
+    __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
 {
   ss_indirect->num_rays = 0;
 }
 
 ccl_device void kernel_path_subsurface_setup_indirect(
-    KernelGlobals *kg,
-    ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
-    ccl_addr_space PathState *state,
-    ccl_addr_space Ray *ray,
-    PathRadiance *L,
-    ccl_addr_space float3 *throughput)
+    __thread_space KernelGlobals *kg,
+    __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
+    __thread_space ccl_addr_space PathState *state,
+    __thread_space ccl_addr_space Ray *ray,
+    __thread_space PathRadiance *L,
+    __thread_space ccl_addr_space float3 *throughput)
 {
   /* Setup state, ray and throughput for indirect SSS rays. */
   ss_indirect->num_rays--;

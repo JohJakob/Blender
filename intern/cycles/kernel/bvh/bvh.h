@@ -168,7 +168,7 @@ CCL_NAMESPACE_BEGIN
 
 #endif /* __KERNEL_OPTIX__ */
 
-ccl_device_inline bool scene_intersect_valid(const Ray *ray)
+ccl_device_inline bool scene_intersect_valid(__thread_space const Ray *ray)
 {
   /* NOTE: Due to some vectorization code  non-finite origin point might
    * cause lots of false-positive intersections which will overflow traversal
@@ -183,10 +183,10 @@ ccl_device_inline bool scene_intersect_valid(const Ray *ray)
   return isfinite_safe(ray->P.x) && isfinite_safe(ray->D.x) && len_squared(ray->D) != 0.0f;
 }
 
-ccl_device_intersect bool scene_intersect(KernelGlobals *kg,
-                                          const Ray *ray,
+ccl_device_intersect bool scene_intersect(__thread_space KernelGlobals *kg,
+                                          __thread_space const Ray *ray,
                                           const uint visibility,
-                                          Intersection *isect)
+                                          __thread_space Intersection *isect)
 {
   PROFILING_INIT(kg, PROFILING_INTERSECT);
 
@@ -282,11 +282,11 @@ ccl_device_intersect bool scene_intersect(KernelGlobals *kg,
 }
 
 #ifdef __BVH_LOCAL__
-ccl_device_intersect bool scene_intersect_local(KernelGlobals *kg,
-                                                const Ray *ray,
-                                                LocalIntersection *local_isect,
+ccl_device_intersect bool scene_intersect_local(__thread_space KernelGlobals *kg,
+                                                __thread_space const Ray *ray,
+                                                __thread_space LocalIntersection *local_isect,
                                                 int local_object,
-                                                uint *lcg_state,
+                                                __thread_space uint *lcg_state,
                                                 int max_hits)
 {
   PROFILING_INIT(kg, PROFILING_INTERSECT_LOCAL);
@@ -392,12 +392,12 @@ ccl_device_intersect bool scene_intersect_local(KernelGlobals *kg,
 #endif
 
 #ifdef __SHADOW_RECORD_ALL__
-ccl_device_intersect bool scene_intersect_shadow_all(KernelGlobals *kg,
-                                                     const Ray *ray,
-                                                     Intersection *isect,
+ccl_device_intersect bool scene_intersect_shadow_all(__thread_space KernelGlobals *kg,
+                                                     __thread_space const Ray *ray,
+                                                     __thread_space Intersection *isect,
                                                      uint visibility,
                                                      uint max_hits,
-                                                     uint *num_hits)
+                                                     __thread_space uint *num_hits)
 {
   PROFILING_INIT(kg, PROFILING_INTERSECT_SHADOW_ALL);
 
@@ -491,9 +491,9 @@ ccl_device_intersect bool scene_intersect_shadow_all(KernelGlobals *kg,
 #endif /* __SHADOW_RECORD_ALL__ */
 
 #ifdef __VOLUME__
-ccl_device_intersect bool scene_intersect_volume(KernelGlobals *kg,
-                                                 const Ray *ray,
-                                                 Intersection *isect,
+ccl_device_intersect bool scene_intersect_volume(__thread_space KernelGlobals *kg,
+                                                 __thread_space const Ray *ray,
+                                                 __thread_space Intersection *isect,
                                                  const uint visibility)
 {
   PROFILING_INIT(kg, PROFILING_INTERSECT_VOLUME);
@@ -674,7 +674,7 @@ ccl_device int intersections_compare(const void *a, const void *b)
 #endif
 
 #if defined(__SHADOW_RECORD_ALL__)
-ccl_device_inline void sort_intersections(Intersection *hits, uint num_hits)
+ccl_device_inline void sort_intersections(__thread_space Intersection *hits, uint num_hits)
 {
 #  ifdef __KERNEL_GPU__
   /* Use bubble sort which has more friendly memory pattern on GPU. */

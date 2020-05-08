@@ -20,7 +20,7 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __DENOISING_FEATURES__
 
-ccl_device_inline void kernel_write_denoising_shadow(KernelGlobals *kg,
+ccl_device_inline void kernel_write_denoising_shadow(__thread_space KernelGlobals *kg,
                                                      ccl_global float *buffer,
                                                      int sample,
                                                      float path_total,
@@ -43,10 +43,10 @@ ccl_device_inline void kernel_write_denoising_shadow(KernelGlobals *kg,
   kernel_write_pass_float(buffer + 2, value * value);
 }
 
-ccl_device_inline void kernel_update_denoising_features(KernelGlobals *kg,
-                                                        ShaderData *sd,
-                                                        ccl_addr_space PathState *state,
-                                                        PathRadiance *L)
+ccl_device_inline void kernel_update_denoising_features(__thread_space KernelGlobals *kg,
+                                                        __thread_space ShaderData *sd,
+                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __thread_space PathRadiance *L)
 {
   if (state->denoising_feature_weight == 0.0f) {
     return;
@@ -65,7 +65,7 @@ ccl_device_inline void kernel_update_denoising_features(KernelGlobals *kg,
   float sum_weight = 0.0f, sum_nonspecular_weight = 0.0f;
 
   for (int i = 0; i < sd->num_closure; i++) {
-    ShaderClosure *sc = &sd->closure[i];
+    __thread_space ShaderClosure *sc = &sd->closure[i];
 
     if (!CLOSURE_IS_BSDF_OR_BSSRDF(sc->type))
       continue;
@@ -80,11 +80,11 @@ ccl_device_inline void kernel_update_denoising_features(KernelGlobals *kg,
      * To account for this, we scale their weight by the average fresnel factor (the same is also
      * done for the sample weight in the BSDF setup, so we don't need to scale that here). */
     if (CLOSURE_IS_BSDF_MICROFACET_FRESNEL(sc->type)) {
-      MicrofacetBsdf *bsdf = (MicrofacetBsdf *)sc;
+      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)sc;
       closure_albedo *= bsdf->extra->fresnel_color;
     }
     else if (sc->type == CLOSURE_BSDF_PRINCIPLED_SHEEN_ID) {
-      PrincipledSheenBsdf *bsdf = (PrincipledSheenBsdf *)sc;
+      __thread_space PrincipledSheenBsdf *bsdf = (__thread_space PrincipledSheenBsdf *)sc;
       closure_albedo *= bsdf->avg_value;
     }
     else if (sc->type == CLOSURE_BSDF_HAIR_PRINCIPLED_ID) {
@@ -170,11 +170,11 @@ ccl_device_inline size_t kernel_write_id_slots_gpu(ccl_global float *buffer,
   return depth * 2;
 }
 
-ccl_device_inline void kernel_write_data_passes(KernelGlobals *kg,
+ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg,
                                                 ccl_global float *buffer,
-                                                PathRadiance *L,
-                                                ShaderData *sd,
-                                                ccl_addr_space PathState *state,
+                                                __thread_space PathRadiance *L,
+                                                __thread_space ShaderData *sd,
+                                                __thread_space ccl_addr_space PathState *state,
                                                 float3 throughput)
 {
 #ifdef __PASSES__
@@ -282,9 +282,9 @@ ccl_device_inline void kernel_write_data_passes(KernelGlobals *kg,
 #endif
 }
 
-ccl_device_inline void kernel_write_light_passes(KernelGlobals *kg,
+ccl_device_inline void kernel_write_light_passes(__thread_space KernelGlobals *kg,
                                                  ccl_global float *buffer,
-                                                 PathRadiance *L)
+                                                 __thread_space PathRadiance *L)
 {
 #ifdef __PASSES__
   int light_flag = kernel_data.film.light_pass_flag;
@@ -335,10 +335,10 @@ ccl_device_inline void kernel_write_light_passes(KernelGlobals *kg,
 #endif
 }
 
-ccl_device_inline void kernel_write_result(KernelGlobals *kg,
+ccl_device_inline void kernel_write_result(__thread_space KernelGlobals *kg,
                                            ccl_global float *buffer,
                                            int sample,
-                                           PathRadiance *L)
+                                           __thread_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_WRITE_RESULT);
   PROFILING_OBJECT(PRIM_NONE);

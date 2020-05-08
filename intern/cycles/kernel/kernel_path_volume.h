@@ -18,12 +18,12 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __VOLUME_SCATTER__
 
-ccl_device_inline void kernel_path_volume_connect_light(KernelGlobals *kg,
-                                                        ShaderData *sd,
-                                                        ShaderData *emission_sd,
+ccl_device_inline void kernel_path_volume_connect_light(__thread_space KernelGlobals *kg,
+                                                        __thread_space ShaderData *sd,
+                                                        __thread_space ShaderData *emission_sd,
                                                         float3 throughput,
-                                                        ccl_addr_space PathState *state,
-                                                        PathRadiance *L)
+                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __thread_space PathRadiance *L)
 {
 #  ifdef __EMISSION__
   /* sample illumination from lights to find path contribution */
@@ -62,12 +62,12 @@ ccl_device_inline void kernel_path_volume_connect_light(KernelGlobals *kg,
 #  endif /* __EMISSION__ */
 }
 
-ccl_device_noinline_cpu bool kernel_path_volume_bounce(KernelGlobals *kg,
-                                                       ShaderData *sd,
-                                                       ccl_addr_space float3 *throughput,
-                                                       ccl_addr_space PathState *state,
-                                                       PathRadianceState *L_state,
-                                                       ccl_addr_space Ray *ray)
+ccl_device_noinline_cpu bool kernel_path_volume_bounce(__thread_space KernelGlobals *kg,
+                                                       __thread_space ShaderData *sd,
+                                                       __thread_space ccl_addr_space float3 *throughput,
+                                                       __thread_space ccl_addr_space PathState *state,
+                                                       __thread_space PathRadianceState *L_state,
+                                                       __thread_space ccl_addr_space Ray *ray)
 {
   /* sample phase function */
   float phase_pdf;
@@ -128,15 +128,15 @@ ccl_device_noinline_cpu bool kernel_path_volume_bounce(KernelGlobals *kg,
 }
 
 #  if !defined(__SPLIT_KERNEL__) && (defined(__BRANCHED_PATH__) || defined(__VOLUME_DECOUPLED__))
-ccl_device void kernel_branched_path_volume_connect_light(KernelGlobals *kg,
-                                                          ShaderData *sd,
-                                                          ShaderData *emission_sd,
+ccl_device void kernel_branched_path_volume_connect_light(__thread_space KernelGlobals *kg,
+                                                          __thread_space ShaderData *sd,
+                                                          __thread_space ShaderData *emission_sd,
                                                           float3 throughput,
-                                                          ccl_addr_space PathState *state,
-                                                          PathRadiance *L,
+                                                          __thread_space ccl_addr_space PathState *state,
+                                                          __thread_space PathRadiance *L,
                                                           bool sample_all_lights,
-                                                          Ray *ray,
-                                                          const VolumeSegment *segment)
+                                                          __thread_space Ray *ray,
+                                                          __thread_space const VolumeSegment *segment)
 {
 #    ifdef __EMISSION__
   BsdfEval L_light ccl_optional_struct_init;

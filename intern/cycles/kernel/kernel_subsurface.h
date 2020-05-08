@@ -23,7 +23,7 @@ CCL_NAMESPACE_BEGIN
  */
 
 ccl_device_inline float3
-subsurface_scatter_eval(ShaderData *sd, const ShaderClosure *sc, float disk_r, float r, bool all)
+subsurface_scatter_eval(__thread_space ShaderData *sd, __thread_space const ShaderClosure *sc, float disk_r, float r, bool all)
 {
   /* this is the veach one-sample model with balance heuristic, some pdf
    * factors drop out when using balance heuristic weighting */
@@ -67,7 +67,7 @@ subsurface_scatter_eval(ShaderData *sd, const ShaderClosure *sc, float disk_r, f
 
 /* replace closures with a single diffuse bsdf closure after scatter step */
 ccl_device void subsurface_scatter_setup_diffuse_bsdf(
-    KernelGlobals *kg, ShaderData *sd, ClosureType type, float roughness, float3 weight, float3 N)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, ClosureType type, float roughness, float3 weight, float3 N)
 {
   sd->flag &= ~SD_CLOSURE_FLAGS;
   sd->num_closure = 0;
@@ -75,7 +75,7 @@ ccl_device void subsurface_scatter_setup_diffuse_bsdf(
 
 #ifdef __PRINCIPLED__
   if (type == CLOSURE_BSSRDF_PRINCIPLED_ID || type == CLOSURE_BSSRDF_PRINCIPLED_RANDOM_WALK_ID) {
-    PrincipledDiffuseBsdf *bsdf = (PrincipledDiffuseBsdf *)bsdf_alloc(
+    __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)bsdf_alloc(
         sd, sizeof(PrincipledDiffuseBsdf), weight);
 
     if (bsdf) {
@@ -91,7 +91,7 @@ ccl_device void subsurface_scatter_setup_diffuse_bsdf(
   else if (CLOSURE_IS_BSDF_BSSRDF(type) || CLOSURE_IS_BSSRDF(type))
 #endif /* __PRINCIPLED__ */
   {
-    DiffuseBsdf *bsdf = (DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
+    __thread_space DiffuseBsdf *bsdf = (__thread_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
 
     if (bsdf) {
       bsdf->N = N;
@@ -127,7 +127,7 @@ ccl_device float3 subsurface_color_pow(float3 color, float exponent)
 }
 
 ccl_device void subsurface_color_bump_blur(
-    KernelGlobals *kg, ShaderData *sd, ccl_addr_space PathState *state, float3 *eval, float3 *N)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space ccl_addr_space PathState *state, __thread_space float3 *eval, __thread_space float3 *N)
 {
   /* average color and texture blur at outgoing point */
   float texture_blur;
@@ -157,11 +157,11 @@ ccl_device void subsurface_color_bump_blur(
 /* Subsurface scattering step, from a point on the surface to other
  * nearby points on the same object.
  */
-ccl_device_inline int subsurface_scatter_disk(KernelGlobals *kg,
-                                              LocalIntersection *ss_isect,
-                                              ShaderData *sd,
-                                              const ShaderClosure *sc,
-                                              uint *lcg_state,
+ccl_device_inline int subsurface_scatter_disk(__thread_space KernelGlobals *kg,
+                                              __thread_space LocalIntersection *ss_isect,
+                                              __thread_space ShaderData *sd,
+                                              __thread_space const ShaderClosure *sc,
+                                              __thread_space uint *lcg_state,
                                               float disk_u,
                                               float disk_v,
                                               bool all)
@@ -211,7 +211,7 @@ ccl_device_inline int subsurface_scatter_disk(KernelGlobals *kg,
   Ray ray_object = ss_isect->ray;
   Ray *ray = &ray_object;
 #else
-  Ray *ray = &ss_isect->ray;
+  __thread_space Ray *ray = &ss_isect->ray;
 #endif
   ray->P = sd->P + disk_N * disk_height + disk_P;
   ray->D = -disk_N;
@@ -281,11 +281,11 @@ ccl_device_inline int subsurface_scatter_disk(KernelGlobals *kg,
   return num_eval_hits;
 }
 
-ccl_device_noinline void subsurface_scatter_multi_setup(KernelGlobals *kg,
-                                                        LocalIntersection *ss_isect,
+ccl_device_noinline void subsurface_scatter_multi_setup(__thread_space KernelGlobals *kg,
+                                                        __thread_space LocalIntersection *ss_isect,
                                                         int hit,
-                                                        ShaderData *sd,
-                                                        ccl_addr_space PathState *state,
+                                                        __thread_space ShaderData *sd,
+                                                        __thread_space ccl_addr_space PathState *state,
                                                         ClosureType type,
                                                         float roughness)
 {
@@ -293,7 +293,7 @@ ccl_device_noinline void subsurface_scatter_multi_setup(KernelGlobals *kg,
   Ray ray_object = ss_isect->ray;
   Ray *ray = &ray_object;
 #else
-  Ray *ray = &ss_isect->ray;
+  __thread_space Ray *ray = &ss_isect->ray;
 #endif
 
   /* Workaround for AMD GPU OpenCL compiler. Most probably cache bypass issue. */
@@ -320,8 +320,8 @@ ccl_device_noinline void subsurface_scatter_multi_setup(KernelGlobals *kg,
 
 ccl_device void subsurface_random_walk_remap(const float A,
                                              const float d,
-                                             float *sigma_t,
-                                             float *sigma_s)
+                                             __thread_space float *sigma_t,
+                                             __thread_space float *sigma_s)
 {
   /* Compute attenuation and scattering coefficients from albedo. */
   const float a = 1.0f - expf(A * (-5.09406f + A * (2.61188f - A * 4.31805f)));
@@ -331,12 +331,12 @@ ccl_device void subsurface_random_walk_remap(const float A,
   *sigma_s = *sigma_t * a;
 }
 
-ccl_device void subsurface_random_walk_coefficients(const ShaderClosure *sc,
-                                                    float3 *sigma_t,
-                                                    float3 *sigma_s,
-                                                    float3 *weight)
+ccl_device void subsurface_random_walk_coefficients(__thread_space const ShaderClosure *sc,
+                                                    __thread_space float3 *sigma_t,
+                                                    __thread_space float3 *sigma_s,
+                                                    __thread_space float3 *weight)
 {
-  const Bssrdf *bssrdf = (const Bssrdf *)sc;
+  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
   const float3 A = bssrdf->albedo;
   const float3 d = bssrdf->radius;
   float sigma_t_x, sigma_t_y, sigma_t_z;
@@ -359,11 +359,11 @@ ccl_device_inline /* inline trace calls */
 ccl_device_noinline
 #endif
     bool
-    subsurface_random_walk(KernelGlobals *kg,
-                           LocalIntersection *ss_isect,
-                           ShaderData *sd,
-                           ccl_addr_space PathState *state,
-                           const ShaderClosure *sc,
+    subsurface_random_walk(__thread_space KernelGlobals *kg,
+                           __thread_space LocalIntersection *ss_isect,
+                           __thread_space ShaderData *sd,
+                           __thread_space ccl_addr_space PathState *state,
+                           __thread_space const ShaderClosure *sc,
                            const float bssrdf_u,
                            const float bssrdf_v)
 {
@@ -385,7 +385,7 @@ ccl_device_noinline
   Ray ray_object = ss_isect->ray;
   Ray *ray = &ray_object;
 #else
-  Ray *ray = &ss_isect->ray;
+  __thread_space Ray *ray = &ss_isect->ray;
 #endif
   ray->P = ray_offset(sd->P, -sd->Ng);
   ray->D = D;
@@ -485,12 +485,12 @@ ccl_device_noinline
   return 1;
 }
 
-ccl_device_inline int subsurface_scatter_multi_intersect(KernelGlobals *kg,
-                                                         LocalIntersection *ss_isect,
-                                                         ShaderData *sd,
-                                                         ccl_addr_space PathState *state,
-                                                         const ShaderClosure *sc,
-                                                         uint *lcg_state,
+ccl_device_inline int subsurface_scatter_multi_intersect(__thread_space KernelGlobals *kg,
+                                                         __thread_space LocalIntersection *ss_isect,
+                                                         __thread_space ShaderData *sd,
+                                                         __thread_space ccl_addr_space PathState *state,
+                                                         __thread_space const ShaderClosure *sc,
+                                                         __thread_space uint *lcg_state,
                                                          float bssrdf_u,
                                                          float bssrdf_v,
                                                          bool all)

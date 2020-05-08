@@ -21,13 +21,13 @@ CCL_NAMESPACE_BEGIN
 /* branched path tracing: connect path directly to position on one or more lights and add it to L
  */
 ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
-    KernelGlobals *kg,
-    ShaderData *sd,
-    ShaderData *emission_sd,
-    ccl_addr_space PathState *state,
+    __thread_space KernelGlobals *kg,
+    __thread_space ShaderData *sd,
+    __thread_space ShaderData *emission_sd,
+    __thread_space ccl_addr_space PathState *state,
     float3 throughput,
     float num_samples_adjust,
-    PathRadiance *L,
+    __thread_space PathRadiance *L,
     int sample_all_lights)
 {
 #  ifdef __EMISSION__
@@ -140,15 +140,15 @@ ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
 }
 
 /* branched path tracing: bounce off or through surface to with new direction stored in ray */
-ccl_device bool kernel_branched_path_surface_bounce(KernelGlobals *kg,
-                                                    ShaderData *sd,
-                                                    const ShaderClosure *sc,
+ccl_device bool kernel_branched_path_surface_bounce(__thread_space KernelGlobals *kg,
+                                                    __thread_space ShaderData *sd,
+                                                    __thread_space const ShaderClosure *sc,
                                                     int sample,
                                                     int num_samples,
-                                                    ccl_addr_space float3 *throughput,
-                                                    ccl_addr_space PathState *state,
-                                                    PathRadianceState *L_state,
-                                                    ccl_addr_space Ray *ray,
+                                                    __thread_space ccl_addr_space float3 *throughput,
+                                                    __thread_space ccl_addr_space PathState *state,
+                                                    __thread_space PathRadianceState *L_state,
+                                                    __thread_space ccl_addr_space Ray *ray,
                                                     float sum_sample_weight)
 {
   /* sample BSDF */
@@ -211,12 +211,12 @@ ccl_device bool kernel_branched_path_surface_bounce(KernelGlobals *kg,
 #endif
 
 /* path tracing: connect path directly to position on a light and add it to L */
-ccl_device_inline void kernel_path_surface_connect_light(KernelGlobals *kg,
-                                                         ShaderData *sd,
-                                                         ShaderData *emission_sd,
+ccl_device_inline void kernel_path_surface_connect_light(__thread_space KernelGlobals *kg,
+                                                         __thread_space ShaderData *sd,
+                                                         __thread_space ShaderData *emission_sd,
                                                          float3 throughput,
-                                                         ccl_addr_space PathState *state,
-                                                         PathRadiance *L)
+                                                         __thread_space ccl_addr_space PathState *state,
+                                                         __thread_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_CONNECT_LIGHT);
 
@@ -267,12 +267,12 @@ ccl_device_inline void kernel_path_surface_connect_light(KernelGlobals *kg,
 }
 
 /* path tracing: bounce off or through surface to with new direction stored in ray */
-ccl_device bool kernel_path_surface_bounce(KernelGlobals *kg,
-                                           ShaderData *sd,
-                                           ccl_addr_space float3 *throughput,
-                                           ccl_addr_space PathState *state,
-                                           PathRadianceState *L_state,
-                                           ccl_addr_space Ray *ray)
+ccl_device bool kernel_path_surface_bounce(__thread_space KernelGlobals *kg,
+                                           __thread_space ShaderData *sd,
+                                           __thread_space ccl_addr_space float3 *throughput,
+                                           __thread_space ccl_addr_space PathState *state,
+                                           __thread_space PathRadianceState *L_state,
+                                           __thread_space ccl_addr_space Ray *ray)
 {
   PROFILING_INIT(kg, PROFILING_SURFACE_BOUNCE);
 
