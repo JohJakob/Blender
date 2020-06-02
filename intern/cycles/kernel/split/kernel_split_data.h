@@ -43,7 +43,7 @@ ccl_device_inline uint64_t split_data_buffer_size(__thread_space KernelGlobals *
   return size;
 }
 
-ccl_device_inline void split_data_init(KernelGlobals *kg,
+ccl_device_inline void split_data_init(__thread_space KernelGlobals *kg,
                                        ccl_global SplitData *split_data,
                                        size_t num_elements,
                                        ccl_global void *data,
@@ -62,11 +62,11 @@ ccl_device_inline void split_data_init(KernelGlobals *kg,
   uint64_t closure_size = sizeof(ShaderClosure) * (kernel_data.integrator.max_closures - 1);
 
 #ifdef __BRANCHED_PATH__
-  split_data->_branched_state_sd = (ShaderData *)p;
+  split_data->_branched_state_sd = (__device_space ShaderData *)p;
   p += align_up(num_elements * (sizeof(ShaderData) + closure_size), 16);
 #endif
 
-  split_data->_sd = (ShaderData *)p;
+  split_data->_sd = (__device_space ShaderData *)p;
   p += align_up(num_elements * (sizeof(ShaderData) + closure_size), 16);
 
   split_data->ray_state = ray_state;

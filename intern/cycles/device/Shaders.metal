@@ -21,6 +21,9 @@
 #define ccl_align(x)
 #define ccl_ref
 
+#define ccl_global_id(x) (kg->global_id[x])
+#define ccl_global_size(x) (kg->global_size[x])
+
 #ifndef NULL
 #define NULL (0)
 #endif // null
@@ -83,6 +86,12 @@ inline float __uint_as_float(uint i) {
 #define fmodf fmod
 #define atan2f atan2
 #define copysignf copysign
+#define tanf tan
+#define atanf atan
+#define sinhf sinh
+#define coshf cosh
+#define tanhf tanh
+
 
 inline float sqrtf(float x) {
   return sqrt(x);
@@ -105,6 +114,14 @@ inline float lgammaf(float x) {
 #define kernel_data (*kg->data)
 #define kernel_assert(x)
 #define kernel_tex_array(tex) (kg->tex)
+
+#define ccl_device_noinline_cpu
+#define ccl_static_constant constant
+
+#define ATTR_FALLTHROUGH
+#define ccl_loop_no_unroll
+#define ccl_optional_struct_init
+
 
 //#define atomic_cmpxchg(A, B, C) atomic_exchange_explicit(A, C, memory_order_relaxed)
 
@@ -134,33 +151,10 @@ inline float atomic_compare_and_swap_float(volatile device float *dest,
     return as_type<float>(oldInt);
 }
 
-#define __SPLIT_KERNEL__
-
-#include "kernel/split/kernel_split_common.h"
-//#include "kernel/split/kernel_data_init.h"
-//#include "kernel/split/kernel_path_init.h"
-//#include "kernel/split/kernel_scene_intersect.h"
-//#include "kernel/split/kernel_lamp_emission.h"
-//#include "kernel/split/kernel_do_volume.h"
-//#include "kernel/split/kernel_queue_enqueue.h"
-//#include "kernel/split/kernel_indirect_background.h"
-//#include "kernel/split/kernel_shader_setup.h"
-//#include "kernel/split/kernel_shader_sort.h"
-//#include "kernel/split/kernel_shader_eval.h"
-//#include "kernel/split/kernel_holdout_emission_blurring_pathtermination_ao.h"
-//#include "kernel/split/kernel_subsurface_scatter.h"
-//#include "kernel/split/kernel_direct_lighting.h"
-//#include "kernel/split/kernel_shadow_blocked_ao.h"
-//#include "kernel/split/kernel_shadow_blocked_dl.h"
-//#include "kernel/split/kernel_enqueue_inactive.h"
-//#include "kernel/split/kernel_next_iteration_setup.h"
-//#include "kernel/split/kernel_indirect_subsurface.h"
-//#include "kernel/split/kernel_buffer_update.h"
-//#include "kernel/split/kernel_adaptive_stopping.h"
-//#include "kernel/split/kernel_adaptive_filter_x.h"
-//#include "kernel/split/kernel_adaptive_filter_y.h"
-//#include "kernel/split/kernel_adaptive_adjust_samples.h"
-
+inline uint atomic_fetch_and_or_uint32(device uint* input, uint M) {
+    auto atomic_input = (volatile device atomic_uint*)input;
+    return atomic_fetch_or_explicit(atomic_input, M, memory_order_relaxed);
+}
 
 /* w0, w1, w2, and w3 are the four cubic B-spline basis functions. */
 inline float cubic_w0(float a)
@@ -205,6 +199,16 @@ inline float cubic_h1(float a)
 {
   return 1.0f + cubic_w3(a) / (cubic_w2(a) + cubic_w3(a)) + 0.5f;
 }
+
+#define __SPLIT_KERNEL__
+
+#include "kernel/kernel_math.h"
+#include "kernel/kernel_types.h"
+
+#include "kernel/split/kernel_split_data.h"
+
+#include "kernel/kernel_globals.h"
+#include "kernel/kernel_color.h"
 
 constexpr sampler s(coord::normalized,
                     address::repeat,
@@ -353,17 +357,31 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
     }
 }
 
-#define ccl_device_noinline_cpu
-#define ccl_static_constant constant
-#define tanf tan
-#define atanf atan
-#define sinhf sinh
-#define coshf cosh
-#define tanhf tanh
+#include "kernel/split/kernel_split_common.h"
+//#include "kernel/split/kernel_data_init.h"
+//#include "kernel/split/kernel_path_init.h"
+//#include "kernel/split/kernel_scene_intersect.h"
+//#include "kernel/split/kernel_lamp_emission.h"
+//#include "kernel/split/kernel_do_volume.h"
+//#include "kernel/split/kernel_queue_enqueue.h"
+//#include "kernel/split/kernel_indirect_background.h"
+//#include "kernel/split/kernel_shader_setup.h"
+//#include "kernel/split/kernel_shader_sort.h"
+//#include "kernel/split/kernel_shader_eval.h"
+//#include "kernel/split/kernel_holdout_emission_blurring_pathtermination_ao.h"
+//#include "kernel/split/kernel_subsurface_scatter.h"
+//#include "kernel/split/kernel_direct_lighting.h"
+//#include "kernel/split/kernel_shadow_blocked_ao.h"
+//#include "kernel/split/kernel_shadow_blocked_dl.h"
+//#include "kernel/split/kernel_enqueue_inactive.h"
+//#include "kernel/split/kernel_next_iteration_setup.h"
+//#include "kernel/split/kernel_indirect_subsurface.h"
+//#include "kernel/split/kernel_buffer_update.h"
+//#include "kernel/split/kernel_adaptive_stopping.h"
+//#include "kernel/split/kernel_adaptive_filter_x.h"
+//#include "kernel/split/kernel_adaptive_filter_y.h"
+//#include "kernel/split/kernel_adaptive_adjust_samples.h"
 
-#define ATTR_FALLTHROUGH
-#define ccl_loop_no_unroll
-#define ccl_optional_struct_init
 
 #ifdef __SHADER_RAYTRACE__
 #undef __SHADER_RAYTRACE__
@@ -423,45 +441,6 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 //    }
 //}
 
-
-kernel void
-reduce(const device int *input [[buffer(0)]],
-       device atomic_int *output [[buffer(1)]],
-       threadgroup int *ldata [[threadgroup(0)]],
-       uint gid [[thread_position_in_grid]],
-       uint lid [[thread_position_in_threadgroup]],
-       uint lsize [[threads_per_threadgroup]],
-       uint simd_size [[threads_per_simdgroup]],
-       uint simd_lane_id [[thread_index_in_simdgroup]],
-       uint simd_group_id [[simdgroup_index_in_threadgroup]])
-{
-    // Perform the first level of reduction.
-    // Read from device memory, write to threadgroup memory.
-    int val = input[gid] + input[gid + lsize];
-
-    for (uint s=lsize/simd_size; s>simd_size; s/=simd_size)
-    {
-        // Perform per-SIMD partial reduction.
-        for (uint offset=simd_size/2; offset>0; offset/=2)
-            val += simd_shuffle_down(val, offset);
-
-        // Write per-SIMD partial reduction value to threadgroup memory.
-        if (simd_lane_id == 0)
-        ldata[simd_group_id] = val;
-
-        // Wait for all partial reductions to complete.
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        val = (lid < s) ? ldata[lid] : 0; }
-
-    // Perform final per-SIMD partial reduction to calculate
-    // the threadgroup partial reduction result.
-    for (uint offset=simd_size/2; offset>0; offset/=2)
-        val += simd_shuffle_down(val, offset);
-
-    // Atomically update the reduction result.
-    if (lid == 0)
-        atomic_fetch_add_explicit(output, val, memory_order_relaxed);
-}
 
 
 //#include "util/util_transform.h"

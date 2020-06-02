@@ -216,6 +216,15 @@ typedef struct KernelGlobals {
     constant TextureInfo *textureInfo;
   #  define KERNEL_TEX(type, name) device type *name;
   #  include "kernel/kernel_textures.h"
+
+
+    #  ifdef __SPLIT_KERNEL__
+      SplitData split_data;
+      SplitParams split_param_data;
+    #  endif
+
+    uint global_id[3];
+    uint global_size[3];
 } KernelGlobals;
 
 #define kernel_tex_fetch(t, index) kg->t[(index)]

@@ -24,9 +24,9 @@ CCL_NAMESPACE_BEGIN
  * http://library.imageworks.com/pdfs/imageworks-library-BSSRDF-sampling.pdf
  */
 
-ccl_device_noinline float3 svm_bevel(KernelGlobals *kg,
-                                     ShaderData *sd,
-                                     ccl_addr_space PathState *state,
+ccl_device_noinline float3 svm_bevel(__thread_space KernelGlobals *kg,
+                                     __thread_space ShaderData *sd,
+                                     __thread_space ccl_addr_space PathState *state,
                                      float radius,
                                      int num_samples)
 {
@@ -102,7 +102,7 @@ ccl_device_noinline float3 svm_bevel(KernelGlobals *kg,
     float3 disk_P = (disk_r * cosf(phi)) * disk_T + (disk_r * sinf(phi)) * disk_B;
 
     /* Create ray. */
-    Ray *ray = &isect.ray;
+    __thread_space Ray *ray = &isect.ray;
     ray->P = sd->P + disk_N * disk_height + disk_P;
     ray->D = -disk_N;
     ray->t = 2.0f * disk_height;
@@ -198,8 +198,11 @@ ccl_device_noinline float3 svm_bevel(KernelGlobals *kg,
   return is_zero(N) ? sd->N : (sd->flag & SD_BACKFACING) ? -N : N;
 }
 
-ccl_device void svm_node_bevel(
-    KernelGlobals *kg, ShaderData *sd, ccl_addr_space PathState *state, float *stack, uint4 node)
+ccl_device void svm_node_bevel(__thread_space KernelGlobals *kg,
+                               __thread_space ShaderData *sd,
+                               __thread_space ccl_addr_space PathState *state,
+                               __thread_space float *stack,
+                               uint4 node)
 {
   uint num_samples, radius_offset, normal_offset, out_offset;
   svm_unpack_node_uchar4(node.y, &num_samples, &radius_offset, &normal_offset, &out_offset);

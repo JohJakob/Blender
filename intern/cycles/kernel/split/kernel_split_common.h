@@ -18,6 +18,7 @@
 #define __KERNEL_SPLIT_H__
 
 // clang-format off
+#ifndef __KERNEL_METAL__
 #include "kernel/kernel_math.h"
 #include "kernel/kernel_types.h"
 
@@ -25,6 +26,7 @@
 
 #include "kernel/kernel_globals.h"
 #include "kernel/kernel_color.h"
+#endif // metal
 
 #ifdef __OSL__
 #  include "kernel/osl/osl_shader.h"
