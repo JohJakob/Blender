@@ -76,8 +76,8 @@ typedef ccl_global struct SplitBranchedState {
 } SplitBranchedState;
 
 #  define SPLIT_DATA_BRANCHED_ENTRIES \
-    SPLIT_DATA_ENTRY(SplitBranchedState, branched_state, 1) \
-    SPLIT_DATA_ENTRY(ShaderData, _branched_state_sd, 0)
+    SPLIT_DATA_ENTRY(__thread_space SplitBranchedState, branched_state, 1) \
+    SPLIT_DATA_ENTRY(__thread_space ShaderData, _branched_state_sd, 0)
 #else
 #  define SPLIT_DATA_BRANCHED_ENTRIES
 #endif /* __BRANCHED_PATH__ */
@@ -97,7 +97,7 @@ typedef ccl_global struct SplitBranchedState {
 
 #define SPLIT_DATA_ENTRIES \
   SPLIT_DATA_ENTRY(ccl_global float3, throughput, 1) \
-  SPLIT_DATA_ENTRY(PathRadiance, path_radiance, 1) \
+  SPLIT_DATA_ENTRY(__thread_space PathRadiance, path_radiance, 1) \
   SPLIT_DATA_ENTRY(ccl_global Ray, ray, 1) \
   SPLIT_DATA_ENTRY(ccl_global PathState, path_state, 1) \
   SPLIT_DATA_ENTRY(ccl_global Intersection, isect, 1) \
@@ -107,28 +107,28 @@ typedef ccl_global struct SplitBranchedState {
   SPLIT_DATA_ENTRY( \
       ccl_global int, queue_data, (NUM_QUEUES * 2)) /* TODO(mai): this is too large? */ \
   SPLIT_DATA_ENTRY(ccl_global uint, buffer_offset, 1) \
-  SPLIT_DATA_ENTRY(ShaderDataTinyStorage, sd_DL_shadow, 1) \
+  SPLIT_DATA_ENTRY(__thread_space ShaderDataTinyStorage, sd_DL_shadow, 1) \
   SPLIT_DATA_SUBSURFACE_ENTRIES \
   SPLIT_DATA_VOLUME_ENTRIES \
   SPLIT_DATA_BRANCHED_ENTRIES \
-  SPLIT_DATA_ENTRY(ShaderData, _sd, 0)
+  SPLIT_DATA_ENTRY(__thread_space ShaderData, _sd, 0)
 
 /* Entries to be copied to inactive rays when sharing branched samples
  * (TODO: which are actually needed?) */
 #define SPLIT_DATA_ENTRIES_BRANCHED_SHARED \
   SPLIT_DATA_ENTRY(ccl_global float3, throughput, 1) \
-  SPLIT_DATA_ENTRY(PathRadiance, path_radiance, 1) \
+  SPLIT_DATA_ENTRY(__thread_space PathRadiance, path_radiance, 1) \
   SPLIT_DATA_ENTRY(ccl_global Ray, ray, 1) \
   SPLIT_DATA_ENTRY(ccl_global PathState, path_state, 1) \
   SPLIT_DATA_ENTRY(ccl_global Intersection, isect, 1) \
   SPLIT_DATA_ENTRY(ccl_global BsdfEval, bsdf_eval, 1) \
   SPLIT_DATA_ENTRY(ccl_global int, is_lamp, 1) \
   SPLIT_DATA_ENTRY(ccl_global Ray, light_ray, 1) \
-  SPLIT_DATA_ENTRY(ShaderDataTinyStorage, sd_DL_shadow, 1) \
+  SPLIT_DATA_ENTRY(__thread_space ShaderDataTinyStorage, sd_DL_shadow, 1) \
   SPLIT_DATA_SUBSURFACE_ENTRIES \
   SPLIT_DATA_VOLUME_ENTRIES \
   SPLIT_DATA_BRANCHED_ENTRIES \
-  SPLIT_DATA_ENTRY(ShaderData, _sd, 0)
+  SPLIT_DATA_ENTRY(__thread_space ShaderData, _sd, 0)
 
 /* struct that holds pointers to data in the shared state buffer */
 typedef struct SplitData {

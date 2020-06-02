@@ -726,9 +726,10 @@ ccl_device_inline void path_radiance_split_denoising(__thread_space KernelGlobal
   *clean = ensure_finite3(*clean);
 }
 
-ccl_device_inline void path_radiance_accum_sample(__thread_space PathRadiance *L, __thread_space PathRadiance *L_sample)
+ccl_device_inline void path_radiance_accum_sample(__device_space PathRadiance *L, __device_space PathRadiance *L_sample)
 {
 #ifdef __SPLIT_KERNEL__
+#ifndef safe_float3_add
 #  define safe_float3_add(f, v) \
     do { \
       ccl_global float *p = (ccl_global float *)(&(f)); \
@@ -737,6 +738,7 @@ ccl_device_inline void path_radiance_accum_sample(__thread_space PathRadiance *L
       atomic_add_and_fetch_float(p + 2, (v).z); \
     } while (0)
 #  define safe_float_add(f, v) atomic_add_and_fetch_float(&(f), (v))
+#endif
 #else
 #  define safe_float3_add(f, v) (f) += (v)
 #  define safe_float_add(f, v) (f) += (v)

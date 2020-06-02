@@ -23,7 +23,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline uint64_t split_data_buffer_size(KernelGlobals *kg, size_t num_elements)
+ccl_device_inline uint64_t split_data_buffer_size(__thread_space KernelGlobals *kg, size_t num_elements)
 {
   (void)kg; /* Unused on CPU. */
 

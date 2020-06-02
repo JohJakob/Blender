@@ -29,7 +29,7 @@ ccl_addr_space
                                      __thread_space Ray *ray)
 {
 #  ifdef __SPLIT_KERNEL__
-  ccl_addr_space PathState *ps =
+  ccl_addr_space __thread_space PathState *ps =
       &kernel_split_state.state_shadow[ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0)];
 #  else
   __thread_space PathState *ps = &volume_state->ps;

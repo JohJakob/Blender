@@ -209,7 +209,7 @@ ccl_device_inline int subsurface_scatter_disk(__thread_space KernelGlobals *kg,
   /* create ray */
 #ifdef __SPLIT_KERNEL__
   Ray ray_object = ss_isect->ray;
-  Ray *ray = &ray_object;
+  __thread_space Ray *ray = &ray_object;
 #else
   __thread_space Ray *ray = &ss_isect->ray;
 #endif
@@ -291,7 +291,7 @@ ccl_device_noinline void subsurface_scatter_multi_setup(__thread_space KernelGlo
 {
 #ifdef __SPLIT_KERNEL__
   Ray ray_object = ss_isect->ray;
-  Ray *ray = &ray_object;
+  __thread_space Ray *ray = &ray_object;
 #else
   __thread_space Ray *ray = &ss_isect->ray;
 #endif
@@ -383,7 +383,7 @@ ccl_device_noinline
   /* Setup ray. */
 #ifdef __SPLIT_KERNEL__
   Ray ray_object = ss_isect->ray;
-  Ray *ray = &ray_object;
+  __thread_space Ray *ray = &ray_object;
 #else
   __thread_space Ray *ray = &ss_isect->ray;
 #endif

@@ -6,6 +6,7 @@
 //
 
 #include <metal_stdlib>
+#include <metal_atomic>
 
 #define __KERNEL_GPU__
 #define __KERNEL_METAL__
@@ -105,13 +106,61 @@ inline float lgammaf(float x) {
 #define kernel_assert(x)
 #define kernel_tex_array(tex) (kg->tex)
 
-#include "util/util_transform.h"
-#include "util/util_atomic.h"
-#include "kernel/kernel_math.h"
-#include "kernel/kernel_types.h"
-#include "util/util_half.h"
-#include "kernel/kernel_globals.h"
-#include "kernel/kernel_color.h"
+//#define atomic_cmpxchg(A, B, C) atomic_exchange_explicit(A, C, memory_order_relaxed)
+
+inline float atomic_add_and_fetch_float(volatile device float* source, const float operand) {
+    auto intSource = (volatile device atomic_int *)source;
+    int sourceInt = 0;
+    int desiredInt = 0;
+    do {
+        sourceInt = atomic_load_explicit(intSource, memory_order_relaxed);
+        float sourceFloat = as_type<float>(sourceInt);
+        float desiredFloat = sourceFloat + operand;
+        desiredInt = as_type<int>(desiredFloat);
+    } while (atomic_compare_exchange_weak_explicit(intSource,
+                                                   &sourceInt,
+                                                   desiredInt,
+                                                   memory_order_relaxed,
+                                                   memory_order_relaxed));
+    return desiredInt;
+}
+
+inline float atomic_compare_and_swap_float(volatile device float *dest,
+                                                      const float old_val,
+                                                      const float new_val)
+{
+    auto intDest = (volatile device atomic_int *)dest;
+    int oldInt = atomic_exchange_explicit(intDest, as_type<int>(new_val), memory_order_relaxed);
+    return as_type<float>(oldInt);
+}
+
+#define __SPLIT_KERNEL__
+
+#include "kernel/split/kernel_split_common.h"
+//#include "kernel/split/kernel_data_init.h"
+//#include "kernel/split/kernel_path_init.h"
+//#include "kernel/split/kernel_scene_intersect.h"
+//#include "kernel/split/kernel_lamp_emission.h"
+//#include "kernel/split/kernel_do_volume.h"
+//#include "kernel/split/kernel_queue_enqueue.h"
+//#include "kernel/split/kernel_indirect_background.h"
+//#include "kernel/split/kernel_shader_setup.h"
+//#include "kernel/split/kernel_shader_sort.h"
+//#include "kernel/split/kernel_shader_eval.h"
+//#include "kernel/split/kernel_holdout_emission_blurring_pathtermination_ao.h"
+//#include "kernel/split/kernel_subsurface_scatter.h"
+//#include "kernel/split/kernel_direct_lighting.h"
+//#include "kernel/split/kernel_shadow_blocked_ao.h"
+//#include "kernel/split/kernel_shadow_blocked_dl.h"
+//#include "kernel/split/kernel_enqueue_inactive.h"
+//#include "kernel/split/kernel_next_iteration_setup.h"
+//#include "kernel/split/kernel_indirect_subsurface.h"
+//#include "kernel/split/kernel_buffer_update.h"
+//#include "kernel/split/kernel_adaptive_stopping.h"
+//#include "kernel/split/kernel_adaptive_filter_x.h"
+//#include "kernel/split/kernel_adaptive_filter_y.h"
+//#include "kernel/split/kernel_adaptive_adjust_samples.h"
+
 
 /* w0, w1, w2, and w3 are the four cubic B-spline basis functions. */
 inline float cubic_w0(float a)
@@ -328,48 +377,99 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 
 //#undef __VOLUME__
 
-#include "kernel/kernel_montecarlo.h"
-#include "kernel/kernel_projection.h"
-#include "kernel/kernel_path.h"
-
+//#include "kernel/kernel_montecarlo.h"
+//#include "kernel/kernel_projection.h"
+//#include "kernel/kernel_path.h"
+//
 #undef __BRANCHED_PATH__
-#include "kernel/kernel_bake.h"
+//#include "kernel/kernel_bake.h"
+//
+//#include "kernel/kernel_work_stealing.h"
+//
+//kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
+//                                    device float4 *output [[buffer(1)]],
+//                                    device int *type [[buffer(2)]],
+//                                    device int *filterType [[buffer(3)]],
+//                                    uint2 grid_size [[grid_size]],
+//                                    uint2 thread_position [[thread_position_in_grid]]) {
+//    uint x = thread_position.x;
+//
+//    if (x < grid_size.x) {
+//        // do stuff
+//        KernelGlobals kg;
+//        kernel_bake_evaluate(&kg, input, output, (ShaderEvalType)*type, *filterType, x, 0, 0);
+//    }
+//}
+//
+//kernel void kernel_metal_path_trace(device WorkTile* tile [[buffer(0)]],
+//                                    uint2 total_work_size_2d [[grid_size]],
+//                                    uint3 thread_id [[thread_position_in_grid]]) {
+//    uint total_work_size = total_work_size_2d.x;
+//    uint work_index = thread_id.x; //ccl_global_id(0);
+//    bool thread_is_active = work_index < total_work_size;
+//    uint x, y, sample;
+//    KernelGlobals kg;
+//    if(thread_is_active) {
+//        get_work_pixel(tile, work_index, &x, &y, &sample);
+//
+//        kernel_path_trace(&kg, tile->buffer, sample, x, y, tile->offset, tile->stride);
+//    }
+//
+//    if(kg.data->film.cryptomatte_passes) {
+//        threadgroup_barrier(mem_flags::mem_none);
+//        if(thread_is_active) {
+//            kernel_cryptomatte_post(&kg, tile->buffer, sample, x, y, tile->offset, tile->stride);
+//        }
+//    }
+//}
 
-#include "kernel/kernel_work_stealing.h"
 
-kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
-                                    device float4 *output [[buffer(1)]],
-                                    device int *type [[buffer(2)]],
-                                    device int *filterType [[buffer(3)]],
-                                    uint2 grid_size [[grid_size]],
-                                    uint2 thread_position [[thread_position_in_grid]]) {
-    uint x = thread_position.x;
+kernel void
+reduce(const device int *input [[buffer(0)]],
+       device atomic_int *output [[buffer(1)]],
+       threadgroup int *ldata [[threadgroup(0)]],
+       uint gid [[thread_position_in_grid]],
+       uint lid [[thread_position_in_threadgroup]],
+       uint lsize [[threads_per_threadgroup]],
+       uint simd_size [[threads_per_simdgroup]],
+       uint simd_lane_id [[thread_index_in_simdgroup]],
+       uint simd_group_id [[simdgroup_index_in_threadgroup]])
+{
+    // Perform the first level of reduction.
+    // Read from device memory, write to threadgroup memory.
+    int val = input[gid] + input[gid + lsize];
 
-    if (x < grid_size.x) {
-        // do stuff
-        KernelGlobals kg;
-        kernel_bake_evaluate(&kg, input, output, (ShaderEvalType)*type, *filterType, x, 0, 0);
-    }
+    for (uint s=lsize/simd_size; s>simd_size; s/=simd_size)
+    {
+        // Perform per-SIMD partial reduction.
+        for (uint offset=simd_size/2; offset>0; offset/=2)
+            val += simd_shuffle_down(val, offset);
+
+        // Write per-SIMD partial reduction value to threadgroup memory.
+        if (simd_lane_id == 0)
+        ldata[simd_group_id] = val;
+
+        // Wait for all partial reductions to complete.
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        val = (lid < s) ? ldata[lid] : 0; }
+
+    // Perform final per-SIMD partial reduction to calculate
+    // the threadgroup partial reduction result.
+    for (uint offset=simd_size/2; offset>0; offset/=2)
+        val += simd_shuffle_down(val, offset);
+
+    // Atomically update the reduction result.
+    if (lid == 0)
+        atomic_fetch_add_explicit(output, val, memory_order_relaxed);
 }
 
-kernel void kernel_metal_path_trace(device WorkTile* tile [[buffer(0)]],
-                                    uint2 total_work_size_2d [[grid_size]],
-                                    uint3 thread_id [[thread_position_in_grid]]) {
-    uint total_work_size = total_work_size_2d.x;
-    uint work_index = thread_id.x; //ccl_global_id(0);
-    bool thread_is_active = work_index < total_work_size;
-    uint x, y, sample;
-    KernelGlobals kg;
-    if(thread_is_active) {
-        get_work_pixel(tile, work_index, &x, &y, &sample);
 
-        kernel_path_trace(&kg, tile->buffer, sample, x, y, tile->offset, tile->stride);
-    }
-
-    if(kg.data->film.cryptomatte_passes) {
-        threadgroup_barrier(mem_flags::mem_none);
-        if(thread_is_active) {
-            kernel_cryptomatte_post(&kg, tile->buffer, sample, x, y, tile->offset, tile->stride);
-        }
-    }
-}
+//#include "util/util_transform.h"
+//#include "util/util_atomic.h"
+//#include "kernel/kernel_math.h"
+//#include "kernel/kernel_types.h"
+//#include "util/util_half.h"
+//#include "kernel/kernel_globals.h"
+//#include "kernel/kernel_color.h"
+//
+//#include "kernel/kernel_film.h"
