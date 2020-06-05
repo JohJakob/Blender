@@ -22,12 +22,12 @@ CCL_NAMESPACE_BEGIN
 /* Determines whether to continue sampling a given pixel or if it has sufficiently converged. */
 
 ccl_device void kernel_do_adaptive_stopping(__thread_space KernelGlobals *kg,
-                                            ccl_global float *buffer,
+                                            ccl_global __device_space float *buffer,
                                             int sample)
 {
   /* TODO Stefan: Is this better in linear, sRGB or something else? */
-  float4 I = *((ccl_global float4 *)buffer);
-  float4 A = *(ccl_global float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
+  float4 I = *((ccl_global __device_space float4 *)buffer);
+  float4 A = *(ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
   /* The per pixel error as seen in section 2.1 of
    * "A hierarchical automatic stopping condition for Monte Carlo global illumination"
    * A small epsilon is added to the divisor to prevent division by zero. */
@@ -42,69 +42,69 @@ ccl_device void kernel_do_adaptive_stopping(__thread_space KernelGlobals *kg,
 /* Adjust the values of an adaptively sampled pixel. */
 
 ccl_device void kernel_adaptive_post_adjust(__thread_space KernelGlobals *kg,
-                                            ccl_global float *buffer,
+                                            __device_space ccl_global float *buffer,
                                             float sample_multiplier)
 {
-  *(ccl_global float4 *)(buffer) *= sample_multiplier;
+  *(ccl_global __device_space float4 *)(buffer) *= sample_multiplier;
 
   /* Scale the aux pass too, this is necessary for progressive rendering to work properly. */
   kernel_assert(kernel_data.film.pass_adaptive_aux_buffer);
-  *(ccl_global float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer) *= sample_multiplier;
+  *(ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer) *= sample_multiplier;
 
 #ifdef __PASSES__
   int flag = kernel_data.film.pass_flag;
 
   if (flag & PASSMASK(NORMAL))
-    *(ccl_global float3 *)(buffer + kernel_data.film.pass_normal) *= sample_multiplier;
+    *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_normal) *= sample_multiplier;
 
   if (flag & PASSMASK(UV))
-    *(ccl_global float3 *)(buffer + kernel_data.film.pass_uv) *= sample_multiplier;
+    *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_uv) *= sample_multiplier;
 
   if (flag & PASSMASK(MOTION)) {
-    *(ccl_global float4 *)(buffer + kernel_data.film.pass_motion) *= sample_multiplier;
-    *(ccl_global float *)(buffer + kernel_data.film.pass_motion_weight) *= sample_multiplier;
+    *(ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_motion) *= sample_multiplier;
+    *(ccl_global __device_space float *)(buffer + kernel_data.film.pass_motion_weight) *= sample_multiplier;
   }
 
   if (kernel_data.film.use_light_pass) {
     int light_flag = kernel_data.film.light_pass_flag;
 
     if (light_flag & PASSMASK(MIST))
-      *(ccl_global float *)(buffer + kernel_data.film.pass_mist) *= sample_multiplier;
+      *(ccl_global __device_space float *)(buffer + kernel_data.film.pass_mist) *= sample_multiplier;
 
     /* Shadow pass omitted on purpose. It has its own scale parameter. */
 
     if (light_flag & PASSMASK(DIFFUSE_INDIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_diffuse_indirect) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_diffuse_indirect) *= sample_multiplier;
     if (light_flag & PASSMASK(GLOSSY_INDIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_glossy_indirect) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_glossy_indirect) *= sample_multiplier;
     if (light_flag & PASSMASK(TRANSMISSION_INDIRECT))
-      *(ccl_global float3 *)(buffer +
+      *(ccl_global __device_space float3 *)(buffer +
                              kernel_data.film.pass_transmission_indirect) *= sample_multiplier;
     if (light_flag & PASSMASK(VOLUME_INDIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_volume_indirect) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_volume_indirect) *= sample_multiplier;
     if (light_flag & PASSMASK(DIFFUSE_DIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_diffuse_direct) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_diffuse_direct) *= sample_multiplier;
     if (light_flag & PASSMASK(GLOSSY_DIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_glossy_direct) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_glossy_direct) *= sample_multiplier;
     if (light_flag & PASSMASK(TRANSMISSION_DIRECT))
-      *(ccl_global float3 *)(buffer +
+      *(ccl_global __device_space float3 *)(buffer +
                              kernel_data.film.pass_transmission_direct) *= sample_multiplier;
     if (light_flag & PASSMASK(VOLUME_DIRECT))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_volume_direct) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_volume_direct) *= sample_multiplier;
 
     if (light_flag & PASSMASK(EMISSION))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_emission) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_emission) *= sample_multiplier;
     if (light_flag & PASSMASK(BACKGROUND))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_background) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_background) *= sample_multiplier;
     if (light_flag & PASSMASK(AO))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_ao) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_ao) *= sample_multiplier;
 
     if (light_flag & PASSMASK(DIFFUSE_COLOR))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_diffuse_color) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_diffuse_color) *= sample_multiplier;
     if (light_flag & PASSMASK(GLOSSY_COLOR))
-      *(ccl_global float3 *)(buffer + kernel_data.film.pass_glossy_color) *= sample_multiplier;
+      *(ccl_global __device_space float3 *)(buffer + kernel_data.film.pass_glossy_color) *= sample_multiplier;
     if (light_flag & PASSMASK(TRANSMISSION_COLOR))
-      *(ccl_global float3 *)(buffer +
+      *(ccl_global __device_space float3 *)(buffer +
                              kernel_data.film.pass_transmission_color) *= sample_multiplier;
   }
 #endif
@@ -157,7 +157,7 @@ ccl_device void kernel_adaptive_post_adjust(__thread_space KernelGlobals *kg,
     num_slots += (kernel_data.film.cryptomatte_passes & CRYPT_MATERIAL) ? 1 : 0;
     num_slots += (kernel_data.film.cryptomatte_passes & CRYPT_ASSET) ? 1 : 0;
     num_slots = num_slots * 2 * kernel_data.film.cryptomatte_depth;
-    ccl_global float2 *id_buffer = (ccl_global float2 *)(buffer +
+    ccl_global __device_space float2 *id_buffer = (ccl_global __device_space float2 *)(buffer +
                                                          kernel_data.film.pass_cryptomatte);
     for (int slot = 0; slot < num_slots; slot++) {
       id_buffer[slot].y *= sample_multiplier;
@@ -169,28 +169,28 @@ ccl_device void kernel_adaptive_post_adjust(__thread_space KernelGlobals *kg,
     *(buffer + kernel_data.film.pass_aov_value + i) *= sample_multiplier;
   }
   for (int i = 0; i < kernel_data.film.pass_aov_color_num; i++) {
-    *((ccl_global float4 *)(buffer + kernel_data.film.pass_aov_color) + i) *= sample_multiplier;
+    *((ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_aov_color) + i) *= sample_multiplier;
   }
 }
 
 /* This is a simple box filter in two passes.
  * When a pixel demands more adaptive samples, let its neighboring pixels draw more samples too. */
 
-ccl_device bool kernel_do_adaptive_filter_x(__thread_space KernelGlobals *kg, int y, ccl_global WorkTile *tile)
+ccl_device bool kernel_do_adaptive_filter_x(__thread_space KernelGlobals *kg, int y, ccl_global __device_space WorkTile *tile)
 {
   bool any = false;
   bool prev = false;
   for (int x = tile->x; x < tile->x + tile->w; ++x) {
     int index = tile->offset + x + y * tile->stride;
-    ccl_global float *buffer = tile->buffer + index * kernel_data.film.pass_stride;
-    ccl_global float4 *aux = (ccl_global float4 *)(buffer +
+    ccl_global __device_space float *buffer = tile->buffer + index * kernel_data.film.pass_stride;
+    ccl_global __device_space float4 *aux = (ccl_global __device_space float4 *)(buffer +
                                                    kernel_data.film.pass_adaptive_aux_buffer);
     if (aux->w == 0.0f) {
       any = true;
       if (x > tile->x && !prev) {
         index = index - 1;
         buffer = tile->buffer + index * kernel_data.film.pass_stride;
-        aux = (ccl_global float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
+        aux = (ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
         aux->w = 0.0f;
       }
       prev = true;
@@ -205,21 +205,21 @@ ccl_device bool kernel_do_adaptive_filter_x(__thread_space KernelGlobals *kg, in
   return any;
 }
 
-ccl_device bool kernel_do_adaptive_filter_y(__thread_space KernelGlobals *kg, int x, ccl_global WorkTile *tile)
+ccl_device bool kernel_do_adaptive_filter_y(__thread_space KernelGlobals *kg, int x, ccl_global __device_space WorkTile *tile)
 {
   bool prev = false;
   bool any = false;
   for (int y = tile->y; y < tile->y + tile->h; ++y) {
     int index = tile->offset + x + y * tile->stride;
-    ccl_global float *buffer = tile->buffer + index * kernel_data.film.pass_stride;
-    ccl_global float4 *aux = (ccl_global float4 *)(buffer +
+    ccl_global __device_space float *buffer = tile->buffer + index * kernel_data.film.pass_stride;
+    ccl_global __device_space float4 *aux = (ccl_global __device_space float4 *)(buffer +
                                                    kernel_data.film.pass_adaptive_aux_buffer);
     if (aux->w == 0.0f) {
       any = true;
       if (y > tile->y && !prev) {
         index = index - tile->stride;
         buffer = tile->buffer + index * kernel_data.film.pass_stride;
-        aux = (ccl_global float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
+        aux = (ccl_global __device_space float4 *)(buffer + kernel_data.film.pass_adaptive_aux_buffer);
         aux->w = 0.0f;
       }
       prev = true;

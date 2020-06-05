@@ -44,14 +44,14 @@ ccl_device_inline uint64_t split_data_buffer_size(__thread_space KernelGlobals *
 }
 
 ccl_device_inline void split_data_init(__thread_space KernelGlobals *kg,
-                                       ccl_global SplitData *split_data,
+                                       __thread_space ccl_global SplitData *split_data,
                                        size_t num_elements,
-                                       ccl_global void *data,
-                                       ccl_global char *ray_state)
+                                       ccl_global __device_space void *data,
+                                       ccl_global __device_space char *ray_state)
 {
   (void)kg; /* Unused on CPU. */
 
-  ccl_global char *p = (ccl_global char *)data;
+  ccl_global __device_space char *p = (ccl_global __device_space char *)data;
 
 #define SPLIT_DATA_ENTRY(type, name, num) \
   split_data->name = (type *)p; \

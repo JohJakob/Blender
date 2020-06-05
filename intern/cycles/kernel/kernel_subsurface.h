@@ -127,7 +127,7 @@ ccl_device float3 subsurface_color_pow(float3 color, float exponent)
 }
 
 ccl_device void subsurface_color_bump_blur(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space ccl_addr_space PathState *state, __thread_space float3 *eval, __thread_space float3 *N)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __device_space ccl_addr_space PathState *state, __thread_space float3 *eval, __thread_space float3 *N)
 {
   /* average color and texture blur at outgoing point */
   float texture_blur;
@@ -285,7 +285,7 @@ ccl_device_noinline void subsurface_scatter_multi_setup(__thread_space KernelGlo
                                                         __thread_space LocalIntersection *ss_isect,
                                                         int hit,
                                                         __thread_space ShaderData *sd,
-                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __device_space ccl_addr_space PathState *state,
                                                         ClosureType type,
                                                         float roughness)
 {
@@ -362,7 +362,7 @@ ccl_device_noinline
     subsurface_random_walk(__thread_space KernelGlobals *kg,
                            __thread_space LocalIntersection *ss_isect,
                            __thread_space ShaderData *sd,
-                           __thread_space ccl_addr_space PathState *state,
+                           __device_space ccl_addr_space PathState *state,
                            __thread_space const ShaderClosure *sc,
                            const float bssrdf_u,
                            const float bssrdf_v)
@@ -488,7 +488,7 @@ ccl_device_noinline
 ccl_device_inline int subsurface_scatter_multi_intersect(__thread_space KernelGlobals *kg,
                                                          __thread_space LocalIntersection *ss_isect,
                                                          __thread_space ShaderData *sd,
-                                                         __thread_space ccl_addr_space PathState *state,
+                                                         __device_space ccl_addr_space PathState *state,
                                                          __thread_space const ShaderClosure *sc,
                                                          __thread_space uint *lcg_state,
                                                          float bssrdf_u,

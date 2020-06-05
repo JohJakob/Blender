@@ -21,15 +21,15 @@ CCL_NAMESPACE_BEGIN
 #  ifdef __SPLIT_KERNEL__
 ccl_addr_space
 #  endif
-    __thread_space ccl_device_inline PathState *
+    __device_space ccl_device_inline PathState *
     shadow_blocked_volume_path_state(__thread_space KernelGlobals *kg,
                                      __thread_space VolumeState *volume_state,
-                                     __thread_space ccl_addr_space PathState *state,
+                                     __device_space ccl_addr_space PathState *state,
                                      __thread_space ShaderData *sd,
                                      __thread_space Ray *ray)
 {
 #  ifdef __SPLIT_KERNEL__
-  ccl_addr_space __thread_space PathState *ps =
+  ccl_addr_space __device_space PathState *ps =
       &kernel_split_state.state_shadow[ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0)];
 #  else
   __thread_space PathState *ps = &volume_state->ps;
@@ -50,9 +50,9 @@ ccl_addr_space
  */
 ccl_device_forceinline bool shadow_handle_transparent_isect(__thread_space KernelGlobals *kg,
                                                             __thread_space ShaderData *shadow_sd,
-                                                            __thread_space ccl_addr_space PathState *state,
+                                                            __device_space ccl_addr_space PathState *state,
 #ifdef __VOLUME__
-                                                            __thread_space ccl_addr_space PathState *volume_state,
+                                                            __device_space ccl_addr_space PathState *volume_state,
 #endif
                                                             __thread_space Intersection *isect,
                                                             __thread_space Ray *ray,
@@ -89,7 +89,7 @@ ccl_device_forceinline bool shadow_handle_transparent_isect(__thread_space Kerne
 /* Special version which only handles opaque shadows. */
 ccl_device bool shadow_blocked_opaque(__thread_space KernelGlobals *kg,
                                       __thread_space ShaderData *shadow_sd,
-                                      __thread_space ccl_addr_space PathState *state,
+                                      __device_space ccl_addr_space PathState *state,
                                       const uint visibility,
                                       __thread_space Ray *ray,
                                       __thread_space Intersection *isect,
@@ -142,7 +142,7 @@ ccl_device bool shadow_blocked_opaque(__thread_space KernelGlobals *kg,
 ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals *kg,
                                                     __thread_space ShaderData *sd,
                                                     __thread_space ShaderData *shadow_sd,
-                                                    __thread_space ccl_addr_space PathState *state,
+                                                    __device_space ccl_addr_space PathState *state,
                                                     const uint visibility,
                                                     __thread_space Ray *ray,
                                                     __thread_space Intersection *hits,
@@ -174,7 +174,7 @@ ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals
 #      ifdef __SPLIT_KERNEL__
     ccl_addr_space
 #      endif
-        __thread_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
+        __device_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
 #    endif
     sort_intersections(hits, num_hits);
     for (int hit = 0; hit < num_hits; hit++, isect++) {
@@ -222,7 +222,7 @@ ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals
 #      ifdef __SPLIT_KERNEL__
     ccl_addr_space
 #      endif
-        __thread_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
+        __device_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
     kernel_volume_shadow(kg, shadow_sd, ps, ray, shadow);
   }
 #    endif
@@ -235,7 +235,7 @@ ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals
 ccl_device bool shadow_blocked_transparent_all(__thread_space KernelGlobals *kg,
                                                __thread_space ShaderData *sd,
                                                __thread_space ShaderData *shadow_sd,
-                                               __thread_space ccl_addr_space PathState *state,
+                                               __device_space ccl_addr_space PathState *state,
                                                const uint visibility,
                                                __thread_space Ray *ray,
                                                uint max_hits,
@@ -243,7 +243,7 @@ ccl_device bool shadow_blocked_transparent_all(__thread_space KernelGlobals *kg,
 {
 #    ifdef __SPLIT_KERNEL__
   Intersection hits_[SHADOW_STACK_MAX_HITS];
-  Intersection *hits = &hits_[0];
+  __thread_space Intersection *hits = &hits_[0];
 #    elif defined(__KERNEL_CUDA__)
   Intersection *hits = kg->hits_stack;
 #    else
@@ -289,7 +289,7 @@ ccl_device bool shadow_blocked_transparent_all(__thread_space KernelGlobals *kg,
 ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlobals *kg,
                                                         __thread_space ShaderData *sd,
                                                         __thread_space ShaderData *shadow_sd,
-                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __device_space ccl_addr_space PathState *state,
                                                         const uint visibility,
                                                         __thread_space Ray *ray,
                                                         __thread_space Intersection *isect,
@@ -312,7 +312,7 @@ ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlo
 #      ifdef __SPLIT_KERNEL__
     ccl_addr_space
 #      endif
-        __thread_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
+        __device_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
 #    endif
     for (;;) {
       if (bounce >= kernel_data.integrator.transparent_max_bounce) {
@@ -358,7 +358,7 @@ ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlo
 #      ifdef __SPLIT_KERNEL__
     ccl_addr_space
 #      endif
-        __thread_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
+        __device_space PathState *ps = shadow_blocked_volume_path_state(kg, &volume_state, state, sd, ray);
     kernel_volume_shadow(kg, shadow_sd, ps, ray, shadow);
   }
 #    endif
@@ -368,7 +368,7 @@ ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlo
 ccl_device bool shadow_blocked_transparent_stepped(__thread_space KernelGlobals *kg,
                                                    __thread_space ShaderData *sd,
                                                    __thread_space ShaderData *shadow_sd,
-                                                   __thread_space ccl_addr_space PathState *state,
+                                                   __device_space ccl_addr_space PathState *state,
                                                    const uint visibility,
                                                    __thread_space Ray *ray,
                                                    __thread_space Intersection *isect,
@@ -386,7 +386,7 @@ ccl_device bool shadow_blocked_transparent_stepped(__thread_space KernelGlobals 
 ccl_device_inline bool shadow_blocked(__thread_space KernelGlobals *kg,
                                       __thread_space ShaderData *sd,
                                       __thread_space ShaderData *shadow_sd,
-                                      __thread_space ccl_addr_space PathState *state,
+                                      __device_space ccl_addr_space PathState *state,
                                       __thread_space Ray *ray,
                                       __thread_space float3 *shadow)
 {

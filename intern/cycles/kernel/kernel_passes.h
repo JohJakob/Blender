@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
 #ifdef __DENOISING_FEATURES__
 
 ccl_device_inline void kernel_write_denoising_shadow(__thread_space KernelGlobals *kg,
-                                                     ccl_global float *buffer,
+                                                     ccl_global __device_space float *buffer,
                                                      int sample,
                                                      float path_total,
                                                      float path_total_shaded)
@@ -160,7 +160,7 @@ ccl_device_inline size_t kernel_write_id_pass_cpu(
 #else /* __KERNEL_CPU__ */
 #  define WRITE_ID_SLOT(buffer, depth, id, matte_weight, name) \
     kernel_write_id_slots_gpu(buffer, depth * 2, id, matte_weight)
-ccl_device_inline size_t kernel_write_id_slots_gpu(ccl_global float *buffer,
+ccl_device_inline size_t kernel_write_id_slots_gpu(ccl_global __device_space float *buffer,
                                                    size_t depth,
                                                    float id,
                                                    float matte_weight)
@@ -171,10 +171,10 @@ ccl_device_inline size_t kernel_write_id_slots_gpu(ccl_global float *buffer,
 }
 
 ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg,
-                                                ccl_global float *buffer,
+                                                ccl_global __device_space float *buffer,
                                                 __thread_space PathRadiance *L,
                                                 __thread_space ShaderData *sd,
-                                                __thread_space ccl_addr_space PathState *state,
+                                                __device_space ccl_addr_space PathState *state,
                                                 float3 throughput)
 {
 #ifdef __PASSES__
@@ -229,7 +229,7 @@ ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg
     const float matte_weight = average(throughput) *
                                (1.0f - average(shader_bsdf_transparency(kg, sd)));
     if (matte_weight > 0.0f) {
-      ccl_global float *cryptomatte_buffer = buffer + kernel_data.film.pass_cryptomatte;
+      ccl_global __device_space float *cryptomatte_buffer = buffer + kernel_data.film.pass_cryptomatte;
       if (kernel_data.film.cryptomatte_passes & CRYPT_OBJECT) {
         float id = object_cryptomatte_id(kg, sd->object);
         cryptomatte_buffer += WRITE_ID_SLOT(
@@ -283,8 +283,8 @@ ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg
 }
 
 ccl_device_inline void kernel_write_light_passes(__thread_space KernelGlobals *kg,
-                                                 ccl_global float *buffer,
-                                                 __thread_space PathRadiance *L)
+                                                 ccl_global __device_space float *buffer,
+                                                 __device_space PathRadiance *L)
 {
 #ifdef __PASSES__
   int light_flag = kernel_data.film.light_pass_flag;
@@ -336,9 +336,9 @@ ccl_device_inline void kernel_write_light_passes(__thread_space KernelGlobals *k
 }
 
 ccl_device_inline void kernel_write_result(__thread_space KernelGlobals *kg,
-                                           ccl_global float *buffer,
+                                           ccl_global __device_space float *buffer,
                                            int sample,
-                                           __thread_space PathRadiance *L)
+                                           __device_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_WRITE_RESULT);
   PROFILING_OBJECT(PRIM_NONE);
@@ -421,7 +421,7 @@ ccl_device_inline void kernel_write_result(__thread_space KernelGlobals *kg,
     /* Make sure it's a negative number. In progressive refine mode, this bit gets flipped between
      * passes. */
 #ifdef __ATOMIC_PASS_WRITE__
-    atomic_fetch_and_or_uint32((ccl_global uint *)(buffer + kernel_data.film.pass_sample_count),
+    atomic_fetch_and_or_uint32((ccl_global __device_space uint *)(buffer + kernel_data.film.pass_sample_count),
                                0x80000000);
 #else
     if (buffer[kernel_data.film.pass_sample_count] > 0) {

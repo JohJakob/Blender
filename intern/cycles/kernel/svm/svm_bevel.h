@@ -26,7 +26,7 @@ CCL_NAMESPACE_BEGIN
 
 ccl_device_noinline float3 svm_bevel(__thread_space KernelGlobals *kg,
                                      __thread_space ShaderData *sd,
-                                     __thread_space ccl_addr_space PathState *state,
+                                     __device_space ccl_addr_space PathState *state,
                                      float radius,
                                      int num_samples)
 {
@@ -200,7 +200,7 @@ ccl_device_noinline float3 svm_bevel(__thread_space KernelGlobals *kg,
 
 ccl_device void svm_node_bevel(__thread_space KernelGlobals *kg,
                                __thread_space ShaderData *sd,
-                               __thread_space ccl_addr_space PathState *state,
+                               __device_space ccl_addr_space PathState *state,
                                __thread_space float *stack,
                                uint4 node)
 {

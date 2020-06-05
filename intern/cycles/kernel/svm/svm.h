@@ -219,8 +219,8 @@ CCL_NAMESPACE_BEGIN
 /* Main Interpreter Loop */
 ccl_device_noinline void svm_eval_nodes(__thread_space KernelGlobals *kg,
                                         __thread_space ShaderData *sd,
-                                        __thread_space ccl_addr_space PathState *state,
-                                        ccl_global float *buffer,
+                                        __device_space ccl_addr_space PathState *state,
+                                        ccl_global __device_space float *buffer,
                                         ShaderType type,
                                         int path_flag)
 {

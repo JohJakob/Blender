@@ -40,7 +40,7 @@ typedef struct VolumeShaderCoefficients {
 /* evaluate shader to get extinction coefficient at P */
 ccl_device_inline bool volume_shader_extinction_sample(__thread_space KernelGlobals *kg,
                                                        __thread_space ShaderData *sd,
-                                                       __thread_space ccl_addr_space PathState *state,
+                                                       __device_space ccl_addr_space PathState *state,
                                                        float3 P,
                                                        __thread_space float3 *extinction)
 {
@@ -60,7 +60,7 @@ ccl_device_inline bool volume_shader_extinction_sample(__thread_space KernelGlob
 /* evaluate shader to get absorption, scattering and emission at P */
 ccl_device_inline bool volume_shader_sample(__thread_space KernelGlobals *kg,
                                             __thread_space ShaderData *sd,
-                                            __thread_space ccl_addr_space PathState *state,
+                                            __device_space ccl_addr_space PathState *state,
                                             float3 P,
                                             __thread_space VolumeShaderCoefficients *coeff)
 {
@@ -107,7 +107,7 @@ ccl_device float kernel_volume_channel_get(float3 value, int channel)
 
 #ifdef __VOLUME__
 
-ccl_device float volume_stack_step_size(__thread_space KernelGlobals *kg, __thread_space ccl_addr_space VolumeStack *stack)
+ccl_device float volume_stack_step_size(__thread_space KernelGlobals *kg, __device_space ccl_addr_space VolumeStack *stack)
 {
   float step_size = FLT_MAX;
 
@@ -173,7 +173,7 @@ ccl_device int volume_stack_sampling_method(__thread_space KernelGlobals *kg, __
 }
 
 ccl_device_inline void kernel_volume_step_init(__thread_space KernelGlobals *kg,
-                                               __thread_space ccl_addr_space PathState *state,
+                                               __device_space ccl_addr_space PathState *state,
                                                const float object_step_size,
                                                float t,
                                                __thread_space float *step_size,
@@ -199,7 +199,7 @@ ccl_device_inline void kernel_volume_step_init(__thread_space KernelGlobals *kg,
 /* homogeneous volume: assume shader evaluation at the starts gives
  * the extinction coefficient for the entire line segment */
 ccl_device void kernel_volume_shadow_homogeneous(__thread_space KernelGlobals *kg,
-                                                 __thread_space ccl_addr_space PathState *state,
+                                                 __device_space ccl_addr_space PathState *state,
                                                  __thread_space Ray *ray,
                                                  __thread_space ShaderData *sd,
                                                  __thread_space float3 *throughput)
@@ -213,7 +213,7 @@ ccl_device void kernel_volume_shadow_homogeneous(__thread_space KernelGlobals *k
 /* heterogeneous volume: integrate stepping through the volume until we
  * reach the end, get absorbed entirely, or run out of iterations */
 ccl_device void kernel_volume_shadow_heterogeneous(__thread_space KernelGlobals *kg,
-                                                   __thread_space ccl_addr_space PathState *state,
+                                                   __device_space ccl_addr_space PathState *state,
                                                    __thread_space Ray *ray,
                                                    __thread_space ShaderData *sd,
                                                    __thread_space float3 *throughput,
@@ -276,7 +276,7 @@ ccl_device void kernel_volume_shadow_heterogeneous(__thread_space KernelGlobals 
  * assumption that there are no surfaces blocking light between the endpoints */
 ccl_device_noinline void kernel_volume_shadow(__thread_space KernelGlobals *kg,
                                               __thread_space ShaderData *shadow_sd,
-                                              __thread_space ccl_addr_space PathState *state,
+                                              __device_space ccl_addr_space PathState *state,
                                               __thread_space Ray *ray,
                                               __thread_space float3 *throughput)
 {
@@ -440,7 +440,7 @@ ccl_device int kernel_volume_sample_channel(float3 albedo,
  * the volume shading coefficient for the entire line segment */
 ccl_device VolumeIntegrateResult
 kernel_volume_integrate_homogeneous(__thread_space KernelGlobals *kg,
-                                    __thread_space ccl_addr_space PathState *state,
+                                    __device_space ccl_addr_space PathState *state,
                                     __thread_space Ray *ray,
                                     __thread_space ShaderData *sd,
                                     __thread_space PathRadiance *L,
@@ -548,7 +548,7 @@ kernel_volume_integrate_homogeneous(__thread_space KernelGlobals *kg,
  * for path tracing where we don't want to branch. */
 ccl_device VolumeIntegrateResult
 kernel_volume_integrate_heterogeneous_distance(__thread_space KernelGlobals *kg,
-                                               __thread_space ccl_addr_space PathState *state,
+                                               __device_space ccl_addr_space PathState *state,
                                                __thread_space Ray *ray,
                                                __thread_space ShaderData *sd,
                                                __thread_space PathRadiance *L,
@@ -694,7 +694,7 @@ kernel_volume_integrate_heterogeneous_distance(__thread_space KernelGlobals *kg,
  * scatter or not. */
 ccl_device_noinline_cpu VolumeIntegrateResult
 kernel_volume_integrate(__thread_space KernelGlobals *kg,
-                        __thread_space ccl_addr_space PathState *state,
+                        __device_space ccl_addr_space PathState *state,
                         __thread_space ShaderData *sd,
                         __thread_space Ray *ray,
                         __thread_space PathRadiance *L,
@@ -1307,7 +1307,7 @@ ccl_device void kernel_volume_stack_init(__thread_space KernelGlobals *kg,
 
 ccl_device void kernel_volume_stack_enter_exit(__thread_space KernelGlobals *kg,
                                                __thread_space ShaderData *sd,
-                                               __thread_space ccl_addr_space VolumeStack *stack)
+                                               __device_space ccl_addr_space VolumeStack *stack)
 {
   /* todo: we should have some way for objects to indicate if they want the
    * world shader to work inside them. excluding it by default is problematic
@@ -1355,7 +1355,7 @@ ccl_device void kernel_volume_stack_enter_exit(__thread_space KernelGlobals *kg,
 ccl_device void kernel_volume_stack_update_for_subsurface(__thread_space KernelGlobals *kg,
                                                           __thread_space ShaderData *stack_sd,
                                                           __thread_space Ray *ray,
-                                                          __thread_space ccl_addr_space VolumeStack *stack)
+                                                          __device_space ccl_addr_space VolumeStack *stack)
 {
   kernel_assert(kernel_data.integrator.use_volumes);
 

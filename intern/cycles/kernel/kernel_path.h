@@ -55,7 +55,7 @@
 CCL_NAMESPACE_BEGIN
 
 ccl_device_forceinline bool kernel_path_scene_intersect(__thread_space KernelGlobals *kg,
-                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __device_space ccl_addr_space PathState *state,
                                                         __thread_space Ray *ray,
                                                         __thread_space Intersection *isect,
                                                         __thread_space PathRadiance *L)
@@ -84,7 +84,7 @@ ccl_device_forceinline bool kernel_path_scene_intersect(__thread_space KernelGlo
 }
 
 ccl_device_forceinline void kernel_path_lamp_emission(__thread_space KernelGlobals *kg,
-                                                      __thread_space ccl_addr_space PathState *state,
+                                                      __device_space ccl_addr_space PathState *state,
                                                       __thread_space Ray *ray,
                                                       float3 throughput,
                                                       __thread_space ccl_addr_space Intersection *isect,
@@ -113,11 +113,11 @@ ccl_device_forceinline void kernel_path_lamp_emission(__thread_space KernelGloba
 }
 
 ccl_device_forceinline void kernel_path_background(__thread_space KernelGlobals *kg,
-                                                   __thread_space ccl_addr_space PathState *state,
+                                                   __device_space ccl_addr_space PathState *state,
                                                    __thread_space ccl_addr_space Ray *ray,
                                                    float3 throughput,
                                                    __thread_space ShaderData *sd,
-                                                   ccl_global float *buffer,
+                                                   ccl_global __device_space float *buffer,
                                                    __thread_space PathRadiance *L)
 {
   /* eval background shader if nothing hit */
@@ -253,12 +253,12 @@ ccl_device_forceinline VolumeIntegrateResult kernel_path_volume(__thread_space K
 
 ccl_device_forceinline bool kernel_path_shader_apply(__thread_space KernelGlobals *kg,
                                                      __thread_space ShaderData *sd,
-                                                     __thread_space ccl_addr_space PathState *state,
+                                                     __device_space ccl_addr_space PathState *state,
                                                      __thread_space ccl_addr_space Ray *ray,
                                                      float3 throughput,
                                                      __thread_space ShaderData *emission_sd,
                                                      __thread_space PathRadiance *L,
-                                                     ccl_global float *buffer)
+                                                     ccl_global __device_space float *buffer)
 {
   PROFILING_INIT(kg, PROFILING_SHADER_APPLY);
 
@@ -338,7 +338,7 @@ ccl_device_noinline
                    __thread_space ShaderData *sd,
                    __thread_space ShaderData *emission_sd,
                    __thread_space PathRadiance *L,
-                   __thread_space ccl_addr_space PathState *state,
+                   __device_space ccl_addr_space PathState *state,
                    float3 throughput,
                    float3 ao_alpha)
 {

@@ -16,13 +16,19 @@
 #define ccl_device_forceinline inline
 #define ccl_device
 #define ccl_device_noinline
-#define ccl_global device
+#define ccl_global
 #define ccl_addr_space
 #define ccl_align(x)
 #define ccl_ref
+#define ccl_local_param
+#define ccl_local_id(x) 0
+#define ccl_local_size(x) 0
 
 #define ccl_global_id(x) (kg->global_id[x])
 #define ccl_global_size(x) (kg->global_size[x])
+
+#define ccl_barrier(x)
+#define CCL_LOCAL_MEM_FENCE
 
 #ifndef NULL
 #define NULL (0)
@@ -154,6 +160,19 @@ inline float atomic_compare_and_swap_float(volatile device float *dest,
 inline uint atomic_fetch_and_or_uint32(device uint* input, uint M) {
     auto atomic_input = (volatile device atomic_uint*)input;
     return atomic_fetch_or_explicit(atomic_input, M, memory_order_relaxed);
+}
+
+inline uint atomic_fetch_and_add_uint32(device uint* input, int M) {
+    auto atomic_input = (volatile device atomic_uint*)input;
+    return atomic_fetch_add_explicit(atomic_input, M, memory_order_relaxed);
+}
+
+inline uint atomic_fetch_and_dec_uint32(device uint* input) {
+    return atomic_fetch_and_add_uint32(input, -1);
+}
+
+inline uint atomic_fetch_and_inc_uint32(device uint* input) {
+    return atomic_fetch_and_add_uint32(input, 1);
 }
 
 /* w0, w1, w2, and w3 are the four cubic B-spline basis functions. */

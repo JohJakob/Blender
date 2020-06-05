@@ -1676,7 +1676,7 @@ typedef struct WorkTile {
   int offset;
   uint stride;
 
-  ccl_global float *buffer;
+  ccl_global __device_space float *buffer;
 } WorkTile;
 
 /* Precoumputed sample table sizes for PMJ02 sampler. */

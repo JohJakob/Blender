@@ -77,7 +77,7 @@ ccl_device_inline Transform object_fetch_transform_motion(__thread_space KernelG
                                                           float time)
 {
   const uint motion_offset = kernel_tex_fetch(__objects, object).motion_offset;
-  const ccl_global DecomposedTransform *motion = &kernel_tex_fetch(__object_motion, motion_offset);
+  const ccl_global __device_space DecomposedTransform *motion = &kernel_tex_fetch(__object_motion, motion_offset);
   const uint num_steps = kernel_tex_fetch(__objects, object).numsteps * 2 + 1;
 
   Transform tfm;
@@ -235,7 +235,7 @@ ccl_device_inline float3 object_color(__thread_space KernelGlobals *kg,
   if (object == OBJECT_NONE)
     return make_float3(0.0f, 0.0f, 0.0f);
 
-  const ccl_global KernelObject *kobject = &kernel_tex_fetch(__objects, object);
+  const ccl_global __device_space KernelObject *kobject = &kernel_tex_fetch(__objects, object);
   return make_float3(kobject->color[0], kobject->color[1], kobject->color[2]);
 }
 
@@ -291,7 +291,7 @@ ccl_device_inline float3 object_dupli_generated(__thread_space KernelGlobals *kg
   if (object == OBJECT_NONE)
     return make_float3(0.0f, 0.0f, 0.0f);
 
-  const ccl_global KernelObject *kobject = &kernel_tex_fetch(__objects, object);
+  const ccl_global __device_space KernelObject *kobject = &kernel_tex_fetch(__objects, object);
   return make_float3(
       kobject->dupli_generated[0], kobject->dupli_generated[1], kobject->dupli_generated[2]);
 }
@@ -304,7 +304,7 @@ ccl_device_inline float3 object_dupli_uv(__thread_space KernelGlobals *kg,
   if (object == OBJECT_NONE)
     return make_float3(0.0f, 0.0f, 0.0f);
 
-  const ccl_global KernelObject *kobject = &kernel_tex_fetch(__objects, object);
+  const ccl_global __device_space KernelObject *kobject = &kernel_tex_fetch(__objects, object);
   return make_float3(kobject->dupli_uv[0], kobject->dupli_uv[1], 0.0f);
 }
 

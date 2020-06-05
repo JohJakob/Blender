@@ -22,7 +22,7 @@ ccl_device_inline void kernel_path_volume_connect_light(__thread_space KernelGlo
                                                         __thread_space ShaderData *sd,
                                                         __thread_space ShaderData *emission_sd,
                                                         float3 throughput,
-                                                        __thread_space ccl_addr_space PathState *state,
+                                                        __device_space ccl_addr_space PathState *state,
                                                         __thread_space PathRadiance *L)
 {
 #  ifdef __EMISSION__
@@ -64,10 +64,10 @@ ccl_device_inline void kernel_path_volume_connect_light(__thread_space KernelGlo
 
 ccl_device_noinline_cpu bool kernel_path_volume_bounce(__thread_space KernelGlobals *kg,
                                                        __thread_space ShaderData *sd,
-                                                       __thread_space ccl_addr_space float3 *throughput,
-                                                       __thread_space ccl_addr_space PathState *state,
-                                                       __thread_space PathRadianceState *L_state,
-                                                       __thread_space ccl_addr_space Ray *ray)
+                                                       __device_space ccl_addr_space float3 *throughput,
+                                                       __device_space ccl_addr_space PathState *state,
+                                                       __device_space PathRadianceState *L_state,
+                                                       __device_space ccl_addr_space Ray *ray)
 {
   /* sample phase function */
   float phase_pdf;

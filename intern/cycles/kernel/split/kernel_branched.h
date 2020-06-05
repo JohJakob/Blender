@@ -19,10 +19,10 @@ CCL_NAMESPACE_BEGIN
 #ifdef __BRANCHED_PATH__
 
 /* sets up the various state needed to do an indirect loop */
-ccl_device_inline void kernel_split_branched_path_indirect_loop_init(KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_indirect_loop_init(__thread_space KernelGlobals *kg,
                                                                      int ray_index)
 {
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
   /* save a copy of the state to restore later */
 #  define BRANCHED_STORE(name) branched_state->name = kernel_split_state.name[ray_index];
@@ -47,10 +47,10 @@ ccl_device_inline void kernel_split_branched_path_indirect_loop_init(KernelGloba
 }
 
 /* ends an indirect loop and restores the previous state */
-ccl_device_inline void kernel_split_branched_path_indirect_loop_end(KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_indirect_loop_end(__thread_space KernelGlobals *kg,
                                                                     int ray_index)
 {
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
   /* restore state */
 #  define BRANCHED_RESTORE(name) kernel_split_state.name[ray_index] = branched_state->name;
@@ -73,10 +73,10 @@ ccl_device_inline void kernel_split_branched_path_indirect_loop_end(KernelGlobal
   REMOVE_RAY_FLAG(kernel_split_state.ray_state, ray_index, RAY_BRANCHED_INDIRECT);
 }
 
-ccl_device_inline bool kernel_split_branched_indirect_start_shared(KernelGlobals *kg,
+ccl_device_inline bool kernel_split_branched_indirect_start_shared(__thread_space KernelGlobals *kg,
                                                                    int ray_index)
 {
-  ccl_global char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
 
   int inactive_ray = dequeue_ray_index(QUEUE_INACTIVE_RAYS,
                                        kernel_split_state.queue_data,
@@ -103,8 +103,8 @@ ccl_device_inline bool kernel_split_branched_indirect_start_shared(KernelGlobals
   kernel_split_state.branched_state[inactive_ray].original_ray = ray_index;
   kernel_split_state.branched_state[inactive_ray].waiting_on_shared_samples = false;
 
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  PathRadiance *inactive_L = &kernel_split_state.path_radiance[inactive_ray];
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  __device_space PathRadiance *inactive_L = &kernel_split_state.path_radiance[inactive_ray];
 
   path_radiance_init(kg, inactive_L);
   path_radiance_copy_indirect(inactive_L, L);
@@ -114,32 +114,32 @@ ccl_device_inline bool kernel_split_branched_indirect_start_shared(KernelGlobals
   ADD_RAY_FLAG(ray_state, inactive_ray, IS_FLAG(ray_state, ray_index, RAY_BRANCHED_INDIRECT));
 
   atomic_fetch_and_inc_uint32(
-      (ccl_global uint *)&kernel_split_state.branched_state[ray_index].shared_sample_count);
+      (ccl_global __device_space uint *)&kernel_split_state.branched_state[ray_index].shared_sample_count);
 
   return true;
 }
 
 /* bounce off surface and integrate indirect light */
 ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
-    KernelGlobals *kg,
+    __thread_space KernelGlobals *kg,
     int ray_index,
     float num_samples_adjust,
-    ShaderData *saved_sd,
+    __thread_space ShaderData *saved_sd,
     bool reset_path_state,
     bool wait_for_shared)
 {
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
-  ShaderData *sd = saved_sd;
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  __thread_space ShaderData *sd = saved_sd;
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
   float3 throughput = branched_state->throughput;
-  ccl_global PathState *ps = &kernel_split_state.path_state[ray_index];
+  ccl_global __device_space PathState *ps = &kernel_split_state.path_state[ray_index];
 
   float sum_sample_weight = 0.0f;
 #  ifdef __DENOISING_FEATURES__
   if (ps->denoising_feature_weight > 0.0f) {
     for (int i = 0; i < sd->num_closure; i++) {
-      const ShaderClosure *sc = &sd->closure[i];
+      const __thread_space ShaderClosure *sc = &sd->closure[i];
 
       /* transparency is not handled here, but in outer loop */
       if (!CLOSURE_IS_BSDF(sc->type) || CLOSURE_IS_BSDF_TRANSPARENT(sc->type)) {
@@ -155,7 +155,7 @@ ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
 #  endif /* __DENOISING_FEATURES__ */
 
   for (int i = branched_state->next_closure; i < sd->num_closure; i++) {
-    const ShaderClosure *sc = &sd->closure[i];
+    const __thread_space ShaderClosure *sc = &sd->closure[i];
 
     if (!CLOSURE_IS_BSDF(sc->type))
       continue;
@@ -185,10 +185,10 @@ ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
 
       ps->rng_hash = cmj_hash(branched_state->path_state.rng_hash, i);
 
-      ccl_global float3 *tp = &kernel_split_state.throughput[ray_index];
+      ccl_global __device_space float3 *tp = &kernel_split_state.throughput[ray_index];
       *tp = throughput;
 
-      ccl_global Ray *bsdf_ray = &kernel_split_state.ray[ray_index];
+      ccl_global __device_space Ray *bsdf_ray = &kernel_split_state.ray[ray_index];
 
       if (!kernel_branched_path_surface_bounce(
               kg, sd, sc, j, num_samples, tp, ps, &L->state, bsdf_ray, sum_sample_weight)) {

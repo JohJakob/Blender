@@ -1064,8 +1064,8 @@ ccl_device float3 shader_holdout_eval(__thread_space KernelGlobals *kg, __thread
 
 ccl_device void shader_eval_surface(__thread_space KernelGlobals *kg,
                                     __thread_space ShaderData *sd,
-                                    __thread_space ccl_addr_space PathState *state,
-                                    ccl_global float *buffer,
+                                    __device_space ccl_addr_space PathState *state,
+                                    ccl_global __device_space float *buffer,
                                     int path_flag)
 {
   PROFILING_INIT(kg, PROFILING_SHADER_EVAL);
@@ -1257,8 +1257,8 @@ ccl_device int shader_phase_sample_closure(__thread_space KernelGlobals *kg,
 
 ccl_device_inline void shader_eval_volume(__thread_space KernelGlobals *kg,
                                           __thread_space ShaderData *sd,
-                                          __thread_space ccl_addr_space PathState *state,
-                                          __thread_space ccl_addr_space VolumeStack *stack,
+                                          __device_space ccl_addr_space PathState *state,
+                                          __device_space ccl_addr_space VolumeStack *stack,
                                           int path_flag)
 {
   /* If path is being terminated, we are tracing a shadow ray or evaluating
@@ -1325,7 +1325,7 @@ ccl_device_inline void shader_eval_volume(__thread_space KernelGlobals *kg,
 
 ccl_device void shader_eval_displacement(__thread_space KernelGlobals *kg,
                                          __thread_space ShaderData *sd,
-                                         __thread_space ccl_addr_space PathState *state)
+                                         __device_space ccl_addr_space PathState *state)
 {
   sd->num_closure = 0;
   sd->num_closure_left = 0;

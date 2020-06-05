@@ -185,7 +185,7 @@ ccl_device uint lcg_init(uint seed)
  */
 
 ccl_device_inline float path_state_rng_1D(__thread_space KernelGlobals *kg,
-                                          __thread_space const ccl_addr_space PathState *state,
+                                          __device_space const ccl_addr_space PathState *state,
                                           int dimension)
 {
   return path_rng_1D(
@@ -193,7 +193,7 @@ ccl_device_inline float path_state_rng_1D(__thread_space KernelGlobals *kg,
 }
 
 ccl_device_inline void path_state_rng_2D(
-    __thread_space KernelGlobals *kg, __thread_space const ccl_addr_space PathState *state, int dimension, __thread_space float *fx, __thread_space float *fy)
+    __thread_space KernelGlobals *kg, __device_space const ccl_addr_space PathState *state, int dimension, __thread_space float *fx, __thread_space float *fy)
 {
   path_rng_2D(kg,
               state->rng_hash,
@@ -205,7 +205,7 @@ ccl_device_inline void path_state_rng_2D(
 }
 
 ccl_device_inline float path_state_rng_1D_hash(__thread_space KernelGlobals *kg,
-                                               __thread_space const ccl_addr_space PathState *state,
+                                               __device_space const ccl_addr_space PathState *state,
                                                uint hash)
 {
   /* Use a hash instead of dimension, this is not great but avoids adding
@@ -220,7 +220,7 @@ ccl_device_inline float path_state_rng_1D_hash(__thread_space KernelGlobals *kg,
 
 ccl_device_inline float path_branched_rng_1D(__thread_space KernelGlobals *kg,
                                              uint rng_hash,
-                                             __thread_space const ccl_addr_space PathState *state,
+                                             __device_space const ccl_addr_space PathState *state,
                                              int branch,
                                              int num_branches,
                                              int dimension)
@@ -234,7 +234,7 @@ ccl_device_inline float path_branched_rng_1D(__thread_space KernelGlobals *kg,
 
 ccl_device_inline void path_branched_rng_2D(__thread_space KernelGlobals *kg,
                                             uint rng_hash,
-                                            __thread_space const ccl_addr_space PathState *state,
+                                            __device_space const ccl_addr_space PathState *state,
                                             int branch,
                                             int num_branches,
                                             int dimension,
@@ -254,7 +254,7 @@ ccl_device_inline void path_branched_rng_2D(__thread_space KernelGlobals *kg,
  * since it might not be needed in many cases.
  */
 ccl_device_inline float path_state_rng_light_termination(__thread_space KernelGlobals *kg,
-                                                         __thread_space const ccl_addr_space PathState *state)
+                                                         __device_space const ccl_addr_space PathState *state)
 {
   if (kernel_data.integrator.light_inv_rr_threshold > 0.0f) {
     return path_state_rng_1D(kg, state, PRNG_LIGHT_TERMINATE);
@@ -264,7 +264,7 @@ ccl_device_inline float path_state_rng_light_termination(__thread_space KernelGl
 
 ccl_device_inline float path_branched_rng_light_termination(__thread_space KernelGlobals *kg,
                                                             uint rng_hash,
-                                                            __thread_space const ccl_addr_space PathState *state,
+                                                            __device_space const ccl_addr_space PathState *state,
                                                             int branch,
                                                             int num_branches)
 {
@@ -274,12 +274,12 @@ ccl_device_inline float path_branched_rng_light_termination(__thread_space Kerne
   return 0.0f;
 }
 
-ccl_device_inline uint lcg_state_init(__thread_space PathState *state, uint scramble)
+ccl_device_inline uint lcg_state_init(__device_space PathState *state, uint scramble)
 {
   return lcg_init(state->rng_hash + state->rng_offset + state->sample * scramble);
 }
 
-ccl_device_inline uint lcg_state_init_addrspace(__thread_space ccl_addr_space PathState *state, uint scramble)
+ccl_device_inline uint lcg_state_init_addrspace(__device_space ccl_addr_space PathState *state, uint scramble)
 {
   return lcg_init(state->rng_hash + state->rng_offset + state->sample * scramble);
 }

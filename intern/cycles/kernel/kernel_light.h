@@ -301,7 +301,7 @@ ccl_device_inline bool background_portal_data_fetch_and_check_side(
     __thread_space KernelGlobals *kg, float3 P, int index, __thread_space float3 *lightpos, __thread_space float3 *dir)
 {
   int portal = kernel_data.integrator.portal_offset + index;
-  const ccl_global KernelLight *klight = &kernel_tex_fetch(__lights, portal);
+  const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, portal);
 
   *lightpos = make_float3(klight->co[0], klight->co[1], klight->co[2]);
   *dir = make_float3(klight->area.dir[0], klight->area.dir[1], klight->area.dir[2]);
@@ -334,7 +334,7 @@ ccl_device_inline float background_portal_pdf(
     num_possible++;
 
     int portal = kernel_data.integrator.portal_offset + p;
-    const ccl_global KernelLight *klight = &kernel_tex_fetch(__lights, portal);
+    const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, portal);
     float3 axisu = make_float3(
         klight->area.axisu[0], klight->area.axisu[1], klight->area.axisu[2]);
     float3 axisv = make_float3(
@@ -410,7 +410,7 @@ ccl_device float3 background_portal_sample(__thread_space KernelGlobals *kg,
     if (portal == 0) {
       /* p is the portal to be sampled. */
       int portal = kernel_data.integrator.portal_offset + p;
-      const ccl_global KernelLight *klight = &kernel_tex_fetch(__lights, portal);
+      const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, portal);
       float3 axisu = make_float3(
           klight->area.axisu[0], klight->area.axisu[1], klight->area.axisu[2]);
       float3 axisv = make_float3(
@@ -532,7 +532,7 @@ ccl_device float background_light_pdf(__thread_space KernelGlobals *kg, float3 P
 ccl_device_inline bool lamp_light_sample(
     __thread_space KernelGlobals *kg, int lamp, float randu, float randv, float3 P, __thread_space LightSample *ls)
 {
-  const ccl_global KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
+  const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
   LightType type = (LightType)klight->type;
   ls->type = type;
   ls->shader = klight->shader_id;
@@ -653,7 +653,7 @@ ccl_device_inline bool lamp_light_sample(
 ccl_device bool lamp_light_eval(
     __thread_space KernelGlobals *kg, int lamp, float3 P, float3 D, float t, __thread_space LightSample *ls)
 {
-  const ccl_global KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
+  const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
   LightType type = (LightType)klight->type;
   ls->type = type;
   ls->shader = klight->shader_id;
@@ -1123,7 +1123,7 @@ ccl_device_noinline bool light_sample(__thread_space KernelGlobals *kg,
     int index = light_distribution_sample(kg, &randu);
 
     /* fetch light data */
-    const ccl_global KernelLightDistribution *kdistribution = &kernel_tex_fetch(
+    const ccl_global __device_space KernelLightDistribution *kdistribution = &kernel_tex_fetch(
         __light_distribution, index);
     int prim = kdistribution->prim;
 

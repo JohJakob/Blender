@@ -27,10 +27,10 @@ ccl_device_inline
                                    __thread_space ShaderData *sd,
                                    __thread_space ShaderData *emission_sd,
                                    __thread_space PathRadiance *L,
-                                   __thread_space ccl_addr_space PathState *state,
+                                   __device_space ccl_addr_space PathState *state,
                                    __thread_space ccl_addr_space Ray *ray,
                                    __thread_space ccl_addr_space float3 *throughput,
-                                   __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
+                                   __device_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
 {
   PROFILING_INIT(kg, PROFILING_SUBSURFACE);
 
@@ -71,10 +71,10 @@ ccl_device_inline
 
       kernel_path_surface_connect_light(kg, sd, emission_sd, *throughput, state, L);
 
-      __thread_space ccl_addr_space PathState *hit_state = &ss_indirect->state[ss_indirect->num_rays];
-      __thread_space ccl_addr_space Ray *hit_ray = &ss_indirect->rays[ss_indirect->num_rays];
-      __thread_space ccl_addr_space float3 *hit_tp = &ss_indirect->throughputs[ss_indirect->num_rays];
-      __thread_space PathRadianceState *hit_L_state = &ss_indirect->L_state[ss_indirect->num_rays];
+      __device_space ccl_addr_space PathState *hit_state = &ss_indirect->state[ss_indirect->num_rays];
+      __device_space ccl_addr_space Ray *hit_ray = &ss_indirect->rays[ss_indirect->num_rays];
+      __device_space ccl_addr_space float3 *hit_tp = &ss_indirect->throughputs[ss_indirect->num_rays];
+      __device_space PathRadianceState *hit_L_state = &ss_indirect->L_state[ss_indirect->num_rays];
 
       *hit_state = *state;
       *hit_ray = *ray;
@@ -117,7 +117,7 @@ ccl_device void kernel_path_subsurface_setup_indirect(
     __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
     __thread_space ccl_addr_space PathState *state,
     __thread_space ccl_addr_space Ray *ray,
-    __thread_space PathRadiance *L,
+    __device_space PathRadiance *L,
     __thread_space ccl_addr_space float3 *throughput)
 {
   /* Setup state, ray and throughput for indirect SSS rays. */

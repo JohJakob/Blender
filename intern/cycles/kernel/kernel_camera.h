@@ -238,7 +238,7 @@ ccl_device void camera_sample_orthographic(__thread_space KernelGlobals *kg,
 
 ccl_device_inline void camera_sample_panorama(ccl_constant KernelCamera *cam,
 #ifdef __CAMERA_MOTION__
-                                              const ccl_global DecomposedTransform *cam_motion,
+                                              const ccl_global __device_space DecomposedTransform *cam_motion,
 #endif
                                               float raster_x,
                                               float raster_y,
@@ -416,7 +416,7 @@ ccl_device_inline void camera_sample(__thread_space KernelGlobals *kg,
   }
   else {
 #ifdef __CAMERA_MOTION__
-    const ccl_global DecomposedTransform *cam_motion = kernel_tex_array(__camera_motion);
+    const ccl_global __device_space DecomposedTransform *cam_motion = kernel_tex_array(__camera_motion);
     camera_sample_panorama(&kernel_data.cam, cam_motion, raster_x, raster_y, lens_u, lens_v, ray);
 #else
     camera_sample_panorama(&kernel_data.cam, raster_x, raster_y, lens_u, lens_v, ray);

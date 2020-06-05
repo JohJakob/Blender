@@ -20,9 +20,9 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline void kernel_write_pass_float(ccl_global float *buffer, float value)
+ccl_device_inline void kernel_write_pass_float(ccl_global __device_space float *buffer, float value)
 {
-  ccl_global float *buf = buffer;
+  ccl_global __device_space float *buf = buffer;
 #ifdef __ATOMIC_PASS_WRITE__
   atomic_add_and_fetch_float(buf, value);
 #else
@@ -30,12 +30,12 @@ ccl_device_inline void kernel_write_pass_float(ccl_global float *buffer, float v
 #endif
 }
 
-ccl_device_inline void kernel_write_pass_float3(ccl_global float *buffer, float3 value)
+ccl_device_inline void kernel_write_pass_float3(ccl_global __device_space float *buffer, float3 value)
 {
 #ifdef __ATOMIC_PASS_WRITE__
-  ccl_global float *buf_x = buffer + 0;
-  ccl_global float *buf_y = buffer + 1;
-  ccl_global float *buf_z = buffer + 2;
+  ccl_global __device_space float *buf_x = buffer + 0;
+  ccl_global __device_space float *buf_y = buffer + 1;
+  ccl_global __device_space float *buf_z = buffer + 2;
 
   atomic_add_and_fetch_float(buf_x, value.x);
   atomic_add_and_fetch_float(buf_y, value.y);
@@ -46,13 +46,13 @@ ccl_device_inline void kernel_write_pass_float3(ccl_global float *buffer, float3
 #endif
 }
 
-ccl_device_inline void kernel_write_pass_float4(ccl_global float *buffer, float4 value)
+ccl_device_inline void kernel_write_pass_float4(ccl_global __device_space float *buffer, float4 value)
 {
 #ifdef __ATOMIC_PASS_WRITE__
-  ccl_global float *buf_x = buffer + 0;
-  ccl_global float *buf_y = buffer + 1;
-  ccl_global float *buf_z = buffer + 2;
-  ccl_global float *buf_w = buffer + 3;
+  ccl_global __device_space float *buf_x = buffer + 0;
+  ccl_global __device_space float *buf_y = buffer + 1;
+  ccl_global __device_space float *buf_z = buffer + 2;
+  ccl_global __device_space float *buf_w = buffer + 3;
 
   atomic_add_and_fetch_float(buf_x, value.x);
   atomic_add_and_fetch_float(buf_y, value.y);
@@ -65,7 +65,7 @@ ccl_device_inline void kernel_write_pass_float4(ccl_global float *buffer, float4
 }
 
 #ifdef __DENOISING_FEATURES__
-ccl_device_inline void kernel_write_pass_float_variance(ccl_global float *buffer, float value)
+ccl_device_inline void kernel_write_pass_float_variance(ccl_global __device_space float *buffer, float value)
 {
   kernel_write_pass_float(buffer, value);
 
@@ -85,7 +85,7 @@ ccl_device_inline void kernel_write_pass_float3_unaligned(ccl_global float *buff
 }
 #  endif
 
-ccl_device_inline void kernel_write_pass_float3_variance(ccl_global float *buffer, float3 value)
+ccl_device_inline void kernel_write_pass_float3_variance(ccl_global __device_space float *buffer, float3 value)
 {
   kernel_write_pass_float3_unaligned(buffer, value);
   kernel_write_pass_float3_unaligned(buffer + 3, value * value);

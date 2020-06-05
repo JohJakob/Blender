@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
 ccl_device_noinline float svm_ao(__thread_space KernelGlobals *kg,
                                  __thread_space ShaderData *sd,
                                  __thread_space float3 N,
-                                 __thread_space ccl_addr_space PathState *state,
+                                 __device_space ccl_addr_space PathState *state,
                                  float max_dist,
                                  int num_samples,
                                  int flags)
@@ -82,7 +82,7 @@ ccl_device_noinline float svm_ao(__thread_space KernelGlobals *kg,
 }
 
 ccl_device void svm_node_ao(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space ccl_addr_space PathState *state, __thread_space float *stack, uint4 node)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __device_space ccl_addr_space PathState *state, __thread_space float *stack, uint4 node)
 {
   uint flags, dist_offset, normal_offset, out_ao_offset;
   svm_unpack_node_uchar4(node.y, &flags, &dist_offset, &normal_offset, &out_ao_offset);

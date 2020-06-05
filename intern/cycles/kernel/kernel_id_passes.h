@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline void kernel_write_id_slots(ccl_global float *buffer,
+ccl_device_inline void kernel_write_id_slots(ccl_global __device_space float *buffer,
                                              int num_slots,
                                              float id,
                                              float weight)
@@ -27,7 +27,7 @@ ccl_device_inline void kernel_write_id_slots(ccl_global float *buffer,
   }
 
   for (int slot = 0; slot < num_slots; slot++) {
-    ccl_global float2 *id_buffer = (ccl_global float2 *)buffer;
+    ccl_global __device_space float2 *id_buffer = (ccl_global __device_space float2 *)buffer;
 #ifdef __ATOMIC_PASS_WRITE__
     /* If the loop reaches an empty slot, the ID isn't in any slot yet - so add it! */
     if (id_buffer[slot].x == ID_NONE) {
@@ -63,9 +63,9 @@ ccl_device_inline void kernel_write_id_slots(ccl_global float *buffer,
   }
 }
 
-ccl_device_inline void kernel_sort_id_slots(ccl_global float *buffer, int num_slots)
+ccl_device_inline void kernel_sort_id_slots(ccl_global __device_space float *buffer, int num_slots)
 {
-  ccl_global float2 *id_buffer = (ccl_global float2 *)buffer;
+  ccl_global __device_space float2 *id_buffer = (ccl_global __device_space float2 *)buffer;
   for (int slot = 1; slot < num_slots; ++slot) {
     if (id_buffer[slot].x == ID_NONE) {
       return;
@@ -84,12 +84,12 @@ ccl_device_inline void kernel_sort_id_slots(ccl_global float *buffer, int num_sl
 #ifdef __KERNEL_GPU__
 /* post-sorting for Cryptomatte */
 ccl_device void kernel_cryptomatte_post(
-    __thread_space KernelGlobals *kg, ccl_global float *buffer, uint sample, int x, int y, int offset, int stride)
+    __thread_space KernelGlobals *kg, ccl_global __device_space float *buffer, uint sample, int x, int y, int offset, int stride)
 {
   if (sample - 1 == kernel_data.integrator.aa_samples) {
     int index = offset + x + y * stride;
     int pass_stride = kernel_data.film.pass_stride;
-    ccl_global float *cryptomatte_buffer = buffer + index * pass_stride +
+    ccl_global __device_space float *cryptomatte_buffer = buffer + index * pass_stride +
                                            kernel_data.film.pass_cryptomatte;
     kernel_sort_id_slots(cryptomatte_buffer, 2 * kernel_data.film.cryptomatte_depth);
   }

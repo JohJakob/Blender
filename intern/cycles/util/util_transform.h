@@ -19,6 +19,8 @@
 
 #ifndef __KERNEL_GPU__
 #  include <string.h>
+#define __device_space
+#define __thread_space
 #endif
 
 #include "util/util_math.h"
@@ -484,7 +486,7 @@ ccl_device_inline void transform_compose(__thread_space Transform *tfm, __thread
 
 /* Interpolate from array of decomposed transforms. */
 ccl_device void transform_motion_array_interpolate(__thread_space Transform *tfm,
-                                                   const ccl_global DecomposedTransform *motion,
+                                                   const ccl_global __device_space DecomposedTransform *motion,
                                                    uint numsteps,
                                                    float time)
 {
@@ -493,8 +495,8 @@ ccl_device void transform_motion_array_interpolate(__thread_space Transform *tfm
   int step = min((int)(time * maxstep), maxstep - 1);
   float t = time * maxstep - step;
 
-  const ccl_global DecomposedTransform *a = motion + step;
-  const ccl_global DecomposedTransform *b = motion + step + 1;
+  const ccl_global __device_space DecomposedTransform *a = motion + step;
+  const ccl_global __device_space DecomposedTransform *b = motion + step + 1;
 
   /* Interpolate rotation, translation and scale. */
   DecomposedTransform decomp;
@@ -558,5 +560,10 @@ OPENCL_TRANSFORM_ADDRSPACE_DECLARE(transform_direction_transposed)
 #endif
 
 CCL_NAMESPACE_END
+
+#ifndef __KERNEL_GPU__
+#undef __device_space
+#undef __thread_space
+#endif
 
 #endif /* __UTIL_TRANSFORM_H__ */
