@@ -469,3 +469,16 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 //#include "kernel/kernel_color.h"
 //
 //#include "kernel/kernel_film.h"
+
+kernel void kernel_split_path_trace(
+                                    device void* split_data_buffer [[buffer(0)]],
+                                    device char* ray_state [[buffer(1)]]) {
+    KernelGlobals kg;
+    split_data_init(
+                    &kg,
+                    &kg.split_data,
+                    0,
+                    split_data_buffer,
+                    ray_state
+                    );
+}

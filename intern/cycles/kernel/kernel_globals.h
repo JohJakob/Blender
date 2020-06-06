@@ -217,11 +217,8 @@ typedef struct KernelGlobals {
   #  define KERNEL_TEX(type, name) device type *name;
   #  include "kernel/kernel_textures.h"
 
-
-    #  ifdef __SPLIT_KERNEL__
-      SplitData split_data;
-      SplitParams split_param_data;
-    #  endif
+    SplitData split_data;
+    SplitParams split_param_data;
 
     uint global_id[3];
     uint global_size[3];

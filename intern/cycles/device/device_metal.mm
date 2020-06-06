@@ -127,19 +127,13 @@ private:
 
     id<MTLComputePipelineState> backgroundPipelineState;
     void setupBackgroundShaderPipeline() {
-        id<MTLFunction> backgroundKernel = [library newFunctionWithName:@"kernel_metal_background"];
+        id<MTLFunction> backgroundKernel = [library newFunctionWithName:@"kernel_split_path_trace"];
         MTLComputePipelineDescriptor *desc = [MTLComputePipelineDescriptor new];
         desc.computeFunction = backgroundKernel;
 
-        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        NSError *error;
 
-        [metalDevice newComputePipelineStateWithDescriptor:desc options:0 completionHandler:^(id<MTLComputePipelineState>  _Nullable computePipelineState, MTLComputePipelineReflection * _Nullable reflection, NSError * _Nullable error) {
-            NSLog(@"Error for background pipeline: %@", error);
-            backgroundPipelineState = computePipelineState;
-            dispatch_semaphore_signal(sem);
-        }];
-
-        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        backgroundPipelineState = [metalDevice newComputePipelineStateWithDescriptor:desc options:0 reflection:nil error:&error];
 
         printf("hi");
     }
