@@ -460,8 +460,6 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 //    }
 //}
 
-
-
 //#include "util/util_transform.h"
 //#include "util/util_atomic.h"
 //#include "kernel/kernel_math.h"

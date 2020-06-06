@@ -52,15 +52,12 @@ private:
     // TODO: grab the specific device that was asked for
     metalDevice = MTLCreateSystemDefaultDevice();
     commandQueue = [metalDevice newCommandQueue];
-      NSURL *libURL = [NSBundle.mainBundle URLForResource:@"ShadersRaw" withExtension:@"metalRaw"];
-
-
+    NSURL *libURL = [NSBundle.mainBundle URLForResource:@"Shaders" withExtension:@"metallib"];
     NSError *error;
-    NSString *contents = [NSString stringWithContentsOfURL:libURL encoding:NSUTF8StringEncoding error:nil];
-    id<MTLLibrary> lib = [metalDevice newLibraryWithSource:contents options:0 error:&error];
-      library = lib;
+    id<MTLLibrary> lib = [metalDevice newLibraryWithURL:libURL error:&error];
+    library = lib;
 
-      setupPipelines();
+    setupPipelines();
   }
 
   virtual ~MetalDevice()

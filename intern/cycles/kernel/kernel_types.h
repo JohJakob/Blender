@@ -1667,6 +1667,14 @@ enum RayState {
 
 /* Work Tiles */
 
+#ifndef __thread_space
+#define __thread_space
+#endif
+
+#ifndef __device_space
+#define __device_space
+#endif
+
 typedef struct WorkTile {
   uint x, y, w, h;
 

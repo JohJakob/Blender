@@ -28,6 +28,9 @@
 #include "util/util_math_cdf.h"
 #include "util/util_vector.h"
 
+#define __thread_space
+#define __device_space
+
 /* needed for calculating differentials */
 // clang-format off
 #include "kernel/kernel_compat_cpu.h"

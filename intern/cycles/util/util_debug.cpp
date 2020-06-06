@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#define __thread_space
+#define __device_space
+
 #include "util/util_debug.h"
 
 #include <stdlib.h>

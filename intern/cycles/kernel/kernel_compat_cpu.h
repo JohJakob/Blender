@@ -20,7 +20,7 @@
 #define __KERNEL_CPU__
 
 #define __thread_space
-#define __thread_space
+#define __device_space
 
 /* Release kernel has too much false-positive maybe-uninitialized warnings,
  * which makes it possible to miss actual warnings.

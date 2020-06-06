@@ -21,6 +21,10 @@
 
 CCL_NAMESPACE_BEGIN
 
+#ifndef __thread_space
+#define __thread_space
+#endif
+
 /* 4x4 projection matrix, perspective or orthographic. */
 
 typedef struct ProjectionTransform {

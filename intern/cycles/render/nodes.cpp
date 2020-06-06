@@ -31,6 +31,9 @@
 #include "util/util_sky_model.h"
 #include "util/util_transform.h"
 
+#define __thread_space
+#define __device_space
+
 #include "kernel/svm/svm_color_util.h"
 #include "kernel/svm/svm_mapping_util.h"
 #include "kernel/svm/svm_math_util.h"

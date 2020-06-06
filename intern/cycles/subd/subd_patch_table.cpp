@@ -24,6 +24,9 @@
  * language governing permissions and limitations under the Apache License.
  */
 
+#define __thread_space
+#define __device_space
+
 #include "subd/subd_patch_table.h"
 #include "kernel/kernel_types.h"
 

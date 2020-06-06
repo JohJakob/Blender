@@ -33,6 +33,14 @@
 #ifndef __KERNEL_MONTECARLO_CL__
 #define __KERNEL_MONTECARLO_CL__
 
+#ifndef __thread_space
+#define __thread_space
+#endif
+
+#ifndef __device_space
+#define __device_space
+#endif
+
 CCL_NAMESPACE_BEGIN
 
 /* distribute uniform xy on [0,1] over unit disk [-1,1] */
