@@ -107,35 +107,25 @@ private:
 
     id<MTLComputePipelineState> pathTraceShaderPipeline;
     void setupPathTraceShaderPipeline() {
-        id<MTLFunction> pathTraceKernel = [library newFunctionWithName:@"kernel_metal_path_trace"];
+        id<MTLFunction> pathTraceKernel = [library newFunctionWithName:@"kernel_split_path_trace"];
 
         MTLComputePipelineDescriptor *desc = [MTLComputePipelineDescriptor new];
         desc.computeFunction = pathTraceKernel;
 
-        dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+        NSError *error;
 
-        [metalDevice newComputePipelineStateWithDescriptor:desc options:0 completionHandler:^(id<MTLComputePipelineState>  _Nullable computePipelineState, MTLComputePipelineReflection * _Nullable reflection, NSError * _Nullable error) {
-            NSLog(@"Error for path trace pipeline: %@", error);
-            pathTraceShaderPipeline = computePipelineState;
-            dispatch_semaphore_signal(sem);
-        }];
-
-        dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-
-        printf("hi");
+        pathTraceShaderPipeline = [metalDevice newComputePipelineStateWithDescriptor:desc options:0 reflection:nil error:&error];
     }
 
     id<MTLComputePipelineState> backgroundPipelineState;
     void setupBackgroundShaderPipeline() {
-        id<MTLFunction> backgroundKernel = [library newFunctionWithName:@"kernel_split_path_trace"];
+        id<MTLFunction> backgroundKernel = [library newFunctionWithName:@"kernel_metal_background"];
         MTLComputePipelineDescriptor *desc = [MTLComputePipelineDescriptor new];
         desc.computeFunction = backgroundKernel;
 
         NSError *error;
 
         backgroundPipelineState = [metalDevice newComputePipelineStateWithDescriptor:desc options:0 reflection:nil error:&error];
-
-        printf("hi");
     }
 
     void shader(DeviceTask &task) {
@@ -342,6 +332,8 @@ private:
     id<MTLBuffer> b = (id<MTLBuffer>)mem.device_pointer;
 
     [blit synchronizeResource:b];
+
+    [blit endEncoding];
 
     [cb commit];
 

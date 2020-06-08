@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 #ifdef __BAKING__
 
 ccl_device_inline void compute_light_pass(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space PathRadiance *L, uint rng_hash, int pass_filter, int sample)
+    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __device_space PathRadiance *L, uint rng_hash, int pass_filter, int sample)
 {
   kernel_assert(kernel_data.film.use_light_pass);
 

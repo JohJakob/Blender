@@ -418,25 +418,23 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 //#include "kernel/kernel_projection.h"
 //#include "kernel/kernel_path.h"
 //
-#undef __BRANCHED_PATH__
 //#include "kernel/kernel_bake.h"
 //
 //#include "kernel/kernel_work_stealing.h"
 //
-//kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
-//                                    device float4 *output [[buffer(1)]],
-//                                    device int *type [[buffer(2)]],
-//                                    device int *filterType [[buffer(3)]],
-//                                    uint2 grid_size [[grid_size]],
-//                                    uint2 thread_position [[thread_position_in_grid]]) {
-//    uint x = thread_position.x;
-//
-//    if (x < grid_size.x) {
-//        // do stuff
-//        KernelGlobals kg;
-//        kernel_bake_evaluate(&kg, input, output, (ShaderEvalType)*type, *filterType, x, 0, 0);
-//    }
-//}
+kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
+                                    device float4 *output [[buffer(1)]],
+                                    device int *type [[buffer(2)]],
+                                    device int *filterType [[buffer(3)]],
+                                    uint2 grid_size [[grid_size]],
+                                    uint2 thread_position [[thread_position_in_grid]]) {
+    uint x = thread_position.x;
+
+    if (x < grid_size.x) {
+        // do stuff
+        output[x] = {1.0f, 0.0f, 1.0f, 1.0f};
+    }
+}
 //
 //kernel void kernel_metal_path_trace(device WorkTile* tile [[buffer(0)]],
 //                                    uint2 total_work_size_2d [[grid_size]],
