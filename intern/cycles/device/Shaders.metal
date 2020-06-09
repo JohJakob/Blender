@@ -377,8 +377,8 @@ inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x,
 }
 
 #include "kernel/split/kernel_split_common.h"
-//#include "kernel/split/kernel_data_init.h"
-//#include "kernel/split/kernel_path_init.h"
+#include "kernel/split/kernel_data_init.h"
+#include "kernel/split/kernel_path_init.h"
 //#include "kernel/split/kernel_scene_intersect.h"
 //#include "kernel/split/kernel_lamp_emission.h"
 //#include "kernel/split/kernel_do_volume.h"
@@ -470,13 +470,24 @@ kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
 
 kernel void kernel_split_path_trace(
                                     device void* split_data_buffer [[buffer(0)]],
-                                    device char* ray_state [[buffer(1)]]) {
+                                    device char* ray_state [[buffer(1)]],
+                                    uint2 grid_size [[grid_size]],
+                                    uint2 thread_position [[thread_position_in_grid]]) {
     KernelGlobals kg;
-    split_data_init(
-                    &kg,
-                    &kg.split_data,
-                    0,
-                    split_data_buffer,
-                    ray_state
-                    );
+
+    if (thread_position.x == thread_position.y == 0) {
+        split_data_init(
+                        &kg,
+                        &kg.split_data,
+                        grid_size.x * grid_size.y,
+                        split_data_buffer,
+                        ray_state
+                        );
+    }
+
+    // kernel set buffer pointers
+
+    // kernel name eval
+
+    kernel_path_init(*kg);
 }

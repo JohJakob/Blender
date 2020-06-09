@@ -28,11 +28,11 @@ ccl_device void kernel_data_init(
 #else
 void KERNEL_FUNCTION_FULL_NAME(data_init)(
 #endif
-    KernelGlobals *kg,
+    __thread_space KernelGlobals *kg,
     ccl_constant KernelData *data,
-    ccl_global void *split_data_buffer,
+    ccl_global __device_space void *split_data_buffer,
     int num_elements,
-    ccl_global char *ray_state,
+    ccl_global __device_space char *ray_state,
 
 #ifdef __KERNEL_OPENCL__
     KERNEL_BUFFER_PARAMS,
@@ -46,13 +46,13 @@ void KERNEL_FUNCTION_FULL_NAME(data_init)(
     int sh,
     int offset,
     int stride,
-    ccl_global int *Queue_index,      /* Tracks the number of elements in queues */
+    ccl_global __device_space int *Queue_index,      /* Tracks the number of elements in queues */
     int queuesize,                    /* size (capacity) of the queue */
-    ccl_global char *use_queues_flag, /* flag to decide if scene-intersect kernel should use queues
+    ccl_global __device_space char *use_queues_flag, /* flag to decide if scene-intersect kernel should use queues
                                          to fetch ray index */
-    ccl_global unsigned int *work_pools, /* Work pool for each work group */
+    ccl_global __device_space unsigned int *work_pools, /* Work pool for each work group */
     unsigned int num_samples,
-    ccl_global float *buffer)
+    ccl_global __device_space float *buffer)
 {
 #ifdef KERNEL_STUB
   STUB_ASSERT(KERNEL_ARCH, data_init);

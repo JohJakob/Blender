@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
  *
  * Ray state of rays outside the tile-boundary will be marked RAY_INACTIVE
  */
-ccl_device void kernel_path_init(KernelGlobals *kg)
+ccl_device void kernel_path_init(__thread_space KernelGlobals *kg)
 {
   int ray_index = ccl_global_id(0) + ccl_global_id(1) * ccl_global_size(0);
 
@@ -31,7 +31,7 @@ ccl_device void kernel_path_init(KernelGlobals *kg)
   kernel_split_state.ray_state[ray_index] = RAY_ACTIVE;
 
   /* Get work. */
-  ccl_global uint *work_pools = kernel_split_params.work_pools;
+  ccl_global __device_space uint *work_pools = kernel_split_params.work_pools;
   uint total_work_size = kernel_split_params.total_work_size;
   uint work_index;
 
@@ -42,7 +42,7 @@ ccl_device void kernel_path_init(KernelGlobals *kg)
     return;
   }
 
-  ccl_global WorkTile *tile = &kernel_split_params.tile;
+  ccl_global __device_space WorkTile *tile = &kernel_split_params.tile;
   uint x, y, sample;
   get_work_pixel(tile, work_index, &x, &y, &sample);
 

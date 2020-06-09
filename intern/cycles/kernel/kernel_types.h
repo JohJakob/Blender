@@ -1012,7 +1012,7 @@ typedef ccl_addr_space struct ccl_align(16) ShaderDataTinyStorage
   char pad[sizeof(ShaderData) - sizeof(ShaderClosure) * MAX_CLOSURE];
 }
 ShaderDataTinyStorage;
-#define AS_SHADER_DATA(shader_data_tiny_storage) ((__thread_space ShaderData *)shader_data_tiny_storage)
+#define AS_SHADER_DATA(shader_data_tiny_storage) ((__device_space ShaderData *)shader_data_tiny_storage)
 
 /* Path State */
 
