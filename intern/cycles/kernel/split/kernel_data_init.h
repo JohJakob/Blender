@@ -28,7 +28,7 @@ ccl_device void kernel_data_init(
 #else
 void KERNEL_FUNCTION_FULL_NAME(data_init)(
 #endif
-    __thread_space KernelGlobals *kg,
+    __device_space KernelGlobals *kg,
     ccl_constant KernelData *data,
     ccl_global __device_space void *split_data_buffer,
     int num_elements,

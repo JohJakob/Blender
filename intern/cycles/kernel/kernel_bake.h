@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 #ifdef __BAKING__
 
 ccl_device_inline void compute_light_pass(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __device_space PathRadiance *L, uint rng_hash, int pass_filter, int sample)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __device_space PathRadiance *L, uint rng_hash, int pass_filter, int sample)
 {
   kernel_assert(kernel_data.film.use_light_pass);
 
@@ -167,8 +167,8 @@ ccl_device_inline float bake_clamp_mirror_repeat(float u, float max)
   return ((((int)fu) & 1) ? 1.0f - u : u) * max;
 }
 
-ccl_device_inline float3 kernel_bake_shader_bsdf(__thread_space KernelGlobals *kg,
-                                                 __thread_space ShaderData *sd,
+ccl_device_inline float3 kernel_bake_shader_bsdf(__device_space KernelGlobals *kg,
+                                                 __device_space ShaderData *sd,
                                                  const ShaderEvalType type)
 {
   switch (type) {
@@ -184,8 +184,8 @@ ccl_device_inline float3 kernel_bake_shader_bsdf(__thread_space KernelGlobals *k
   }
 }
 
-ccl_device float3 kernel_bake_evaluate_direct_indirect(__thread_space KernelGlobals *kg,
-                                                       __thread_space ShaderData *sd,
+ccl_device float3 kernel_bake_evaluate_direct_indirect(__device_space KernelGlobals *kg,
+                                                       __device_space ShaderData *sd,
                                                        __thread_space PathState *state,
                                                        float3 direct,
                                                        float3 indirect,
@@ -225,7 +225,7 @@ ccl_device float3 kernel_bake_evaluate_direct_indirect(__thread_space KernelGlob
   return out;
 }
 
-ccl_device void kernel_bake_evaluate(__thread_space KernelGlobals *kg,
+ccl_device void kernel_bake_evaluate(__device_space KernelGlobals *kg,
                                      ccl_global uint4 *input,
                                      ccl_global float4 *output,
                                      ShaderEvalType type,
@@ -449,7 +449,7 @@ ccl_device void kernel_bake_evaluate(__thread_space KernelGlobals *kg,
 
 #endif /* __BAKING__ */
 
-ccl_device void kernel_displace_evaluate(__thread_space KernelGlobals *kg,
+ccl_device void kernel_displace_evaluate(__device_space KernelGlobals *kg,
                                          ccl_global uint4 *input,
                                          ccl_global float4 *output,
                                          int i)
@@ -477,7 +477,7 @@ ccl_device void kernel_displace_evaluate(__thread_space KernelGlobals *kg,
   output[i] += make_float4(D.x, D.y, D.z, 0.0f);
 }
 
-ccl_device void kernel_background_evaluate(__thread_space KernelGlobals *kg,
+ccl_device void kernel_background_evaluate(__device_space KernelGlobals *kg,
                                            ccl_global uint4 *input,
                                            ccl_global float4 *output,
                                            int i)

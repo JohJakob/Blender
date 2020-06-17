@@ -18,9 +18,9 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __VOLUME_SCATTER__
 
-ccl_device_inline void kernel_path_volume_connect_light(__thread_space KernelGlobals *kg,
-                                                        __thread_space ShaderData *sd,
-                                                        __thread_space ShaderData *emission_sd,
+ccl_device_inline void kernel_path_volume_connect_light(__device_space KernelGlobals *kg,
+                                                        __device_space ShaderData *sd,
+                                                        __device_space ShaderData *emission_sd,
                                                         float3 throughput,
                                                         __device_space ccl_addr_space PathState *state,
                                                         __thread_space PathRadiance *L)
@@ -62,8 +62,8 @@ ccl_device_inline void kernel_path_volume_connect_light(__thread_space KernelGlo
 #  endif /* __EMISSION__ */
 }
 
-ccl_device_noinline_cpu bool kernel_path_volume_bounce(__thread_space KernelGlobals *kg,
-                                                       __thread_space ShaderData *sd,
+ccl_device_noinline_cpu bool kernel_path_volume_bounce(__device_space KernelGlobals *kg,
+                                                       __device_space ShaderData *sd,
                                                        __device_space ccl_addr_space float3 *throughput,
                                                        __device_space ccl_addr_space PathState *state,
                                                        __device_space PathRadianceState *L_state,
@@ -128,9 +128,9 @@ ccl_device_noinline_cpu bool kernel_path_volume_bounce(__thread_space KernelGlob
 }
 
 #  if !defined(__SPLIT_KERNEL__) && (defined(__BRANCHED_PATH__) || defined(__VOLUME_DECOUPLED__))
-ccl_device void kernel_branched_path_volume_connect_light(__thread_space KernelGlobals *kg,
-                                                          __thread_space ShaderData *sd,
-                                                          __thread_space ShaderData *emission_sd,
+ccl_device void kernel_branched_path_volume_connect_light(__device_space KernelGlobals *kg,
+                                                          __device_space ShaderData *sd,
+                                                          __device_space ShaderData *emission_sd,
                                                           float3 throughput,
                                                           __thread_space ccl_addr_space PathState *state,
                                                           __thread_space PathRadiance *L,

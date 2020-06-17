@@ -97,8 +97,8 @@ ccl_device_inline float bump_shadowing_term(float3 Ng, float3 N, float3 I)
   return -g2 * g + g2 + g;
 }
 
-ccl_device_inline int bsdf_sample(__thread_space KernelGlobals *kg,
-                                  __thread_space ShaderData *sd,
+ccl_device_inline int bsdf_sample(__device_space KernelGlobals *kg,
+                                  __device_space ShaderData *sd,
                                   __thread_space const ShaderClosure *sc,
                                   float randu,
                                   float randv,
@@ -463,8 +463,8 @@ ccl_device
 ccl_device_inline
 #endif
     float3
-    bsdf_eval(__thread_space KernelGlobals *kg,
-              __thread_space ShaderData *sd,
+    bsdf_eval(__device_space KernelGlobals *kg,
+              __device_space ShaderData *sd,
               __thread_space const ShaderClosure *sc,
               const float3 omega_in,
               __thread_space float *pdf)
@@ -665,7 +665,7 @@ ccl_device_inline
   return eval;
 }
 
-ccl_device void bsdf_blur(__thread_space KernelGlobals *kg, __thread_space ShaderClosure *sc, float roughness)
+ccl_device void bsdf_blur(__device_space KernelGlobals *kg, __thread_space ShaderClosure *sc, float roughness)
 {
   /* ToDo: do we want to blur volume closures? */
 #ifdef __SVM__

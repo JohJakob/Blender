@@ -20,7 +20,7 @@ CCL_NAMESPACE_BEGIN
  * sampler.
  */
 ccl_device void svm_node_tex_voxel(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint co_offset, density_out_offset, color_out_offset, space;
   svm_unpack_node_uchar4(node.z, &co_offset, &density_out_offset, &color_out_offset, &space);

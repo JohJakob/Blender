@@ -54,7 +54,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_forceinline bool kernel_path_scene_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline bool kernel_path_scene_intersect(__device_space KernelGlobals *kg,
                                                         __device_space ccl_addr_space PathState *state,
                                                         __thread_space Ray *ray,
                                                         __thread_space Intersection *isect,
@@ -83,12 +83,12 @@ ccl_device_forceinline bool kernel_path_scene_intersect(__thread_space KernelGlo
   return hit;
 }
 
-ccl_device_forceinline void kernel_path_lamp_emission(__thread_space KernelGlobals *kg,
+ccl_device_forceinline void kernel_path_lamp_emission(__device_space KernelGlobals *kg,
                                                       __device_space ccl_addr_space PathState *state,
                                                       __thread_space Ray *ray,
                                                       float3 throughput,
                                                       __thread_space ccl_addr_space Intersection *isect,
-                                                      __thread_space ShaderData *emission_sd,
+                                                      __device_space ShaderData *emission_sd,
                                                       __thread_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_INDIRECT_EMISSION);
@@ -112,11 +112,11 @@ ccl_device_forceinline void kernel_path_lamp_emission(__thread_space KernelGloba
 #endif /* __LAMP_MIS__ */
 }
 
-ccl_device_forceinline void kernel_path_background(__thread_space KernelGlobals *kg,
+ccl_device_forceinline void kernel_path_background(__device_space KernelGlobals *kg,
                                                    __device_space ccl_addr_space PathState *state,
                                                    __thread_space ccl_addr_space Ray *ray,
                                                    float3 throughput,
-                                                   __thread_space ShaderData *sd,
+                                                   __device_space ShaderData *sd,
                                                    ccl_global __device_space float *buffer,
                                                    __thread_space PathRadiance *L)
 {
@@ -146,14 +146,14 @@ ccl_device_forceinline void kernel_path_background(__thread_space KernelGlobals 
 #ifndef __SPLIT_KERNEL__
 
 #  ifdef __VOLUME__
-ccl_device_forceinline VolumeIntegrateResult kernel_path_volume(__thread_space KernelGlobals *kg,
-                                                                __thread_space ShaderData *sd,
+ccl_device_forceinline VolumeIntegrateResult kernel_path_volume(__device_space KernelGlobals *kg,
+                                                                __device_space ShaderData *sd,
                                                                 __thread_space PathState *state,
                                                                 __thread_space Ray *ray,
                                                                 __thread_space float3 *throughput,
                                                                 __thread_space ccl_addr_space Intersection *isect,
                                                                 bool hit,
-                                                                __thread_space ShaderData *emission_sd,
+                                                                __device_space ShaderData *emission_sd,
                                                                 __thread_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_VOLUME);
@@ -251,12 +251,12 @@ ccl_device_forceinline VolumeIntegrateResult kernel_path_volume(__thread_space K
 
 #endif /* __SPLIT_KERNEL__ */
 
-ccl_device_forceinline bool kernel_path_shader_apply(__thread_space KernelGlobals *kg,
-                                                     __thread_space ShaderData *sd,
+ccl_device_forceinline bool kernel_path_shader_apply(__device_space KernelGlobals *kg,
+                                                     __device_space ShaderData *sd,
                                                      __device_space ccl_addr_space PathState *state,
                                                      __thread_space ccl_addr_space Ray *ray,
                                                      float3 throughput,
-                                                     __thread_space ShaderData *emission_sd,
+                                                     __device_space ShaderData *emission_sd,
                                                      __thread_space PathRadiance *L,
                                                      ccl_global __device_space float *buffer)
 {
@@ -334,9 +334,9 @@ ccl_device_inline /* inline trace calls */
 ccl_device_noinline
 #endif
     void
-    kernel_path_ao(__thread_space KernelGlobals *kg,
-                   __thread_space ShaderData *sd,
-                   __thread_space ShaderData *emission_sd,
+    kernel_path_ao(__device_space KernelGlobals *kg,
+                   __device_space ShaderData *sd,
+                   __device_space ShaderData *emission_sd,
                    __thread_space PathRadiance *L,
                    __device_space ccl_addr_space PathState *state,
                    float3 throughput,
@@ -381,9 +381,9 @@ ccl_device_noinline
 
 #  if defined(__BRANCHED_PATH__) || defined(__BAKING__)
 
-ccl_device void kernel_path_indirect(__thread_space KernelGlobals *kg,
-                                     __thread_space ShaderData *sd,
-                                     __thread_space ShaderData *emission_sd,
+ccl_device void kernel_path_indirect(__device_space KernelGlobals *kg,
+                                     __device_space ShaderData *sd,
+                                     __device_space ShaderData *emission_sd,
                                      __thread_space Ray *ray,
                                      float3 throughput,
                                      __thread_space PathState *state,
@@ -514,13 +514,13 @@ ccl_device void kernel_path_indirect(__thread_space KernelGlobals *kg,
 
 #  endif /* defined(__BRANCHED_PATH__) || defined(__BAKING__) */
 
-ccl_device_forceinline void kernel_path_integrate(__thread_space KernelGlobals *kg,
+ccl_device_forceinline void kernel_path_integrate(__device_space KernelGlobals *kg,
                                                   __thread_space PathState *state,
                                                   float3 throughput,
                                                   __thread_space Ray *ray,
                                                   __thread_space PathRadiance *L,
                                                   ccl_global float *buffer,
-                                                  __thread_space ShaderData *emission_sd)
+                                                  __device_space ShaderData *emission_sd)
 {
   PROFILING_INIT(kg, PROFILING_PATH_INTEGRATE);
 
@@ -649,7 +649,7 @@ ccl_device_forceinline void kernel_path_integrate(__thread_space KernelGlobals *
 }
 
 ccl_device void kernel_path_trace(
-    __thread_space KernelGlobals *kg, ccl_global float *buffer, int sample, int x, int y, int offset, int stride)
+    __device_space KernelGlobals *kg, ccl_global float *buffer, int sample, int x, int y, int offset, int stride)
 {
   PROFILING_INIT(kg, PROFILING_RAY_SETUP);
 
@@ -686,7 +686,7 @@ ccl_device void kernel_path_trace(
   path_radiance_init(kg, &L);
 
   ShaderDataTinyStorage emission_sd_storage;
-  __thread_space ShaderData *emission_sd = AS_SHADER_DATA(&emission_sd_storage);
+  __device_space ShaderData *emission_sd = AS_SHADER_DATA(&emission_sd_storage);
 
   PathState state;
   path_state_init(kg, emission_sd, &state, rng_hash, sample, &ray);

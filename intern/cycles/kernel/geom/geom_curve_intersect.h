@@ -26,7 +26,7 @@ ccl_device_inline ssef transform_point_T3(const ssef t[3], const ssef &a)
 #  endif
 
 /* On CPU pass P and dir by reference to aligned vector. */
-ccl_device_forceinline bool cardinal_curve_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline bool cardinal_curve_intersect(__device_space KernelGlobals *kg,
                                                      __thread_space Intersection *isect,
                                                      const float3 ccl_ref P,
                                                      const float3 ccl_ref dir,
@@ -488,7 +488,7 @@ ccl_device_forceinline bool cardinal_curve_intersect(__thread_space KernelGlobal
   return hit;
 }
 
-ccl_device_forceinline bool curve_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline bool curve_intersect(__device_space KernelGlobals *kg,
                                             __thread_space Intersection *isect,
                                             float3 P,
                                             float3 direction,
@@ -715,8 +715,8 @@ ccl_device_forceinline bool curve_intersect(__thread_space KernelGlobals *kg,
 #  endif
 }
 
-ccl_device_inline float3 curve_refine(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd,
+ccl_device_inline float3 curve_refine(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd,
                                       __thread_space const Intersection *isect,
                                       __thread_space const Ray *ray)
 {

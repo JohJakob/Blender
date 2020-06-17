@@ -16,8 +16,8 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_combine_hsv(__thread_space KernelGlobals *kg,
-                                     __thread_space ShaderData *sd,
+ccl_device void svm_node_combine_hsv(__device_space KernelGlobals *kg,
+                                     __device_space ShaderData *sd,
                                      __thread_space float *stack,
                                      uint hue_in,
                                      uint saturation_in,
@@ -38,8 +38,8 @@ ccl_device void svm_node_combine_hsv(__thread_space KernelGlobals *kg,
     stack_store_float3(stack, color_out, color);
 }
 
-ccl_device void svm_node_separate_hsv(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd,
+ccl_device void svm_node_separate_hsv(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd,
                                       __thread_space float *stack,
                                       uint color_in,
                                       uint hue_out,

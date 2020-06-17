@@ -62,7 +62,7 @@ ccl_device_inline int patch_map_resolve_quadrant(float median,
 /* retrieve PatchHandle from patch coords */
 
 ccl_device_inline PatchHandle
-patch_map_find_patch(__thread_space KernelGlobals *kg,
+patch_map_find_patch(__device_space KernelGlobals *kg,
                      int object, int patch, float u, float v)
 {
   PatchHandle handle;
@@ -194,7 +194,7 @@ ccl_device_inline void patch_eval_normalize_coords(uint patch_bits, __thread_spa
 
 /* retrieve patch control indices */
 
-ccl_device_inline int patch_eval_indices(__thread_space KernelGlobals *kg,
+ccl_device_inline int patch_eval_indices(__device_space KernelGlobals *kg,
                                          __thread_space const PatchHandle *handle,
                                          int channel,
                                          int indices[PATCH_MAX_CONTROL_VERTS])
@@ -211,7 +211,7 @@ ccl_device_inline int patch_eval_indices(__thread_space KernelGlobals *kg,
 
 /* evaluate patch basis functions */
 
-ccl_device_inline void patch_eval_basis(__thread_space KernelGlobals *kg,
+ccl_device_inline void patch_eval_basis(__device_space KernelGlobals *kg,
                                         __thread_space const PatchHandle *handle,
                                         float u,
                                         float v,
@@ -250,7 +250,7 @@ ccl_device_inline void patch_eval_basis(__thread_space KernelGlobals *kg,
 
 /* generic function for evaluating indices and weights from patch coords */
 
-ccl_device_inline int patch_eval_control_verts(__thread_space KernelGlobals *kg,
+ccl_device_inline int patch_eval_control_verts(__device_space KernelGlobals *kg,
                                                int object,
                                                int patch,
                                                float u,
@@ -272,8 +272,8 @@ ccl_device_inline int patch_eval_control_verts(__thread_space KernelGlobals *kg,
 
 /* functions for evaluating attributes on patches */
 
-ccl_device float patch_eval_float(__thread_space KernelGlobals *kg,
-                                  __thread_space const ShaderData *sd,
+ccl_device float patch_eval_float(__device_space KernelGlobals *kg,
+                                  __device_space const ShaderData *sd,
                                   int offset,
                                   int patch,
                                   float u,
@@ -309,8 +309,8 @@ ccl_device float patch_eval_float(__thread_space KernelGlobals *kg,
   return val;
 }
 
-ccl_device float2 patch_eval_float2(__thread_space KernelGlobals *kg,
-                                    __thread_space const ShaderData *sd,
+ccl_device float2 patch_eval_float2(__device_space KernelGlobals *kg,
+                                    __device_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,
@@ -346,8 +346,8 @@ ccl_device float2 patch_eval_float2(__thread_space KernelGlobals *kg,
   return val;
 }
 
-ccl_device float3 patch_eval_float3(__thread_space KernelGlobals *kg,
-                                    __thread_space const ShaderData *sd,
+ccl_device float3 patch_eval_float3(__device_space KernelGlobals *kg,
+                                    __device_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,
@@ -383,8 +383,8 @@ ccl_device float3 patch_eval_float3(__thread_space KernelGlobals *kg,
   return val;
 }
 
-ccl_device float4 patch_eval_uchar4(__thread_space KernelGlobals *kg,
-                                    __thread_space const ShaderData *sd,
+ccl_device float4 patch_eval_uchar4(__device_space KernelGlobals *kg,
+                                    __device_space const ShaderData *sd,
                                     int offset,
                                     int patch,
                                     float u,

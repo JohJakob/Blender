@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
  *
  * Ray state of rays outside the tile-boundary will be marked RAY_INACTIVE
  */
-ccl_device void kernel_path_init(__thread_space KernelGlobals *kg)
+ccl_device void kernel_path_init(__device_space KernelGlobals *kg)
 {
   int ray_index = ccl_global_id(0) + ccl_global_id(1) * ccl_global_size(0);
 

@@ -84,7 +84,7 @@ ccl_device_inline void kernel_sort_id_slots(ccl_global __device_space float *buf
 #ifdef __KERNEL_GPU__
 /* post-sorting for Cryptomatte */
 ccl_device void kernel_cryptomatte_post(
-    __thread_space KernelGlobals *kg, ccl_global __device_space float *buffer, uint sample, int x, int y, int offset, int stride)
+    __device_space KernelGlobals *kg, ccl_global __device_space float *buffer, uint sample, int x, int y, int offset, int stride)
 {
   if (sample - 1 == kernel_data.integrator.aa_samples) {
     int index = offset + x + y * stride;

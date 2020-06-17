@@ -22,8 +22,8 @@
 CCL_NAMESPACE_BEGIN
 
 /* Generic primitive attribute reading functions */
-ccl_device_inline float primitive_attribute_float(__thread_space KernelGlobals *kg,
-                                                  __thread_space const ShaderData *sd,
+ccl_device_inline float primitive_attribute_float(__device_space KernelGlobals *kg,
+                                                  __device_space const ShaderData *sd,
                                                   const AttributeDescriptor desc,
                                                   __thread_space float *dx,
                                                   __thread_space float *dy)
@@ -57,8 +57,8 @@ ccl_device_inline float primitive_attribute_float(__thread_space KernelGlobals *
   }
 }
 
-ccl_device_inline float primitive_surface_attribute_float(__thread_space KernelGlobals *kg,
-                                                          __thread_space const ShaderData *sd,
+ccl_device_inline float primitive_surface_attribute_float(__device_space KernelGlobals *kg,
+                                                          __device_space const ShaderData *sd,
                                                           const AttributeDescriptor desc,
                                                           __thread_space float *dx,
                                                           __thread_space float *dy)
@@ -84,8 +84,8 @@ ccl_device_inline float primitive_surface_attribute_float(__thread_space KernelG
 }
 
 #ifdef __VOLUME__
-ccl_device_inline float primitive_volume_attribute_float(__thread_space KernelGlobals *kg,
-                                                         __thread_space const ShaderData *sd,
+ccl_device_inline float primitive_volume_attribute_float(__device_space KernelGlobals *kg,
+                                                         __device_space const ShaderData *sd,
                                                          const AttributeDescriptor desc)
 {
   if (sd->object != OBJECT_NONE && desc.element == ATTR_ELEMENT_VOXEL) {
@@ -97,8 +97,8 @@ ccl_device_inline float primitive_volume_attribute_float(__thread_space KernelGl
 }
 #endif
 
-ccl_device_inline float2 primitive_attribute_float2(__thread_space KernelGlobals *kg,
-                                                    __thread_space const ShaderData *sd,
+ccl_device_inline float2 primitive_attribute_float2(__device_space KernelGlobals *kg,
+                                                    __device_space const ShaderData *sd,
                                                     const AttributeDescriptor desc,
                                                     __thread_space float2 *dx,
                                                     __thread_space float2 *dy)
@@ -133,8 +133,8 @@ ccl_device_inline float2 primitive_attribute_float2(__thread_space KernelGlobals
   }
 }
 
-ccl_device_inline float3 primitive_attribute_float3(__thread_space KernelGlobals *kg,
-                                                    __thread_space const ShaderData *sd,
+ccl_device_inline float3 primitive_attribute_float3(__device_space KernelGlobals *kg,
+                                                    __device_space const ShaderData *sd,
                                                     const AttributeDescriptor desc,
                                                     __thread_space float3 *dx,
                                                     __thread_space float3 *dy)
@@ -168,8 +168,8 @@ ccl_device_inline float3 primitive_attribute_float3(__thread_space KernelGlobals
   }
 }
 
-ccl_device_inline float4 primitive_attribute_float4(__thread_space KernelGlobals *kg,
-                                                    __thread_space const ShaderData *sd,
+ccl_device_inline float4 primitive_attribute_float4(__device_space KernelGlobals *kg,
+                                                    __device_space const ShaderData *sd,
                                                     const AttributeDescriptor desc,
                                                     __thread_space float4 *dx,
                                                     __thread_space float4 *dy)
@@ -189,8 +189,8 @@ ccl_device_inline float4 primitive_attribute_float4(__thread_space KernelGlobals
   }
 }
 
-ccl_device_inline float2 primitive_surface_attribute_float2(__thread_space KernelGlobals *kg,
-                                                            __thread_space const ShaderData *sd,
+ccl_device_inline float2 primitive_surface_attribute_float2(__device_space KernelGlobals *kg,
+                                                            __device_space const ShaderData *sd,
                                                             const AttributeDescriptor desc,
                                                             __thread_space float2 *dx,
                                                             __thread_space float2 *dy)
@@ -215,8 +215,8 @@ ccl_device_inline float2 primitive_surface_attribute_float2(__thread_space Kerne
   }
 }
 
-ccl_device_inline float3 primitive_surface_attribute_float3(__thread_space KernelGlobals *kg,
-                                                            __thread_space const ShaderData *sd,
+ccl_device_inline float3 primitive_surface_attribute_float3(__device_space KernelGlobals *kg,
+                                                            __device_space const ShaderData *sd,
                                                             const AttributeDescriptor desc,
                                                             __thread_space float3 *dx,
                                                             __thread_space float3 *dy)
@@ -242,8 +242,8 @@ ccl_device_inline float3 primitive_surface_attribute_float3(__thread_space Kerne
 }
 
 #ifdef __VOLUME__
-ccl_device_inline float3 primitive_volume_attribute_float3(__thread_space KernelGlobals *kg,
-                                                           __thread_space const ShaderData *sd,
+ccl_device_inline float3 primitive_volume_attribute_float3(__device_space KernelGlobals *kg,
+                                                           __device_space const ShaderData *sd,
                                                            const AttributeDescriptor desc)
 {
   if (sd->object != OBJECT_NONE && desc.element == ATTR_ELEMENT_VOXEL) {
@@ -257,8 +257,8 @@ ccl_device_inline float3 primitive_volume_attribute_float3(__thread_space Kernel
 
 /* Default UV coordinate */
 
-ccl_device_inline float3 primitive_uv(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd)
+ccl_device_inline float3 primitive_uv(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd)
 {
   const AttributeDescriptor desc = find_attribute(kg, sd, ATTR_STD_UV);
 
@@ -271,8 +271,8 @@ ccl_device_inline float3 primitive_uv(__thread_space KernelGlobals *kg,
 
 /* Ptex coordinates */
 
-ccl_device bool primitive_ptex(__thread_space KernelGlobals *kg,
-                               __thread_space ShaderData *sd,
+ccl_device bool primitive_ptex(__device_space KernelGlobals *kg,
+                               __device_space ShaderData *sd,
                                __thread_space float2 *uv,
                                __thread_space int *face_id)
 {
@@ -294,8 +294,8 @@ ccl_device bool primitive_ptex(__thread_space KernelGlobals *kg,
 
 /* Surface tangent */
 
-ccl_device float3 primitive_tangent(__thread_space KernelGlobals *kg,
-                                    __thread_space ShaderData *sd)
+ccl_device float3 primitive_tangent(__device_space KernelGlobals *kg,
+                                    __device_space ShaderData *sd)
 {
 #ifdef __HAIR__
   if (sd->type & PRIMITIVE_ALL_CURVE)
@@ -327,8 +327,8 @@ ccl_device float3 primitive_tangent(__thread_space KernelGlobals *kg,
 
 /* Motion vector for motion pass */
 
-ccl_device_inline float4 primitive_motion_vector(__thread_space KernelGlobals *kg,
-                                                 __thread_space ShaderData *sd)
+ccl_device_inline float4 primitive_motion_vector(__device_space KernelGlobals *kg,
+                                                 __device_space ShaderData *sd)
 {
   /* center position */
   float3 center;

@@ -29,7 +29,7 @@ CCL_NAMESPACE_BEGIN
 
 /* Time interpolation of vertex positions and normals */
 
-ccl_device_inline int find_attribute_motion(__thread_space KernelGlobals *kg,
+ccl_device_inline int find_attribute_motion(__device_space KernelGlobals *kg,
                                             int object,
                                             uint id,
                                             __thread_space AttributeElement *elem)
@@ -49,7 +49,7 @@ ccl_device_inline int find_attribute_motion(__thread_space KernelGlobals *kg,
   return (attr_map.y == ATTR_ELEMENT_NONE) ? (int)ATTR_STD_NOT_FOUND : (int)attr_map.z;
 }
 
-ccl_device_inline void motion_triangle_verts_for_step(__thread_space KernelGlobals *kg,
+ccl_device_inline void motion_triangle_verts_for_step(__device_space KernelGlobals *kg,
                                                       uint4 tri_vindex,
                                                       int offset,
                                                       int numverts,
@@ -76,7 +76,7 @@ ccl_device_inline void motion_triangle_verts_for_step(__thread_space KernelGloba
   }
 }
 
-ccl_device_inline void motion_triangle_normals_for_step(__thread_space KernelGlobals *kg,
+ccl_device_inline void motion_triangle_normals_for_step(__device_space KernelGlobals *kg,
                                                         uint4 tri_vindex,
                                                         int offset,
                                                         int numverts,
@@ -104,7 +104,7 @@ ccl_device_inline void motion_triangle_normals_for_step(__thread_space KernelGlo
 }
 
 ccl_device_inline void motion_triangle_vertices(
-    __thread_space KernelGlobals *kg, int object, int prim, float time, float3 verts[3])
+    __device_space KernelGlobals *kg, int object, int prim, float time, float3 verts[3])
 {
   /* get motion info */
   int numsteps, numverts;
@@ -134,7 +134,7 @@ ccl_device_inline void motion_triangle_vertices(
 }
 
 ccl_device_inline float3 motion_triangle_smooth_normal(
-    __thread_space KernelGlobals *kg, float3 Ng, int object, int prim, float u, float v, float time)
+    __device_space KernelGlobals *kg, float3 Ng, int object, int prim, float u, float v, float time)
 {
   /* get motion info */
   int numsteps, numverts;

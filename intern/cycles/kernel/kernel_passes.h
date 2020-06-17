@@ -20,7 +20,7 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __DENOISING_FEATURES__
 
-ccl_device_inline void kernel_write_denoising_shadow(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_write_denoising_shadow(__device_space KernelGlobals *kg,
                                                      ccl_global __device_space float *buffer,
                                                      int sample,
                                                      float path_total,
@@ -43,8 +43,8 @@ ccl_device_inline void kernel_write_denoising_shadow(__thread_space KernelGlobal
   kernel_write_pass_float(buffer + 2, value * value);
 }
 
-ccl_device_inline void kernel_update_denoising_features(__thread_space KernelGlobals *kg,
-                                                        __thread_space ShaderData *sd,
+ccl_device_inline void kernel_update_denoising_features(__device_space KernelGlobals *kg,
+                                                        __device_space ShaderData *sd,
                                                         __thread_space ccl_addr_space PathState *state,
                                                         __thread_space PathRadiance *L)
 {
@@ -170,10 +170,10 @@ ccl_device_inline size_t kernel_write_id_slots_gpu(ccl_global __device_space flo
   return depth * 2;
 }
 
-ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_write_data_passes(__device_space KernelGlobals *kg,
                                                 ccl_global __device_space float *buffer,
                                                 __thread_space PathRadiance *L,
-                                                __thread_space ShaderData *sd,
+                                                __device_space ShaderData *sd,
                                                 __device_space ccl_addr_space PathState *state,
                                                 float3 throughput)
 {
@@ -282,7 +282,7 @@ ccl_device_inline void kernel_write_data_passes(__thread_space KernelGlobals *kg
 #endif
 }
 
-ccl_device_inline void kernel_write_light_passes(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_write_light_passes(__device_space KernelGlobals *kg,
                                                  ccl_global __device_space float *buffer,
                                                  __device_space PathRadiance *L)
 {
@@ -335,7 +335,7 @@ ccl_device_inline void kernel_write_light_passes(__thread_space KernelGlobals *k
 #endif
 }
 
-ccl_device_inline void kernel_write_result(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_write_result(__device_space KernelGlobals *kg,
                                            ccl_global __device_space float *buffer,
                                            int sample,
                                            __device_space PathRadiance *L)

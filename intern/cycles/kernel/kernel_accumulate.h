@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
  * BSDF evaluation result, split per BSDF type. This is used to accumulate
  * render passes separately. */
 
-ccl_device float3 shader_bsdf_transparency(__thread_space KernelGlobals *kg, __thread_space const ShaderData *sd);
+ccl_device float3 shader_bsdf_transparency(__device_space KernelGlobals *kg, __device_space const ShaderData *sd);
 
 ccl_device_inline void bsdf_eval_init(__thread_space BsdfEval *eval,
                                       ClosureType type,
@@ -167,7 +167,7 @@ ccl_device_inline float3 bsdf_eval_sum(__thread_space const BsdfEval *eval)
  * visible as the first non-transparent hit, while indirectly visible are the
  * bounces after that. */
 
-ccl_device_inline void path_radiance_init(__thread_space KernelGlobals *kg, __device_space PathRadiance *L)
+ccl_device_inline void path_radiance_init(__device_space KernelGlobals *kg, __device_space PathRadiance *L)
 {
   /* clear all */
 #ifdef __PASSES__
@@ -234,7 +234,7 @@ ccl_device_inline void path_radiance_init(__thread_space KernelGlobals *kg, __de
 #endif
 }
 
-ccl_device_inline void path_radiance_bsdf_bounce(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_bsdf_bounce(__device_space KernelGlobals *kg,
                                                  __device_space PathRadianceState *L_state,
                                                  __device_space ccl_addr_space float3 *throughput,
                                                  __thread_space BsdfEval *bsdf_eval,
@@ -273,7 +273,7 @@ ccl_device_inline void path_radiance_bsdf_bounce(__thread_space KernelGlobals *k
 }
 
 #ifdef __CLAMP_SAMPLE__
-ccl_device_forceinline void path_radiance_clamp(__thread_space KernelGlobals *kg, __thread_space float3 *L, int bounce)
+ccl_device_forceinline void path_radiance_clamp(__device_space KernelGlobals *kg, __thread_space float3 *L, int bounce)
 {
   float limit = (bounce > 0) ? kernel_data.integrator.sample_clamp_indirect :
                                kernel_data.integrator.sample_clamp_direct;
@@ -283,7 +283,7 @@ ccl_device_forceinline void path_radiance_clamp(__thread_space KernelGlobals *kg
   }
 }
 
-ccl_device_forceinline void path_radiance_clamp_throughput(__thread_space KernelGlobals *kg,
+ccl_device_forceinline void path_radiance_clamp_throughput(__device_space KernelGlobals *kg,
                                                            __thread_space float3 *L,
                                                            __thread_space float3 *throughput,
                                                            int bounce)
@@ -301,7 +301,7 @@ ccl_device_forceinline void path_radiance_clamp_throughput(__thread_space Kernel
 
 #endif
 
-ccl_device_inline void path_radiance_accum_emission(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_accum_emission(__device_space KernelGlobals *kg,
                                                     __thread_space PathRadiance *L,
                                                     __device_space ccl_addr_space PathState *state,
                                                     float3 throughput,
@@ -334,7 +334,7 @@ ccl_device_inline void path_radiance_accum_emission(__thread_space KernelGlobals
   }
 }
 
-ccl_device_inline void path_radiance_accum_ao(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_accum_ao(__device_space KernelGlobals *kg,
                                               __thread_space PathRadiance *L,
                                               __device_space ccl_addr_space PathState *state,
                                               float3 throughput,
@@ -399,7 +399,7 @@ ccl_device_inline void path_radiance_accum_total_ao(__thread_space PathRadiance 
 #endif
 }
 
-ccl_device_inline void path_radiance_accum_light(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_accum_light(__device_space KernelGlobals *kg,
                                                  __thread_space PathRadiance *L,
                                                  __device_space ccl_addr_space PathState *state,
                                                  float3 throughput,
@@ -475,7 +475,7 @@ ccl_device_inline void path_radiance_accum_total_light(__thread_space PathRadian
 #endif
 }
 
-ccl_device_inline void path_radiance_accum_background(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_accum_background(__device_space KernelGlobals *kg,
                                                       __thread_space PathRadiance *L,
                                                       __device_space ccl_addr_space PathState *state,
                                                       float3 throughput,
@@ -587,7 +587,7 @@ ccl_device_inline void path_radiance_copy_indirect(__device_space PathRadiance *
 }
 
 #ifdef __SHADOW_TRICKS__
-ccl_device_inline void path_radiance_sum_shadowcatcher(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_sum_shadowcatcher(__device_space KernelGlobals *kg,
                                                        __device_space PathRadiance *L,
                                                        __thread_space float3 *L_sum,
                                                        __thread_space float *alpha)
@@ -619,7 +619,7 @@ ccl_device_inline void path_radiance_sum_shadowcatcher(__thread_space KernelGlob
 }
 #endif
 
-ccl_device_inline float3 path_radiance_clamp_and_sum(__thread_space KernelGlobals *kg,
+ccl_device_inline float3 path_radiance_clamp_and_sum(__device_space KernelGlobals *kg,
                                                      __device_space PathRadiance *L,
                                                      __thread_space float *alpha)
 {
@@ -687,7 +687,7 @@ ccl_device_inline float3 path_radiance_clamp_and_sum(__thread_space KernelGlobal
   return L_sum;
 }
 
-ccl_device_inline void path_radiance_split_denoising(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_radiance_split_denoising(__device_space KernelGlobals *kg,
                                                      __device_space PathRadiance *L,
                                                      __thread_space float3 *noisy,
                                                      __thread_space float3 *clean)

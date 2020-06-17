@@ -16,7 +16,7 @@
 
 // TODO(sergey): Look into avoid use of full Transform and use 3x3 matrix and
 // 3-vector which might be faster.
-ccl_device_forceinline Transform bvh_unaligned_node_fetch_space(__thread_space KernelGlobals *kg,
+ccl_device_forceinline Transform bvh_unaligned_node_fetch_space(__device_space KernelGlobals *kg,
                                                                 int node_addr,
                                                                 int child)
 {
@@ -29,7 +29,7 @@ ccl_device_forceinline Transform bvh_unaligned_node_fetch_space(__thread_space K
 }
 
 #if !defined(__KERNEL_SSE2__)
-ccl_device_forceinline int bvh_aligned_node_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline int bvh_aligned_node_intersect(__device_space KernelGlobals *kg,
                                                       const float3 P,
                                                       const float3 idir,
                                                       const float t,
@@ -77,7 +77,7 @@ ccl_device_forceinline int bvh_aligned_node_intersect(__thread_space KernelGloba
 #  endif
 }
 
-ccl_device_forceinline bool bvh_unaligned_node_intersect_child(__thread_space KernelGlobals *kg,
+ccl_device_forceinline bool bvh_unaligned_node_intersect_child(__device_space KernelGlobals *kg,
                                                                const float3 P,
                                                                const float3 dir,
                                                                const float t,
@@ -103,7 +103,7 @@ ccl_device_forceinline bool bvh_unaligned_node_intersect_child(__thread_space Ke
   return tnear <= tfar;
 }
 
-ccl_device_forceinline int bvh_unaligned_node_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline int bvh_unaligned_node_intersect(__device_space KernelGlobals *kg,
                                                         const float3 P,
                                                         const float3 dir,
                                                         const float3 idir,
@@ -135,7 +135,7 @@ ccl_device_forceinline int bvh_unaligned_node_intersect(__thread_space KernelGlo
   return mask;
 }
 
-ccl_device_forceinline int bvh_node_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline int bvh_node_intersect(__device_space KernelGlobals *kg,
                                               const float3 P,
                                               const float3 dir,
                                               const float3 idir,
@@ -155,7 +155,7 @@ ccl_device_forceinline int bvh_node_intersect(__thread_space KernelGlobals *kg,
 
 #else /* !defined(__KERNEL_SSE2__) */
 
-int ccl_device_forceinline bvh_aligned_node_intersect(__thread_space KernelGlobals *kg,
+int ccl_device_forceinline bvh_aligned_node_intersect(__device_space KernelGlobals *kg,
                                                       __thread_space const float3 &P,
                                                       __thread_space const float3 &dir,
                                                       __thread_space const ssef &tsplat,
@@ -198,7 +198,7 @@ int ccl_device_forceinline bvh_aligned_node_intersect(__thread_space KernelGloba
 #  endif
 }
 
-ccl_device_forceinline int bvh_unaligned_node_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline int bvh_unaligned_node_intersect(__device_space KernelGlobals *kg,
                                                         const float3 P,
                                                         const float3 dir,
                                                         __thread_space const ssef &isect_near,
@@ -250,7 +250,7 @@ ccl_device_forceinline int bvh_unaligned_node_intersect(__thread_space KernelGlo
 #  endif
 }
 
-ccl_device_forceinline int bvh_node_intersect(__thread_space KernelGlobals *kg,
+ccl_device_forceinline int bvh_node_intersect(__device_space KernelGlobals *kg,
                                               __thread_space const float3 &P,
                                               __thread_space const float3 &dir,
                                               __thread_space const ssef &isect_near,

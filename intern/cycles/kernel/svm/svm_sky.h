@@ -37,7 +37,7 @@ ccl_device float sky_perez_function(__thread_space float *lam, float theta, floa
          (1.0f + lam[2] * expf(lam[3] * gamma) + lam[4] * cgamma * cgamma);
 }
 
-ccl_device float3 sky_radiance_old(__thread_space KernelGlobals *kg,
+ccl_device float3 sky_radiance_old(__device_space KernelGlobals *kg,
                                    float3 dir,
                                    float sunphi,
                                    float suntheta,
@@ -90,7 +90,7 @@ ccl_device float sky_radiance_internal(__thread_space float *configuration, floa
           configuration[6] * mieM + configuration[7] * zenith);
 }
 
-ccl_device float3 sky_radiance_new(__thread_space KernelGlobals *kg,
+ccl_device float3 sky_radiance_new(__device_space KernelGlobals *kg,
                                    float3 dir,
                                    float sunphi,
                                    float suntheta,
@@ -122,7 +122,7 @@ ccl_device float3 sky_radiance_new(__thread_space KernelGlobals *kg,
 }
 
 ccl_device void svm_node_tex_sky(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   /* Define variables */
   float sunphi, suntheta, radiance_x, radiance_y, radiance_z;

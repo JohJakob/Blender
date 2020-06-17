@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* IES Light */
 
 ccl_device_inline float interpolate_ies_vertical(
-    __thread_space KernelGlobals *kg, int ofs, int v, int v_num, float v_frac, int h)
+    __device_space KernelGlobals *kg, int ofs, int v, int v_num, float v_frac, int h)
 {
   /* Since lookups are performed in spherical coordinates, clamping the coordinates at the low end
    * of v (corresponding to the north pole) would result in artifacts. The proper way of dealing
@@ -39,7 +39,7 @@ ccl_device_inline float interpolate_ies_vertical(
   return cubic_interp(a, b, c, d, v_frac);
 }
 
-ccl_device_inline float kernel_ies_interp(__thread_space KernelGlobals *kg,
+ccl_device_inline float kernel_ies_interp(__device_space KernelGlobals *kg,
                                           int slot,
                                           float h_angle,
                                           float v_angle)
@@ -99,7 +99,7 @@ ccl_device_inline float kernel_ies_interp(__thread_space KernelGlobals *kg,
 }
 
 ccl_device void svm_node_ies(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint vector_offset, strength_offset, fac_offset, slot = node.z;
   svm_unpack_node_uchar3(node.y, &strength_offset, &vector_offset, &fac_offset);

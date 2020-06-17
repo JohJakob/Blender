@@ -18,8 +18,8 @@ CCL_NAMESPACE_BEGIN
 
 /* Mapping Node */
 
-ccl_device void svm_node_mapping(__thread_space KernelGlobals *kg,
-                                 __thread_space ShaderData *sd,
+ccl_device void svm_node_mapping(__device_space KernelGlobals *kg,
+                                 __device_space ShaderData *sd,
                                  __thread_space float *stack,
                                  uint type,
                                  uint inputs_stack_offsets,
@@ -45,7 +45,7 @@ ccl_device void svm_node_mapping(__thread_space KernelGlobals *kg,
 /* Texture Mapping */
 
 ccl_device void svm_node_texture_mapping(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
 {
   float3 v = stack_load_float3(stack, vec_offset);
 
@@ -59,7 +59,7 @@ ccl_device void svm_node_texture_mapping(
 }
 
 ccl_device void svm_node_min_max(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint vec_offset, uint out_offset, __thread_space int *offset)
 {
   float3 v = stack_load_float3(stack, vec_offset);
 

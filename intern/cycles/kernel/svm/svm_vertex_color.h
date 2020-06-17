@@ -16,8 +16,8 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_vertex_color(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd,
+ccl_device void svm_node_vertex_color(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd,
                                       __thread_space float *stack,
                                       uint layer_id,
                                       uint color_offset,
@@ -41,8 +41,8 @@ ccl_device
 ccl_device_noinline
 #endif
     void
-    svm_node_vertex_color_bump_dx(__thread_space KernelGlobals *kg,
-                                  __thread_space ShaderData *sd,
+    svm_node_vertex_color_bump_dx(__device_space KernelGlobals *kg,
+                                  __device_space ShaderData *sd,
                                   __thread_space float *stack,
                                   uint layer_id,
                                   uint color_offset,
@@ -68,8 +68,8 @@ ccl_device
 ccl_device_noinline
 #endif
     void
-    svm_node_vertex_color_bump_dy(__thread_space KernelGlobals *kg,
-                                  __thread_space ShaderData *sd,
+    svm_node_vertex_color_bump_dy(__device_space KernelGlobals *kg,
+                                  __device_space ShaderData *sd,
                                   __thread_space float *stack,
                                   uint layer_id,
                                   uint color_offset,

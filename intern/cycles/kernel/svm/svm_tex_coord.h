@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Texture Coordinate Node */
 
 ccl_device void svm_node_tex_coord(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   float3 data;
   uint type = node.y;
@@ -95,7 +95,7 @@ ccl_device void svm_node_tex_coord(
 }
 
 ccl_device void svm_node_tex_coord_bump_dx(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
 #ifdef __RAY_DIFFERENTIALS__
   float3 data;
@@ -175,7 +175,7 @@ ccl_device void svm_node_tex_coord_bump_dx(
 }
 
 ccl_device void svm_node_tex_coord_bump_dy(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, int path_flag, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
 #ifdef __RAY_DIFFERENTIALS__
   float3 data;
@@ -254,7 +254,7 @@ ccl_device void svm_node_tex_coord_bump_dy(
 #endif
 }
 
-ccl_device void svm_node_normal_map(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_normal_map(__device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint color_offset, strength_offset, normal_offset, space;
   svm_unpack_node_uchar4(node.y, &color_offset, &strength_offset, &normal_offset, &space);
@@ -346,7 +346,7 @@ ccl_device void svm_node_normal_map(__thread_space KernelGlobals *kg, __thread_s
   stack_store_float3(stack, normal_offset, N);
 }
 
-ccl_device void svm_node_tangent(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_tangent(__device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint tangent_offset, direction_type, axis;
   svm_unpack_node_uchar3(node.y, &tangent_offset, &direction_type, &axis);

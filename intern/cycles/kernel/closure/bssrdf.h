@@ -329,7 +329,7 @@ ccl_device void bssrdf_none_sample(const float radius, float xi, __thread_space 
 
 /* Generic */
 
-ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__thread_space ShaderData *sd, float3 weight)
+ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__device_space ShaderData *sd, float3 weight)
 {
   __thread_space Bssrdf *bssrdf = (__thread_space Bssrdf *)closure_alloc(sd, sizeof(Bssrdf), CLOSURE_NONE_ID, weight);
 
@@ -342,7 +342,7 @@ ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__thread_space ShaderData 
   return (sample_weight >= CLOSURE_WEIGHT_CUTOFF) ? bssrdf : NULL;
 }
 
-ccl_device int bssrdf_setup(__thread_space ShaderData *sd, __thread_space Bssrdf *bssrdf, ClosureType type)
+ccl_device int bssrdf_setup(__device_space ShaderData *sd, __thread_space Bssrdf *bssrdf, ClosureType type)
 {
   int flag = 0;
   int bssrdf_channels = 3;

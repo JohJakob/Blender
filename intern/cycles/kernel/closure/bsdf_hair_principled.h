@@ -181,14 +181,14 @@ ccl_device_inline float longitudinal_scattering(
 }
 
 /* Combine the three values using their luminances. */
-ccl_device_inline float4 combine_with_energy(__thread_space KernelGlobals *kg, float3 c)
+ccl_device_inline float4 combine_with_energy(__device_space KernelGlobals *kg, float3 c)
 {
   return make_float4(c.x, c.y, c.z, linear_rgb_to_gray(kg, c));
 }
 
 #  ifdef __HAIR__
 /* Set up the hair closure. */
-ccl_device int bsdf_principled_hair_setup(__thread_space ShaderData *sd, __thread_space PrincipledHairBSDF *bsdf)
+ccl_device int bsdf_principled_hair_setup(__device_space ShaderData *sd, __thread_space PrincipledHairBSDF *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_HAIR_PRINCIPLED_ID;
   bsdf->v = clamp(bsdf->v, 0.001f, 1.0f);
@@ -230,7 +230,7 @@ ccl_device int bsdf_principled_hair_setup(__thread_space ShaderData *sd, __threa
 #  endif /* __HAIR__ */
 
 /* Given the Fresnel term and transmittance, generate the attenuation terms for each bounce. */
-ccl_device_inline void hair_attenuation(__thread_space KernelGlobals *kg, float f, float3 T, __thread_space float4 *Ap)
+ccl_device_inline void hair_attenuation(__device_space KernelGlobals *kg, float f, float3 T, __thread_space float4 *Ap)
 {
   /* Primary specular (R). */
   Ap[0] = make_float4(f, f, f, f);
@@ -279,8 +279,8 @@ ccl_device_inline void hair_alpha_angles(float sin_theta_i,
 }
 
 /* Evaluation function for our shader. */
-ccl_device float3 bsdf_principled_hair_eval(__thread_space KernelGlobals *kg,
-                                            __thread_space const ShaderData *sd,
+ccl_device float3 bsdf_principled_hair_eval(__device_space KernelGlobals *kg,
+                                            __device_space const ShaderData *sd,
                                             __thread_space const ShaderClosure *sc,
                                             const float3 omega_in,
                                             __thread_space float *pdf)
@@ -357,9 +357,9 @@ ccl_device float3 bsdf_principled_hair_eval(__thread_space KernelGlobals *kg,
 }
 
 /* Sampling function for the hair shader. */
-ccl_device int bsdf_principled_hair_sample(__thread_space KernelGlobals *kg,
+ccl_device int bsdf_principled_hair_sample(__device_space KernelGlobals *kg,
                                            __thread_space const ShaderClosure *sc,
-                                           __thread_space ShaderData *sd,
+                                           __device_space ShaderData *sd,
                                            float randu,
                                            float randv,
                                            __thread_space float3 *eval,

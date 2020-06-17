@@ -22,10 +22,10 @@ CCL_NAMESPACE_BEGIN
 ccl_addr_space
 #  endif
     __device_space ccl_device_inline PathState *
-    shadow_blocked_volume_path_state(__thread_space KernelGlobals *kg,
+    shadow_blocked_volume_path_state(__device_space KernelGlobals *kg,
                                      __thread_space VolumeState *volume_state,
                                      __device_space ccl_addr_space PathState *state,
-                                     __thread_space ShaderData *sd,
+                                     __device_space ShaderData *sd,
                                      __thread_space Ray *ray)
 {
 #  ifdef __SPLIT_KERNEL__
@@ -48,8 +48,8 @@ ccl_addr_space
 /* Attenuate throughput accordingly to the given intersection event.
  * Returns true if the throughput is zero and traversal can be aborted.
  */
-ccl_device_forceinline bool shadow_handle_transparent_isect(__thread_space KernelGlobals *kg,
-                                                            __thread_space ShaderData *shadow_sd,
+ccl_device_forceinline bool shadow_handle_transparent_isect(__device_space KernelGlobals *kg,
+                                                            __device_space ShaderData *shadow_sd,
                                                             __device_space ccl_addr_space PathState *state,
 #ifdef __VOLUME__
                                                             __device_space ccl_addr_space PathState *volume_state,
@@ -87,8 +87,8 @@ ccl_device_forceinline bool shadow_handle_transparent_isect(__thread_space Kerne
 }
 
 /* Special version which only handles opaque shadows. */
-ccl_device bool shadow_blocked_opaque(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *shadow_sd,
+ccl_device bool shadow_blocked_opaque(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *shadow_sd,
                                       __device_space ccl_addr_space PathState *state,
                                       const uint visibility,
                                       __thread_space Ray *ray,
@@ -139,9 +139,9 @@ ccl_device bool shadow_blocked_opaque(__thread_space KernelGlobals *kg,
  *
  * Note that hits array should be as big as max_hits+1.
  */
-ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals *kg,
-                                                    __thread_space ShaderData *sd,
-                                                    __thread_space ShaderData *shadow_sd,
+ccl_device bool shadow_blocked_transparent_all_loop(__device_space KernelGlobals *kg,
+                                                    __device_space ShaderData *sd,
+                                                    __device_space ShaderData *shadow_sd,
                                                     __device_space ccl_addr_space PathState *state,
                                                     const uint visibility,
                                                     __thread_space Ray *ray,
@@ -232,9 +232,9 @@ ccl_device bool shadow_blocked_transparent_all_loop(__thread_space KernelGlobals
 /* Here we do all device specific trickery before invoking actual traversal
  * loop to help readability of the actual logic.
  */
-ccl_device bool shadow_blocked_transparent_all(__thread_space KernelGlobals *kg,
-                                               __thread_space ShaderData *sd,
-                                               __thread_space ShaderData *shadow_sd,
+ccl_device bool shadow_blocked_transparent_all(__device_space KernelGlobals *kg,
+                                               __device_space ShaderData *sd,
+                                               __device_space ShaderData *shadow_sd,
                                                __device_space ccl_addr_space PathState *state,
                                                const uint visibility,
                                                __thread_space Ray *ray,
@@ -286,9 +286,9 @@ ccl_device bool shadow_blocked_transparent_all(__thread_space KernelGlobals *kg,
 /* This function is only implementing device-independent traversal logic
  * which requires some precalculation done.
  */
-ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlobals *kg,
-                                                        __thread_space ShaderData *sd,
-                                                        __thread_space ShaderData *shadow_sd,
+ccl_device bool shadow_blocked_transparent_stepped_loop(__device_space KernelGlobals *kg,
+                                                        __device_space ShaderData *sd,
+                                                        __device_space ShaderData *shadow_sd,
                                                         __device_space ccl_addr_space PathState *state,
                                                         const uint visibility,
                                                         __thread_space Ray *ray,
@@ -365,9 +365,9 @@ ccl_device bool shadow_blocked_transparent_stepped_loop(__thread_space KernelGlo
   return blocked;
 }
 
-ccl_device bool shadow_blocked_transparent_stepped(__thread_space KernelGlobals *kg,
-                                                   __thread_space ShaderData *sd,
-                                                   __thread_space ShaderData *shadow_sd,
+ccl_device bool shadow_blocked_transparent_stepped(__device_space KernelGlobals *kg,
+                                                   __device_space ShaderData *sd,
+                                                   __device_space ShaderData *shadow_sd,
                                                    __device_space ccl_addr_space PathState *state,
                                                    const uint visibility,
                                                    __thread_space Ray *ray,
@@ -383,9 +383,9 @@ ccl_device bool shadow_blocked_transparent_stepped(__thread_space KernelGlobals 
 #  endif /* __KERNEL_GPU__ || !__SHADOW_RECORD_ALL__ */
 #endif   /* __TRANSPARENT_SHADOWS__ */
 
-ccl_device_inline bool shadow_blocked(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd,
-                                      __thread_space ShaderData *shadow_sd,
+ccl_device_inline bool shadow_blocked(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd,
+                                      __device_space ShaderData *shadow_sd,
                                       __device_space ccl_addr_space PathState *state,
                                       __thread_space Ray *ray,
                                       __thread_space float3 *shadow)

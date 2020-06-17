@@ -236,10 +236,10 @@ constexpr sampler s(coord::normalized,
 /* Fast bicubic texture lookup using 4 bilinear lookups, adapted from CUDA samples. */
 template<typename T, typename U>
 inline T
-kernel_tex_image_interp_bicubic(constant const TextureInfo &info, texture2d<U> tex, float x, float y)
+kernel_tex_image_interp_bicubic(device TextureInfo *info, texture2d<U> tex, float x, float y)
 {
-  x = (x * info.width) - 0.5f;
-  y = (y * info.height) - 0.5f;
+  x = (x * info->width) - 0.5f;
+  y = (y * info->height) - 0.5f;
 
   float px = floor(x);
   float py = floor(y);
@@ -248,10 +248,10 @@ kernel_tex_image_interp_bicubic(constant const TextureInfo &info, texture2d<U> t
 
   float g0x = cubic_g0(fx);
   float g1x = cubic_g1(fx);
-  float x0 = (px + cubic_h0(fx)) / info.width;
-  float x1 = (px + cubic_h1(fx)) / info.width;
-  float y0 = (py + cubic_h0(fy)) / info.height;
-  float y1 = (py + cubic_h1(fy)) / info.height;
+  float x0 = (px + cubic_h0(fx)) / info->width;
+  float x1 = (px + cubic_h1(fx)) / info->width;
+  float y0 = (py + cubic_h0(fy)) / info->height;
+  float y1 = (py + cubic_h1(fy)) / info->height;
 
   return cubic_g0(fy) * (g0x * tex.sample(s, float2(x0, y0)) + g1x * tex.sample(s, float2(x1, y0))) +
          cubic_g1(fy) * (g0x * tex.sample(s, float2(x0, y1)) + g1x * tex.sample(s, float2(x1, y1)));
@@ -260,11 +260,11 @@ kernel_tex_image_interp_bicubic(constant const TextureInfo &info, texture2d<U> t
 /* Fast tricubic texture lookup using 8 trilinear lookups. */
 template<typename T, typename U>
 inline T kernel_tex_image_interp_bicubic_3d(
-    constant const TextureInfo &info, texture3d<U> tex, float x, float y, float z)
+    device TextureInfo *info, texture3d<U> tex, float x, float y, float z)
 {
-  x = (x * info.width) - 0.5f;
-  y = (y * info.height) - 0.5f;
-  z = (z * info.depth) - 0.5f;
+  x = (x * info->width) - 0.5f;
+  y = (y * info->height) - 0.5f;
+  z = (z * info->depth) - 0.5f;
 
   float px = floor(x);
   float py = floor(y);
@@ -280,12 +280,12 @@ inline T kernel_tex_image_interp_bicubic_3d(
   float g0z = cubic_g0(fz);
   float g1z = cubic_g1(fz);
 
-  float x0 = (px + cubic_h0(fx)) / info.width;
-  float x1 = (px + cubic_h1(fx)) / info.width;
-  float y0 = (py + cubic_h0(fy)) / info.height;
-  float y1 = (py + cubic_h1(fy)) / info.height;
-  float z0 = (pz + cubic_h0(fz)) / info.depth;
-  float z1 = (pz + cubic_h1(fz)) / info.depth;
+  float x0 = (px + cubic_h0(fx)) / info->width;
+  float x1 = (px + cubic_h1(fx)) / info->width;
+  float y0 = (py + cubic_h0(fy)) / info->height;
+  float y1 = (py + cubic_h1(fy)) / info->height;
+  float z0 = (pz + cubic_h0(fz)) / info->depth;
+  float z1 = (pz + cubic_h1(fz)) / info->depth;
 
   return g0z * (g0y * (g0x * tex.sample(s, float3(x0, y0, z0)) + g1x * tex.sample(s, float3(x1, y0, z0))) +
                 g1y * (g0x * tex.sample(s, float3(x0, y1, z0)) + g1x * tex.sample(s, float3(x1, y1, z0)))) +
@@ -295,15 +295,16 @@ inline T kernel_tex_image_interp_bicubic_3d(
 
 
 
-inline float4 kernel_tex_image_interp_3d(thread KernelGlobals *kg,
+inline float4 kernel_tex_image_interp_3d(device KernelGlobals *kg,
                                              int id,
                                              float3 P,
                                              InterpolationType interp)
 {
-    const constant TextureInfo &info = kg->textureInfo[id];
+    device TextureInfo *info = &kg->textureInfo[id];
+    texture3d<float> tex = *info->data3d;
 
-    if (info.use_transform_3d) {
-        Transform tf = info.transform_3d;
+    if (info->use_transform_3d) {
+        Transform tf = info->transform_3d;
         P = transform_point(&tf, P);
     }
 
@@ -315,10 +316,9 @@ inline float4 kernel_tex_image_interp_3d(thread KernelGlobals *kg,
                         address::clamp_to_zero,
                         filter::nearest);
 
-    const constant texture3d<float> &tex = *info.data3d;
-    uint interpolation = (interp == INTERPOLATION_NONE) ? info.interpolation : interp;
+    uint interpolation = (interp == INTERPOLATION_NONE) ? info->interpolation : interp;
 
-    const int texture_type = info.data_type;
+    const int texture_type = info->data_type;
     if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
         texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
       if (interpolation == INTERPOLATION_CUBIC) {
@@ -343,33 +343,35 @@ inline float4 kernel_tex_image_interp_3d(thread KernelGlobals *kg,
 
 }
 
-inline float4 kernel_tex_image_interp(thread KernelGlobals *kg, int id, float x, float y) {
+inline float4 kernel_tex_image_interp(device KernelGlobals *kg, int id, float x, float y) {
 
-    const constant TextureInfo &info = kg->textureInfo[id];
-    const constant texture2d<float> &tex = *info.data2d;
+    device TextureInfo *info = &kg->textureInfo[id];
+    texture2d<float> tex = *info->data2d;
 
-    float2 P = float2(x, y);
+    constexpr sampler s(coord::pixel,
+                        address::clamp_to_zero,
+                        filter::nearest);
 
     /* float4, byte4, ushort4 and half4 */
-    const int texture_type = info.data_type;
+    const int texture_type = info->data_type;
     if (texture_type == IMAGE_DATA_TYPE_FLOAT4 || texture_type == IMAGE_DATA_TYPE_BYTE4 ||
         texture_type == IMAGE_DATA_TYPE_HALF4 || texture_type == IMAGE_DATA_TYPE_USHORT4) {
-        if (info.interpolation == INTERPOLATION_CUBIC) {
+        if (info->interpolation == INTERPOLATION_CUBIC) {
             return kernel_tex_image_interp_bicubic<float4, float>(info, tex, x, y);
         }
         else {
-            return tex.sample(s, P);
+            return tex.sample(s, x, y);
         }
     }
     /* float, byte and half */
     else {
         float4 f;
 
-        if (info.interpolation == INTERPOLATION_CUBIC) {
+        if (info->interpolation == INTERPOLATION_CUBIC) {
             f = kernel_tex_image_interp_bicubic<float4, float>(info, tex, x, y);
         }
         else {
-            f = tex.sample(s, P);
+            f = tex.sample(s, x, y);
         }
 
         return float4(f.x, f.x, f.x, 1.0f);

@@ -17,8 +17,8 @@
 CCL_NAMESPACE_BEGIN
 
 /* Direction Emission */
-ccl_device_noinline_cpu float3 direct_emissive_eval(__thread_space KernelGlobals *kg,
-                                                    __thread_space ShaderData *emission_sd,
+ccl_device_noinline_cpu float3 direct_emissive_eval(__device_space KernelGlobals *kg,
+                                                    __device_space ShaderData *emission_sd,
                                                     __thread_space LightSample *ls,
                                                     __device_space ccl_addr_space PathState *state,
                                                     float3 I,
@@ -98,9 +98,9 @@ ccl_device_noinline_cpu float3 direct_emissive_eval(__thread_space KernelGlobals
   return eval;
 }
 
-ccl_device_noinline_cpu bool direct_emission(__thread_space KernelGlobals *kg,
-                                             __thread_space ShaderData *sd,
-                                             __thread_space ShaderData *emission_sd,
+ccl_device_noinline_cpu bool direct_emission(__device_space KernelGlobals *kg,
+                                             __device_space ShaderData *sd,
+                                             __device_space ShaderData *emission_sd,
                                              __thread_space LightSample *ls,
                                              __device_space ccl_addr_space PathState *state,
                                              __thread_space Ray *ray,
@@ -207,7 +207,7 @@ ccl_device_noinline_cpu bool direct_emission(__thread_space KernelGlobals *kg,
 /* Indirect Primitive Emission */
 
 ccl_device_noinline_cpu float3 indirect_primitive_emission(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, float t, int path_flag, float bsdf_pdf)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, float t, int path_flag, float bsdf_pdf)
 {
   /* evaluate emissive closure */
   float3 L = shader_emissive_eval(sd);
@@ -232,8 +232,8 @@ ccl_device_noinline_cpu float3 indirect_primitive_emission(
 
 /* Indirect Lamp Emission */
 
-ccl_device_noinline_cpu void indirect_lamp_emission(__thread_space KernelGlobals *kg,
-                                                    __thread_space ShaderData *emission_sd,
+ccl_device_noinline_cpu void indirect_lamp_emission(__device_space KernelGlobals *kg,
+                                                    __device_space ShaderData *emission_sd,
                                                     __device_space ccl_addr_space PathState *state,
                                                     __thread_space PathRadiance *L,
                                                     __thread_space Ray *ray,
@@ -285,8 +285,8 @@ ccl_device_noinline_cpu void indirect_lamp_emission(__thread_space KernelGlobals
 
 /* Indirect Background */
 
-ccl_device_noinline_cpu float3 indirect_background(__thread_space KernelGlobals *kg,
-                                                   __thread_space ShaderData *emission_sd,
+ccl_device_noinline_cpu float3 indirect_background(__device_space KernelGlobals *kg,
+                                                   __device_space ShaderData *emission_sd,
                                                    __device_space ccl_addr_space PathState *state,
                                                    ccl_global __device_space float *buffer,
                                                    __thread_space ccl_addr_space Ray *ray)

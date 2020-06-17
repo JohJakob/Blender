@@ -53,7 +53,7 @@ static_assert(sizeof(ShaderClosure) >= sizeof(MicrofacetBsdf), "MicrofacetBsdf i
 
 /* Beckmann and GGX microfacet importance sampling. */
 
-ccl_device_inline void microfacet_beckmann_sample_slopes(__thread_space KernelGlobals *kg,
+ccl_device_inline void microfacet_beckmann_sample_slopes(__device_space KernelGlobals *kg,
                                                          const float cos_theta_i,
                                                          const float sin_theta_i,
                                                          float randu,
@@ -193,7 +193,7 @@ ccl_device_inline void microfacet_ggx_sample_slopes(const float cos_theta_i,
   *slope_y = S * z * safe_sqrtf(1.0f + (*slope_x) * (*slope_x));
 }
 
-ccl_device_forceinline float3 microfacet_sample_stretched(__thread_space KernelGlobals *kg,
+ccl_device_forceinline float3 microfacet_sample_stretched(__device_space KernelGlobals *kg,
                                                           const float3 omega_i,
                                                           const float alpha_x,
                                                           const float alpha_y,
@@ -277,7 +277,7 @@ ccl_device_forceinline float D_GTR1(float NdotH, float alpha)
   return (alpha2 - 1.0f) / (M_PI_F * logf(alpha2) * t);
 }
 
-ccl_device_forceinline void bsdf_microfacet_fresnel_color(__thread_space const ShaderData *sd,
+ccl_device_forceinline void bsdf_microfacet_fresnel_color(__device_space const ShaderData *sd,
                                                           __thread_space MicrofacetBsdf *bsdf)
 {
   kernel_assert(CLOSURE_IS_BSDF_MICROFACET_FRESNEL(bsdf->type));
@@ -318,7 +318,7 @@ ccl_device int bsdf_microfacet_ggx_setup(__thread_space MicrofacetBsdf *bsdf)
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device int bsdf_microfacet_ggx_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, __thread_space const ShaderData *sd)
+ccl_device int bsdf_microfacet_ggx_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, __device_space const ShaderData *sd)
 {
   bsdf->extra->cspec0 = saturate3(bsdf->extra->cspec0);
 
@@ -332,7 +332,7 @@ ccl_device int bsdf_microfacet_ggx_fresnel_setup(__thread_space MicrofacetBsdf *
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device int bsdf_microfacet_ggx_clearcoat_setup(__thread_space MicrofacetBsdf *bsdf, __thread_space const ShaderData *sd)
+ccl_device int bsdf_microfacet_ggx_clearcoat_setup(__thread_space MicrofacetBsdf *bsdf, __device_space const ShaderData *sd)
 {
   bsdf->extra->cspec0 = saturate3(bsdf->extra->cspec0);
 
@@ -373,7 +373,7 @@ ccl_device int bsdf_microfacet_ggx_aniso_setup(__thread_space MicrofacetBsdf *bs
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device int bsdf_microfacet_ggx_aniso_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, __thread_space const ShaderData *sd)
+ccl_device int bsdf_microfacet_ggx_aniso_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, __device_space const ShaderData *sd)
 {
   bsdf->extra->cspec0 = saturate3(bsdf->extra->cspec0);
 
@@ -578,7 +578,7 @@ ccl_device float3 bsdf_microfacet_ggx_eval_transmit(__thread_space const ShaderC
   return make_float3(out, out, out);
 }
 
-ccl_device int bsdf_microfacet_ggx_sample(__thread_space KernelGlobals *kg,
+ccl_device int bsdf_microfacet_ggx_sample(__device_space KernelGlobals *kg,
                                           __thread_space const ShaderClosure *sc,
                                           float3 Ng,
                                           float3 I,
@@ -1008,7 +1008,7 @@ ccl_device float3 bsdf_microfacet_beckmann_eval_transmit(__thread_space const Sh
   return make_float3(out, out, out);
 }
 
-ccl_device int bsdf_microfacet_beckmann_sample(__thread_space KernelGlobals *kg,
+ccl_device int bsdf_microfacet_beckmann_sample(__device_space KernelGlobals *kg,
                                                __thread_space const ShaderClosure *sc,
                                                float3 Ng,
                                                float3 I,

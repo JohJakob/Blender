@@ -34,7 +34,7 @@ CCL_NAMESPACE_BEGIN
 
 /* BACKGROUND CLOSURE */
 
-ccl_device void background_setup(__thread_space ShaderData *sd, const float3 weight)
+ccl_device void background_setup(__device_space ShaderData *sd, const float3 weight)
 {
   if (sd->flag & SD_EMISSION) {
     sd->closure_emission_background += weight;
@@ -47,7 +47,7 @@ ccl_device void background_setup(__thread_space ShaderData *sd, const float3 wei
 
 /* EMISSION CLOSURE */
 
-ccl_device void emission_setup(__thread_space ShaderData *sd, const float3 weight)
+ccl_device void emission_setup(__device_space ShaderData *sd, const float3 weight)
 {
   if (sd->flag & SD_EMISSION) {
     sd->closure_emission_background += weight;

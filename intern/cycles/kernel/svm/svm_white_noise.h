@@ -16,8 +16,8 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_tex_white_noise(__thread_space KernelGlobals *kg,
-                                         __thread_space ShaderData *sd,
+ccl_device void svm_node_tex_white_noise(__device_space KernelGlobals *kg,
+                                         __device_space ShaderData *sd,
                                          __thread_space float *stack,
                                          uint dimensions,
                                          uint inputs_stack_offsets,

@@ -470,7 +470,7 @@ template<typename T> struct TextureInterpolator {
 #undef SET_CUBIC_SPLINE_WEIGHTS
 };
 
-ccl_device float4 kernel_tex_image_interp(__thread_space KernelGlobals *kg,
+ccl_device float4 kernel_tex_image_interp(__device_space KernelGlobals *kg,
                                           int id,
                                           float x,
                                           float y)
@@ -501,7 +501,7 @@ ccl_device float4 kernel_tex_image_interp(__thread_space KernelGlobals *kg,
   }
 }
 
-ccl_device float4 kernel_tex_image_interp_3d(__thread_space KernelGlobals *kg,
+ccl_device float4 kernel_tex_image_interp_3d(__device_space KernelGlobals *kg,
                                              int id,
                                              float3 P,
                                              InterpolationType interp)

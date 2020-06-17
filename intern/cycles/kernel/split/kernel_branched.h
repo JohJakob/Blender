@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 #ifdef __BRANCHED_PATH__
 
 /* sets up the various state needed to do an indirect loop */
-ccl_device_inline void kernel_split_branched_path_indirect_loop_init(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_indirect_loop_init(__device_space KernelGlobals *kg,
                                                                      int ray_index)
 {
   __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
@@ -47,7 +47,7 @@ ccl_device_inline void kernel_split_branched_path_indirect_loop_init(__thread_sp
 }
 
 /* ends an indirect loop and restores the previous state */
-ccl_device_inline void kernel_split_branched_path_indirect_loop_end(__thread_space KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_indirect_loop_end(__device_space KernelGlobals *kg,
                                                                     int ray_index)
 {
   __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
@@ -73,7 +73,7 @@ ccl_device_inline void kernel_split_branched_path_indirect_loop_end(__thread_spa
   REMOVE_RAY_FLAG(kernel_split_state.ray_state, ray_index, RAY_BRANCHED_INDIRECT);
 }
 
-ccl_device_inline bool kernel_split_branched_indirect_start_shared(__thread_space KernelGlobals *kg,
+ccl_device_inline bool kernel_split_branched_indirect_start_shared(__device_space KernelGlobals *kg,
                                                                    int ray_index)
 {
   ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
@@ -121,16 +121,16 @@ ccl_device_inline bool kernel_split_branched_indirect_start_shared(__thread_spac
 
 /* bounce off surface and integrate indirect light */
 ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
-    __thread_space KernelGlobals *kg,
+    __device_space KernelGlobals *kg,
     int ray_index,
     float num_samples_adjust,
-    __thread_space ShaderData *saved_sd,
+    __device_space ShaderData *saved_sd,
     bool reset_path_state,
     bool wait_for_shared)
 {
   __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
-  __thread_space ShaderData *sd = saved_sd;
+  __device_space ShaderData *sd = saved_sd;
   __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
   float3 throughput = branched_state->throughput;
   ccl_global __device_space PathState *ps = &kernel_split_state.path_state[ray_index];

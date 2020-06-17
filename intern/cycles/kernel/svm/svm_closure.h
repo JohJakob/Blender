@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Closure Nodes */
 
 ccl_device void svm_node_glass_setup(
-    __thread_space ShaderData *sd, __thread_space MicrofacetBsdf *bsdf, int type, float eta, float roughness, bool refract)
+    __device_space ShaderData *sd, __thread_space MicrofacetBsdf *bsdf, int type, float eta, float roughness, bool refract)
 {
   if (type == CLOSURE_BSDF_SHARP_GLASS_ID) {
     if (refract) {
@@ -57,8 +57,8 @@ ccl_device void svm_node_glass_setup(
   }
 }
 
-ccl_device void svm_node_closure_bsdf(__thread_space KernelGlobals *kg,
-                                      __thread_space ShaderData *sd,
+ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
+                                      __device_space ShaderData *sd,
                                       __thread_space float *stack,
                                       uint4 node,
                                       ShaderType shader_type,
@@ -956,7 +956,7 @@ ccl_device void svm_node_closure_bsdf(__thread_space KernelGlobals *kg,
 }
 
 ccl_device void svm_node_closure_volume(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, ShaderType shader_type)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, ShaderType shader_type)
 {
 #ifdef __VOLUME__
   /* Only sum extinction for volumes, variable is shared with surface transparency. */
@@ -1007,8 +1007,8 @@ ccl_device void svm_node_closure_volume(
 #endif
 }
 
-ccl_device void svm_node_principled_volume(__thread_space KernelGlobals *kg,
-                                           __thread_space ShaderData *sd,
+ccl_device void svm_node_principled_volume(__device_space KernelGlobals *kg,
+                                           __device_space ShaderData *sd,
                                            __thread_space float *stack,
                                            uint4 node,
                                            ShaderType shader_type,
@@ -1122,7 +1122,7 @@ ccl_device void svm_node_principled_volume(__thread_space KernelGlobals *kg,
 #endif
 }
 
-ccl_device void svm_node_closure_emission(__thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_closure_emission(__device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint mix_weight_offset = node.y;
   float3 weight = sd->svm_closure_weight;
@@ -1139,7 +1139,7 @@ ccl_device void svm_node_closure_emission(__thread_space ShaderData *sd, __threa
   emission_setup(sd, weight);
 }
 
-ccl_device void svm_node_closure_background(__thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_closure_background(__device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint mix_weight_offset = node.y;
   float3 weight = sd->svm_closure_weight;
@@ -1156,7 +1156,7 @@ ccl_device void svm_node_closure_background(__thread_space ShaderData *sd, __thr
   background_setup(sd, weight);
 }
 
-ccl_device void svm_node_closure_holdout(__thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_closure_holdout(__device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint mix_weight_offset = node.y;
 
@@ -1177,26 +1177,26 @@ ccl_device void svm_node_closure_holdout(__thread_space ShaderData *sd, __thread
 
 /* Closure Nodes */
 
-ccl_device_inline void svm_node_closure_store_weight(__thread_space ShaderData *sd, float3 weight)
+ccl_device_inline void svm_node_closure_store_weight(__device_space ShaderData *sd, float3 weight)
 {
   sd->svm_closure_weight = weight;
 }
 
-ccl_device void svm_node_closure_set_weight(__thread_space ShaderData *sd, uint r, uint g, uint b)
+ccl_device void svm_node_closure_set_weight(__device_space ShaderData *sd, uint r, uint g, uint b)
 {
   float3 weight = make_float3(__uint_as_float(r), __uint_as_float(g), __uint_as_float(b));
   svm_node_closure_store_weight(sd, weight);
 }
 
-ccl_device void svm_node_closure_weight(__thread_space ShaderData *sd, __thread_space float *stack, uint weight_offset)
+ccl_device void svm_node_closure_weight(__device_space ShaderData *sd, __thread_space float *stack, uint weight_offset)
 {
   float3 weight = stack_load_float3(stack, weight_offset);
 
   svm_node_closure_store_weight(sd, weight);
 }
 
-ccl_device void svm_node_emission_weight(__thread_space KernelGlobals *kg,
-                                         __thread_space ShaderData *sd,
+ccl_device void svm_node_emission_weight(__device_space KernelGlobals *kg,
+                                         __device_space ShaderData *sd,
                                          __thread_space float *stack,
                                          uint4 node)
 {
@@ -1209,7 +1209,7 @@ ccl_device void svm_node_emission_weight(__thread_space KernelGlobals *kg,
   svm_node_closure_store_weight(sd, weight);
 }
 
-ccl_device void svm_node_mix_closure(__thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_mix_closure(__device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   /* fetch weight from blend input, previous mix closures,
    * and write to stack to be used by closure nodes later */
@@ -1232,7 +1232,7 @@ ccl_device void svm_node_mix_closure(__thread_space ShaderData *sd, __thread_spa
 /* (Bump) normal */
 
 ccl_device void svm_node_set_normal(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint in_direction, uint out_normal)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint in_direction, uint out_normal)
 {
   float3 normal = stack_load_float3(stack, in_direction);
   sd->N = normal;

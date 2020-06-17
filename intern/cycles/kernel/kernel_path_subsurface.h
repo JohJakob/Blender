@@ -23,9 +23,9 @@ ccl_device
 ccl_device_inline
 #  endif
     bool
-    kernel_path_subsurface_scatter(__thread_space KernelGlobals *kg,
-                                   __thread_space ShaderData *sd,
-                                   __thread_space ShaderData *emission_sd,
+    kernel_path_subsurface_scatter(__device_space KernelGlobals *kg,
+                                   __device_space ShaderData *sd,
+                                   __device_space ShaderData *emission_sd,
                                    __thread_space PathRadiance *L,
                                    __device_space ccl_addr_space PathState *state,
                                    __thread_space ccl_addr_space Ray *ray,
@@ -107,13 +107,13 @@ ccl_device_inline
 }
 
 ccl_device_inline void kernel_path_subsurface_init_indirect(
-    __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
+    __device_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
 {
   ss_indirect->num_rays = 0;
 }
 
 ccl_device void kernel_path_subsurface_setup_indirect(
-    __thread_space KernelGlobals *kg,
+    __device_space KernelGlobals *kg,
     __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
     __thread_space ccl_addr_space PathState *state,
     __thread_space ccl_addr_space Ray *ray,

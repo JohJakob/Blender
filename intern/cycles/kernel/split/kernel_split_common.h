@@ -59,7 +59,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline void kernel_split_path_end(__thread_space KernelGlobals *kg, int ray_index)
+ccl_device_inline void kernel_split_path_end(__device_space KernelGlobals *kg, int ray_index)
 {
   ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
 

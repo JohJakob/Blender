@@ -18,7 +18,7 @@ CCL_NAMESPACE_BEGIN
 
 /* Vector Rotate */
 
-ccl_device void svm_node_vector_rotate(__thread_space ShaderData *sd,
+ccl_device void svm_node_vector_rotate(__device_space ShaderData *sd,
                                        __thread_space float *stack,
                                        uint input_stack_offsets,
                                        uint axis_stack_offsets,

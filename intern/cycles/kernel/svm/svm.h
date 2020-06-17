@@ -105,14 +105,14 @@ ccl_device_inline bool stack_valid(uint a)
 
 /* Reading Nodes */
 
-ccl_device_inline uint4 read_node(__thread_space KernelGlobals *kg, __thread_space int *offset)
+ccl_device_inline uint4 read_node(__device_space KernelGlobals *kg, __thread_space int *offset)
 {
   uint4 node = kernel_tex_fetch(__svm_nodes, *offset);
   (*offset)++;
   return node;
 }
 
-ccl_device_inline float4 read_node_float(__thread_space KernelGlobals *kg, __thread_space int *offset)
+ccl_device_inline float4 read_node_float(__device_space KernelGlobals *kg, __thread_space int *offset)
 {
   uint4 node = kernel_tex_fetch(__svm_nodes, *offset);
   float4 f = make_float4(__uint_as_float(node.x),
@@ -123,7 +123,7 @@ ccl_device_inline float4 read_node_float(__thread_space KernelGlobals *kg, __thr
   return f;
 }
 
-ccl_device_inline float4 fetch_node_float(__thread_space KernelGlobals *kg, int offset)
+ccl_device_inline float4 fetch_node_float(__device_space KernelGlobals *kg, int offset)
 {
   uint4 node = kernel_tex_fetch(__svm_nodes, offset);
   return make_float4(__uint_as_float(node.x),
@@ -217,8 +217,8 @@ CCL_NAMESPACE_END
 CCL_NAMESPACE_BEGIN
 
 /* Main Interpreter Loop */
-ccl_device_noinline void svm_eval_nodes(__thread_space KernelGlobals *kg,
-                                        __thread_space ShaderData *sd,
+ccl_device_noinline void svm_eval_nodes(__device_space KernelGlobals *kg,
+                                        __device_space ShaderData *sd,
                                         __device_space ccl_addr_space PathState *state,
                                         ccl_global __device_space float *buffer,
                                         ShaderType type,

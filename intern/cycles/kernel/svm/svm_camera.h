@@ -16,8 +16,8 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void svm_node_camera(__thread_space KernelGlobals *kg,
-                                __thread_space ShaderData *sd,
+ccl_device void svm_node_camera(__device_space KernelGlobals *kg,
+                                __device_space ShaderData *sd,
                                 __thread_space float *stack,
                                 uint out_vector,
                                 uint out_zdepth,

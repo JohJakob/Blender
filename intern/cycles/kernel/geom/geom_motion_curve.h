@@ -25,7 +25,7 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __HAIR__
 
-ccl_device_inline int find_attribute_curve_motion(__thread_space KernelGlobals *kg,
+ccl_device_inline int find_attribute_curve_motion(__device_space KernelGlobals *kg,
                                                   int object,
                                                   uint id,
                                                   __thread_space AttributeElement *elem)
@@ -50,7 +50,7 @@ ccl_device_inline int find_attribute_curve_motion(__thread_space KernelGlobals *
   return (attr_map.y == ATTR_ELEMENT_NONE) ? (int)ATTR_STD_NOT_FOUND : (int)attr_map.z;
 }
 
-ccl_device_inline void motion_curve_keys_for_step(__thread_space KernelGlobals *kg,
+ccl_device_inline void motion_curve_keys_for_step(__device_space KernelGlobals *kg,
                                                   int offset,
                                                   int numkeys,
                                                   int numsteps,
@@ -78,7 +78,7 @@ ccl_device_inline void motion_curve_keys_for_step(__thread_space KernelGlobals *
 
 /* return 2 curve key locations */
 ccl_device_inline void motion_curve_keys(
-    __thread_space KernelGlobals *kg, int object, int prim, float time, int k0, int k1, float4 keys[2])
+    __device_space KernelGlobals *kg, int object, int prim, float time, int k0, int k1, float4 keys[2])
 {
   /* get motion info */
   int numsteps, numkeys;
@@ -105,7 +105,7 @@ ccl_device_inline void motion_curve_keys(
   keys[1] = (1.0f - t) * keys[1] + t * next_keys[1];
 }
 
-ccl_device_inline void motion_cardinal_curve_keys_for_step(__thread_space KernelGlobals *kg,
+ccl_device_inline void motion_cardinal_curve_keys_for_step(__device_space KernelGlobals *kg,
                                                            int offset,
                                                            int numkeys,
                                                            int numsteps,
@@ -138,7 +138,7 @@ ccl_device_inline void motion_cardinal_curve_keys_for_step(__thread_space Kernel
 }
 
 /* return 2 curve key locations */
-ccl_device_inline void motion_cardinal_curve_keys(__thread_space KernelGlobals *kg,
+ccl_device_inline void motion_cardinal_curve_keys(__device_space KernelGlobals *kg,
                                                   int object,
                                                   int prim,
                                                   float time,

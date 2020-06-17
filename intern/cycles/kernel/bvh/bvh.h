@@ -183,7 +183,7 @@ ccl_device_inline bool scene_intersect_valid(__thread_space const Ray *ray)
   return isfinite_safe(ray->P.x) && isfinite_safe(ray->D.x) && len_squared(ray->D) != 0.0f;
 }
 
-ccl_device_intersect bool scene_intersect(__thread_space KernelGlobals *kg,
+ccl_device_intersect bool scene_intersect(__device_space KernelGlobals *kg,
                                           __thread_space const Ray *ray,
                                           const uint visibility,
                                           __thread_space Intersection *isect)
@@ -282,7 +282,7 @@ ccl_device_intersect bool scene_intersect(__thread_space KernelGlobals *kg,
 }
 
 #ifdef __BVH_LOCAL__
-ccl_device_intersect bool scene_intersect_local(__thread_space KernelGlobals *kg,
+ccl_device_intersect bool scene_intersect_local(__device_space KernelGlobals *kg,
                                                 __thread_space const Ray *ray,
                                                 __thread_space LocalIntersection *local_isect,
                                                 int local_object,
@@ -392,7 +392,7 @@ ccl_device_intersect bool scene_intersect_local(__thread_space KernelGlobals *kg
 #endif
 
 #ifdef __SHADOW_RECORD_ALL__
-ccl_device_intersect bool scene_intersect_shadow_all(__thread_space KernelGlobals *kg,
+ccl_device_intersect bool scene_intersect_shadow_all(__device_space KernelGlobals *kg,
                                                      __thread_space const Ray *ray,
                                                      __thread_space Intersection *isect,
                                                      uint visibility,
@@ -491,7 +491,7 @@ ccl_device_intersect bool scene_intersect_shadow_all(__thread_space KernelGlobal
 #endif /* __SHADOW_RECORD_ALL__ */
 
 #ifdef __VOLUME__
-ccl_device_intersect bool scene_intersect_volume(__thread_space KernelGlobals *kg,
+ccl_device_intersect bool scene_intersect_volume(__device_space KernelGlobals *kg,
                                                  __thread_space const Ray *ray,
                                                  __thread_space Intersection *isect,
                                                  const uint visibility)

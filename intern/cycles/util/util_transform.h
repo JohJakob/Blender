@@ -110,7 +110,7 @@ ccl_device_inline float3 transform_direction(__thread_space const Transform *t, 
 #endif
 }
 
-ccl_device_inline float3 transform_direction_transposed(const __thread_space Transform *t, const float3 a)
+ccl_device_inline float3 transform_direction_transposed(const __device_space Transform *t, const float3 a)
 {
   float3 x = make_float3(t->x.x, t->y.x, t->z.x);
   float3 y = make_float3(t->x.y, t->y.y, t->z.y);

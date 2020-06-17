@@ -168,7 +168,7 @@ ccl_device float spot_light_attenuation(float3 dir,
   return attenuation;
 }
 
-ccl_device float lamp_light_pdf(__thread_space KernelGlobals *kg, const float3 Ng, const float3 I, float t)
+ccl_device float lamp_light_pdf(__device_space KernelGlobals *kg, const float3 Ng, const float3 I, float t)
 {
   float cos_pi = dot(Ng, I);
 
@@ -182,7 +182,7 @@ ccl_device float lamp_light_pdf(__thread_space KernelGlobals *kg, const float3 N
 
 #ifdef __BACKGROUND_MIS__
 
-ccl_device float3 background_map_sample(__thread_space KernelGlobals *kg, float randu, float randv, __thread_space float *pdf)
+ccl_device float3 background_map_sample(__device_space KernelGlobals *kg, float randu, float randv, __thread_space float *pdf)
 {
   /* for the following, the CDF values are actually a pair of floats, with the
    * function value as X and the actual CDF as Y.  The last entry's function
@@ -264,7 +264,7 @@ ccl_device float3 background_map_sample(__thread_space KernelGlobals *kg, float 
 /* TODO(sergey): Same as above, after the release we should consider using
  * 'noinline' for all devices.
  */
-ccl_device float background_map_pdf(__thread_space KernelGlobals *kg, float3 direction)
+ccl_device float background_map_pdf(__device_space KernelGlobals *kg, float3 direction)
 {
   float2 uv = direction_to_equirectangular(direction);
   int res_x = kernel_data.integrator.pdf_background_res_x;
@@ -298,7 +298,7 @@ ccl_device float background_map_pdf(__thread_space KernelGlobals *kg, float3 dir
 }
 
 ccl_device_inline bool background_portal_data_fetch_and_check_side(
-    __thread_space KernelGlobals *kg, float3 P, int index, __thread_space float3 *lightpos, __thread_space float3 *dir)
+    __device_space KernelGlobals *kg, float3 P, int index, __thread_space float3 *lightpos, __thread_space float3 *dir)
 {
   int portal = kernel_data.integrator.portal_offset + index;
   const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, portal);
@@ -314,7 +314,7 @@ ccl_device_inline bool background_portal_data_fetch_and_check_side(
 }
 
 ccl_device_inline float background_portal_pdf(
-    __thread_space KernelGlobals *kg, float3 P, float3 direction, int ignore_portal, __thread_space bool *is_possible)
+    __device_space KernelGlobals *kg, float3 P, float3 direction, int ignore_portal, __thread_space bool *is_possible)
 {
   float portal_pdf = 0.0f;
 
@@ -374,7 +374,7 @@ ccl_device_inline float background_portal_pdf(
   return (num_possible > 0) ? portal_pdf / num_possible : 0.0f;
 }
 
-ccl_device int background_num_possible_portals(__thread_space KernelGlobals *kg, float3 P)
+ccl_device int background_num_possible_portals(__device_space KernelGlobals *kg, float3 P)
 {
   int num_possible_portals = 0;
   for (int p = 0; p < kernel_data.integrator.num_portals; p++) {
@@ -385,7 +385,7 @@ ccl_device int background_num_possible_portals(__thread_space KernelGlobals *kg,
   return num_possible_portals;
 }
 
-ccl_device float3 background_portal_sample(__thread_space KernelGlobals *kg,
+ccl_device float3 background_portal_sample(__device_space KernelGlobals *kg,
                                            float3 P,
                                            float randu,
                                            float randv,
@@ -441,7 +441,7 @@ ccl_device float3 background_portal_sample(__thread_space KernelGlobals *kg,
 }
 
 ccl_device_inline float3
-background_light_sample(__thread_space KernelGlobals *kg, float3 P, float randu, float randv, __thread_space float *pdf)
+background_light_sample(__device_space KernelGlobals *kg, float3 P, float randu, float randv, __thread_space float *pdf)
 {
   /* Probability of sampling portals instead of the map. */
   float portal_sampling_pdf = kernel_data.integrator.portal_pdf;
@@ -496,7 +496,7 @@ background_light_sample(__thread_space KernelGlobals *kg, float3 P, float randu,
   return D;
 }
 
-ccl_device float background_light_pdf(__thread_space KernelGlobals *kg, float3 P, float3 direction)
+ccl_device float background_light_pdf(__device_space KernelGlobals *kg, float3 P, float3 direction)
 {
   /* Probability of sampling portals instead of the map. */
   float portal_sampling_pdf = kernel_data.integrator.portal_pdf;
@@ -530,7 +530,7 @@ ccl_device float background_light_pdf(__thread_space KernelGlobals *kg, float3 P
 /* Regular Light */
 
 ccl_device_inline bool lamp_light_sample(
-    __thread_space KernelGlobals *kg, int lamp, float randu, float randv, float3 P, __thread_space LightSample *ls)
+    __device_space KernelGlobals *kg, int lamp, float randu, float randv, float3 P, __thread_space LightSample *ls)
 {
   const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
   LightType type = (LightType)klight->type;
@@ -651,7 +651,7 @@ ccl_device_inline bool lamp_light_sample(
 }
 
 ccl_device bool lamp_light_eval(
-    __thread_space KernelGlobals *kg, int lamp, float3 P, float3 D, float t, __thread_space LightSample *ls)
+    __device_space KernelGlobals *kg, int lamp, float3 P, float3 D, float t, __thread_space LightSample *ls)
 {
   const ccl_global __device_space KernelLight *klight = &kernel_tex_fetch(__lights, lamp);
   LightType type = (LightType)klight->type;
@@ -792,7 +792,7 @@ ccl_device bool lamp_light_eval(
 
 /* returns true if the triangle is has motion blur or an instancing transform applied */
 ccl_device_inline bool triangle_world_space_vertices(
-    __thread_space KernelGlobals *kg, int object, int prim, float time, float3 V[3])
+    __device_space KernelGlobals *kg, int object, int prim, float time, float3 V[3])
 {
   bool has_motion = false;
   const int object_flag = kernel_tex_fetch(__object_flag, object);
@@ -822,7 +822,7 @@ ccl_device_inline bool triangle_world_space_vertices(
   return has_motion;
 }
 
-ccl_device_inline float triangle_light_pdf_area(__thread_space KernelGlobals *kg,
+ccl_device_inline float triangle_light_pdf_area(__device_space KernelGlobals *kg,
                                                 const float3 Ng,
                                                 const float3 I,
                                                 float t)
@@ -836,7 +836,7 @@ ccl_device_inline float triangle_light_pdf_area(__thread_space KernelGlobals *kg
   return t * t * pdf / cos_pi;
 }
 
-ccl_device_forceinline float triangle_light_pdf(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, float t)
+ccl_device_forceinline float triangle_light_pdf(__device_space KernelGlobals *kg, __device_space ShaderData *sd, float t)
 {
   /* A naive heuristic to decide between costly solid angle sampling
    * and simple area sampling, comparing the distance to the triangle plane
@@ -905,7 +905,7 @@ ccl_device_forceinline float triangle_light_pdf(__thread_space KernelGlobals *kg
   }
 }
 
-ccl_device_forceinline void triangle_light_sample(__thread_space KernelGlobals *kg,
+ccl_device_forceinline void triangle_light_sample(__device_space KernelGlobals *kg,
                                                   int prim,
                                                   int object,
                                                   float randu,
@@ -1066,7 +1066,7 @@ ccl_device_forceinline void triangle_light_sample(__thread_space KernelGlobals *
 
 /* Light Distribution */
 
-ccl_device int light_distribution_sample(__thread_space KernelGlobals *kg, __thread_space float *randu)
+ccl_device int light_distribution_sample(__device_space KernelGlobals *kg, __thread_space float *randu)
 {
   /* This is basically std::upper_bound as used by pbrt, to find a point light or
    * triangle to emit from, proportional to area. a good improvement would be to
@@ -1104,12 +1104,12 @@ ccl_device int light_distribution_sample(__thread_space KernelGlobals *kg, __thr
 
 /* Generic Light */
 
-ccl_device_inline bool light_select_reached_max_bounces(__thread_space KernelGlobals *kg, int index, int bounce)
+ccl_device_inline bool light_select_reached_max_bounces(__device_space KernelGlobals *kg, int index, int bounce)
 {
   return (bounce > kernel_tex_fetch(__lights, index).max_bounces);
 }
 
-ccl_device_noinline bool light_sample(__thread_space KernelGlobals *kg,
+ccl_device_noinline bool light_sample(__device_space KernelGlobals *kg,
                                       int lamp,
                                       float randu,
                                       float randv,
@@ -1146,7 +1146,7 @@ ccl_device_noinline bool light_sample(__thread_space KernelGlobals *kg,
   return lamp_light_sample(kg, lamp, randu, randv, P, ls);
 }
 
-ccl_device_inline int light_select_num_samples(__thread_space KernelGlobals *kg, int index)
+ccl_device_inline int light_select_num_samples(__device_space KernelGlobals *kg, int index)
 {
   return kernel_tex_fetch(__lights, index).samples;
 }

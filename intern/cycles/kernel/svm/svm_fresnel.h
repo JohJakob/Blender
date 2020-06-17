@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Fresnel Node */
 
 ccl_device void svm_node_fresnel(
-    __thread_space ShaderData *sd, __thread_space float *stack, uint ior_offset, uint ior_value, uint node)
+    __device_space ShaderData *sd, __thread_space float *stack, uint ior_offset, uint ior_value, uint node)
 {
   uint normal_offset, out_offset;
   svm_unpack_node_uchar2(node, &normal_offset, &out_offset);
@@ -37,7 +37,7 @@ ccl_device void svm_node_fresnel(
 
 /* Layer Weight Node */
 
-ccl_device void svm_node_layer_weight(__thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_layer_weight(__device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint blend_offset = node.y;
   uint blend_value = node.z;

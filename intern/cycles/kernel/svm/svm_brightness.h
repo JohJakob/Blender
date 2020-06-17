@@ -17,7 +17,7 @@
 CCL_NAMESPACE_BEGIN
 
 ccl_device void svm_node_brightness(
-    __thread_space ShaderData *sd, __thread_space float *stack, uint in_color, uint out_color, uint node)
+    __device_space ShaderData *sd, __thread_space float *stack, uint in_color, uint out_color, uint node)
 {
   uint bright_offset, contrast_offset;
   float3 color = stack_load_float3(stack, in_color);

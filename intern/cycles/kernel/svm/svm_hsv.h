@@ -20,7 +20,7 @@
 CCL_NAMESPACE_BEGIN
 
 ccl_device void svm_node_hsv(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint in_color_offset, fac_offset, out_color_offset;
   uint hue_offset, sat_offset, val_offset;

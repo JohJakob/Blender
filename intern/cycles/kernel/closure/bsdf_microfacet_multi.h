@@ -395,7 +395,7 @@ ccl_device int bsdf_microfacet_multi_ggx_aniso_setup(__thread_space MicrofacetBs
 }
 
 ccl_device int bsdf_microfacet_multi_ggx_aniso_fresnel_setup(__thread_space MicrofacetBsdf *bsdf,
-                                                             __thread_space const ShaderData *sd)
+                                                             __device_space const ShaderData *sd)
 {
   if (is_zero(bsdf->T))
     bsdf->T = make_float3(1.0f, 0.0f, 0.0f);
@@ -416,7 +416,7 @@ ccl_device int bsdf_microfacet_multi_ggx_setup(__thread_space MicrofacetBsdf *bs
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, const __thread_space ShaderData *sd)
+ccl_device int bsdf_microfacet_multi_ggx_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, const __device_space ShaderData *sd)
 {
   bsdf->alpha_y = bsdf->alpha_x;
 
@@ -487,7 +487,7 @@ ccl_device float3 bsdf_microfacet_multi_ggx_eval_reflect(__thread_space const Sh
                         bsdf->extra->cspec0);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_sample(__thread_space KernelGlobals *kg,
+ccl_device int bsdf_microfacet_multi_ggx_sample(__device_space KernelGlobals *kg,
                                                 __thread_space const ShaderClosure *sc,
                                                 float3 Ng,
                                                 float3 I,
@@ -568,7 +568,7 @@ ccl_device int bsdf_microfacet_multi_ggx_glass_setup(__thread_space MicrofacetBs
 }
 
 ccl_device int bsdf_microfacet_multi_ggx_glass_fresnel_setup(__thread_space MicrofacetBsdf *bsdf,
-                                                             __thread_space const ShaderData *sd)
+                                                             __device_space const ShaderData *sd)
 {
   bsdf->alpha_x = clamp(bsdf->alpha_x, 1e-4f, 1.0f);
   bsdf->alpha_y = bsdf->alpha_x;
@@ -649,7 +649,7 @@ ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_reflect(__thread_space co
                        bsdf->extra->cspec0);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_glass_sample(__thread_space KernelGlobals *kg,
+ccl_device int bsdf_microfacet_multi_ggx_glass_sample(__device_space KernelGlobals *kg,
                                                       __thread_space const ShaderClosure *sc,
                                                       float3 Ng,
                                                       float3 I,

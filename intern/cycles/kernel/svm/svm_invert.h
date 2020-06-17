@@ -22,7 +22,7 @@ ccl_device float invert(float color, float factor)
 }
 
 ccl_device void svm_node_invert(
-    __thread_space ShaderData *sd, __thread_space float *stack, uint in_fac, uint in_color, uint out_color)
+    __device_space ShaderData *sd, __thread_space float *stack, uint in_fac, uint in_color, uint out_color)
 {
   float factor = stack_load_float(stack, in_fac);
   float3 color = stack_load_float3(stack, in_color);

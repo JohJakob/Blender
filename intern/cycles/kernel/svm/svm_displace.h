@@ -18,7 +18,7 @@ CCL_NAMESPACE_BEGIN
 
 /* Bump Node */
 
-ccl_device void svm_node_set_bump(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_set_bump(__device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
 #ifdef __RAY_DIFFERENTIALS__
   /* get normal input */
@@ -83,8 +83,8 @@ ccl_device void svm_node_set_bump(__thread_space KernelGlobals *kg, __thread_spa
 
 /* Displacement Node */
 
-ccl_device void svm_node_set_displacement(__thread_space KernelGlobals *kg,
-                                          __thread_space ShaderData *sd,
+ccl_device void svm_node_set_displacement(__device_space KernelGlobals *kg,
+                                          __device_space ShaderData *sd,
                                           __thread_space float *stack,
                                           uint fac_offset)
 {
@@ -92,7 +92,7 @@ ccl_device void svm_node_set_displacement(__thread_space KernelGlobals *kg,
   sd->P += dP;
 }
 
-ccl_device void svm_node_displacement(__thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node)
+ccl_device void svm_node_displacement(__device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node)
 {
   uint height_offset, midlevel_offset, scale_offset, normal_offset;
   svm_unpack_node_uchar4(node.y, &height_offset, &midlevel_offset, &scale_offset, &normal_offset);
@@ -120,7 +120,7 @@ ccl_device void svm_node_displacement(__thread_space KernelGlobals *kg, __thread
 }
 
 ccl_device void svm_node_vector_displacement(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint4 data_node = read_node(kg, offset);
   uint space = data_node.x;

@@ -16,12 +16,12 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device_inline void path_state_init(__thread_space KernelGlobals *kg,
-                                       __thread_space ShaderData *stack_sd,
-                                       __thread_space ccl_addr_space PathState *state,
+ccl_device_inline void path_state_init(__device_space KernelGlobals *kg,
+                                       __device_space ShaderData *stack_sd,
+                                       __device_space ccl_addr_space PathState *state,
                                        uint rng_hash,
                                        int sample,
-                                       __thread_space ccl_addr_space Ray *ray)
+                                       __device_space ccl_addr_space Ray *ray)
 {
   state->flag = PATH_RAY_CAMERA | PATH_RAY_MIS_SKIP | PATH_RAY_TRANSPARENT_BACKGROUND;
 
@@ -69,7 +69,7 @@ ccl_device_inline void path_state_init(__thread_space KernelGlobals *kg,
 #endif
 }
 
-ccl_device_inline void path_state_next(__thread_space KernelGlobals *kg,
+ccl_device_inline void path_state_next(__device_space KernelGlobals *kg,
                                        __device_space ccl_addr_space PathState *state,
                                        int label)
 {
@@ -169,7 +169,7 @@ ccl_device_inline void path_state_next(__thread_space KernelGlobals *kg,
 }
 
 #ifdef __VOLUME__
-ccl_device_inline bool path_state_volume_next(__thread_space KernelGlobals *kg, __device_space ccl_addr_space PathState *state)
+ccl_device_inline bool path_state_volume_next(__device_space KernelGlobals *kg, __device_space ccl_addr_space PathState *state)
 {
   /* For volume bounding meshes we pass through without counting transparent
    * bounces, only sanity check in case self intersection gets us stuck. */
@@ -187,7 +187,7 @@ ccl_device_inline bool path_state_volume_next(__thread_space KernelGlobals *kg, 
 }
 #endif
 
-ccl_device_inline uint path_state_ray_visibility(__thread_space KernelGlobals *kg,
+ccl_device_inline uint path_state_ray_visibility(__device_space KernelGlobals *kg,
                                                  __device_space ccl_addr_space PathState *state)
 {
   uint flag = state->flag & PATH_RAY_ALL_VISIBILITY;
@@ -202,7 +202,7 @@ ccl_device_inline uint path_state_ray_visibility(__thread_space KernelGlobals *k
   return flag;
 }
 
-ccl_device_inline float path_state_continuation_probability(__thread_space KernelGlobals *kg,
+ccl_device_inline float path_state_continuation_probability(__device_space KernelGlobals *kg,
                                                             __device_space ccl_addr_space PathState *state,
                                                             const float3 throughput)
 {
@@ -250,7 +250,7 @@ ccl_device_inline void path_state_modify_bounce(__device_space ccl_addr_space Pa
     state->bounce -= 1;
 }
 
-ccl_device_inline bool path_state_ao_bounce(__thread_space KernelGlobals *kg, __device_space ccl_addr_space PathState *state)
+ccl_device_inline bool path_state_ao_bounce(__device_space KernelGlobals *kg, __device_space ccl_addr_space PathState *state)
 {
   if (state->bounce <= kernel_data.integrator.ao_bounces) {
     return false;

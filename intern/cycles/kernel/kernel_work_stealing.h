@@ -24,7 +24,7 @@ CCL_NAMESPACE_BEGIN
  */
 
 /* Map global work index to tile, pixel X/Y and sample. */
-ccl_device_inline void get_work_pixel(ccl_global __thread_space const WorkTile *tile,
+ccl_device_inline void get_work_pixel(ccl_global __device_space const WorkTile *tile,
                                       uint global_work_index,
                                       ccl_private uint *x,
                                       ccl_private uint *y,
@@ -53,7 +53,7 @@ ccl_device_inline void get_work_pixel(ccl_global __thread_space const WorkTile *
 
 #ifdef __SPLIT_KERNEL__
 /* Returns true if there is work */
-ccl_device bool get_next_work_item(__thread_space KernelGlobals *kg,
+ccl_device bool get_next_work_item(__device_space KernelGlobals *kg,
                                    ccl_global __device_space uint *work_pools,
                                    uint total_work_size,
                                    uint ray_index,
@@ -81,7 +81,7 @@ ccl_device bool get_next_work_item(__thread_space KernelGlobals *kg,
   return (*global_work_index < total_work_size);
 }
 
-ccl_device bool get_next_work(__thread_space KernelGlobals *kg,
+ccl_device bool get_next_work(__device_space KernelGlobals *kg,
                               ccl_global __device_space uint *work_pools,
                               uint total_work_size,
                               uint ray_index,
@@ -92,7 +92,7 @@ ccl_device bool get_next_work(__thread_space KernelGlobals *kg,
     do {
       got_work = get_next_work_item(kg, work_pools, total_work_size, ray_index, global_work_index);
       if (got_work) {
-        ccl_global __thread_space WorkTile *tile = &kernel_split_params.tile;
+        ccl_global __device_space WorkTile *tile = &kernel_split_params.tile;
         uint x, y, sample;
         get_work_pixel(tile, *global_work_index, &x, &y, &sample);
         uint buffer_offset = (tile->offset + x + y * tile->stride) * kernel_data.film.pass_stride;

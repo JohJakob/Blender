@@ -62,7 +62,7 @@ calculate_principled_sheen_brdf(float3 N, float3 V, float3 L, float3 H, __thread
   return make_float3(value, value, value);
 }
 
-ccl_device int bsdf_principled_sheen_setup(__thread_space const ShaderData *sd, __thread_space PrincipledSheenBsdf *bsdf)
+ccl_device int bsdf_principled_sheen_setup(__device_space const ShaderData *sd, __thread_space PrincipledSheenBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_PRINCIPLED_SHEEN_ID;
   bsdf->avg_value = calculate_avg_principled_sheen_brdf(bsdf->N, sd->I);

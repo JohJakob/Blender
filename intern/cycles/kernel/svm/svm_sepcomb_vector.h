@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Vector combine / separate, used for the RGB and XYZ nodes */
 
 ccl_device void svm_node_combine_vector(
-    __thread_space ShaderData *sd, __thread_space float *stack, uint in_offset, uint vector_index, uint out_offset)
+    __device_space ShaderData *sd, __thread_space float *stack, uint in_offset, uint vector_index, uint out_offset)
 {
   float vector = stack_load_float(stack, in_offset);
 
@@ -28,7 +28,7 @@ ccl_device void svm_node_combine_vector(
 }
 
 ccl_device void svm_node_separate_vector(
-    __thread_space ShaderData *sd, __thread_space float *stack, uint ivector_offset, uint vector_index, uint out_offset)
+    __device_space ShaderData *sd, __thread_space float *stack, uint ivector_offset, uint vector_index, uint out_offset)
 {
   float3 vector = stack_load_float3(stack, ivector_offset);
 

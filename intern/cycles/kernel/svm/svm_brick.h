@@ -73,7 +73,7 @@ ccl_device_noinline_cpu float2 svm_brick(float3 p,
 }
 
 ccl_device void svm_node_tex_brick(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint4 node, __thread_space int *offset)
 {
   uint4 node2 = read_node(kg, offset);
   uint4 node3 = read_node(kg, offset);

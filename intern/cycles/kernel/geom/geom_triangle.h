@@ -23,8 +23,8 @@
 CCL_NAMESPACE_BEGIN
 
 /* normal on triangle  */
-ccl_device_inline float3 triangle_normal(__thread_space KernelGlobals *kg,
-                                         __thread_space ShaderData *sd)
+ccl_device_inline float3 triangle_normal(__device_space KernelGlobals *kg,
+                                         __device_space ShaderData *sd)
 {
   /* load triangle vertices */
   const uint4 tri_vindex = kernel_tex_fetch(__tri_vindex, sd->prim);
@@ -42,7 +42,7 @@ ccl_device_inline float3 triangle_normal(__thread_space KernelGlobals *kg,
 }
 
 /* point and normal on triangle  */
-ccl_device_inline void triangle_point_normal(__thread_space KernelGlobals *kg,
+ccl_device_inline void triangle_point_normal(__device_space KernelGlobals *kg,
                                              int object,
                                              int prim,
                                              float u,
@@ -74,7 +74,7 @@ ccl_device_inline void triangle_point_normal(__thread_space KernelGlobals *kg,
 
 /* Triangle vertex locations */
 
-ccl_device_inline void triangle_vertices(__thread_space KernelGlobals *kg,
+ccl_device_inline void triangle_vertices(__device_space KernelGlobals *kg,
                                          int prim,
                                          float3 P[3])
 {
@@ -87,7 +87,7 @@ ccl_device_inline void triangle_vertices(__thread_space KernelGlobals *kg,
 /* Interpolate smooth vertex normal from vertices */
 
 ccl_device_inline float3
-triangle_smooth_normal(__thread_space KernelGlobals *kg,
+triangle_smooth_normal(__device_space KernelGlobals *kg,
                        float3 Ng,
                        int prim,
                        float u,
@@ -106,7 +106,7 @@ triangle_smooth_normal(__thread_space KernelGlobals *kg,
 
 /* Ray differentials on triangle */
 
-ccl_device_inline void triangle_dPdudv(__thread_space KernelGlobals *kg,
+ccl_device_inline void triangle_dPdudv(__device_space KernelGlobals *kg,
                                        int prim,
                                        __thread_space ccl_addr_space float3 *dPdu,
                                        __thread_space ccl_addr_space float3 *dPdv)
@@ -125,7 +125,7 @@ ccl_device_inline void triangle_dPdudv(__thread_space KernelGlobals *kg,
 /* Reading attributes on various triangle elements */
 
 ccl_device float triangle_attribute_float(
-    __thread_space KernelGlobals *kg, __thread_space const ShaderData *sd, const AttributeDescriptor desc, __thread_space float *dx, __thread_space float *dy)
+    __device_space KernelGlobals *kg, __device_space const ShaderData *sd, const AttributeDescriptor desc, __thread_space float *dx, __thread_space float *dy)
 {
   if (desc.element == ATTR_ELEMENT_FACE) {
     if (dx)
@@ -184,8 +184,8 @@ ccl_device float triangle_attribute_float(
   }
 }
 
-ccl_device float2 triangle_attribute_float2(__thread_space KernelGlobals *kg,
-                                            __thread_space const ShaderData *sd,
+ccl_device float2 triangle_attribute_float2(__device_space KernelGlobals *kg,
+                                            __device_space const ShaderData *sd,
                                             const AttributeDescriptor desc,
                                             __thread_space float2 *dx,
                                             __thread_space float2 *dy)
@@ -251,8 +251,8 @@ ccl_device float2 triangle_attribute_float2(__thread_space KernelGlobals *kg,
   }
 }
 
-ccl_device float3 triangle_attribute_float3(__thread_space KernelGlobals *kg,
-                                            __thread_space const ShaderData *sd,
+ccl_device float3 triangle_attribute_float3(__device_space KernelGlobals *kg,
+                                            __device_space const ShaderData *sd,
                                             const AttributeDescriptor desc,
                                             __thread_space float3 *dx,
                                             __thread_space float3 *dy)
@@ -319,8 +319,8 @@ ccl_device float3 triangle_attribute_float3(__thread_space KernelGlobals *kg,
   }
 }
 
-ccl_device float4 triangle_attribute_float4(__thread_space KernelGlobals *kg,
-                                            __thread_space const ShaderData *sd,
+ccl_device float4 triangle_attribute_float4(__device_space KernelGlobals *kg,
+                                            __device_space const ShaderData *sd,
                                             const AttributeDescriptor desc,
                                             __thread_space float4 *dx,
                                             __thread_space float4 *dy)

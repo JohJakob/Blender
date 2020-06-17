@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
 
 /* VOLUME EXTINCTION */
 
-ccl_device void volume_extinction_setup(__thread_space ShaderData *sd, float3 weight)
+ccl_device void volume_extinction_setup(__device_space ShaderData *sd, float3 weight)
 {
   if (sd->flag & SD_EXTINCTION) {
     sd->closure_transparent_extinction += weight;
@@ -152,7 +152,7 @@ ccl_device int volume_henyey_greenstein_sample(__thread_space const ShaderClosur
 
 /* VOLUME CLOSURE */
 
-ccl_device float3 volume_phase_eval(__thread_space const ShaderData *sd,
+ccl_device float3 volume_phase_eval(__device_space const ShaderData *sd,
                                     __thread_space const ShaderClosure *sc,
                                     float3 omega_in,
                                     __thread_space float *pdf)
@@ -162,7 +162,7 @@ ccl_device float3 volume_phase_eval(__thread_space const ShaderData *sd,
   return volume_henyey_greenstein_eval_phase(sc, sd->I, omega_in, pdf);
 }
 
-ccl_device int volume_phase_sample(__thread_space const ShaderData *sd,
+ccl_device int volume_phase_sample(__device_space const ShaderData *sd,
                                    __thread_space const ShaderClosure *sc,
                                    float randu,
                                    float randv,

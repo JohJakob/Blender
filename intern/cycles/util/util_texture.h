@@ -95,8 +95,8 @@ typedef struct TextureInfo {
 #ifndef __KERNEL_METAL__
   uint64_t data;
 #else
-    constant texture3d<float> *data3d;
-    constant texture2d<float> *data2d;
+    device texture3d<float> *data3d;
+    device texture2d<float> *data2d;
 #endif
   /* Data Type */
   uint data_type;

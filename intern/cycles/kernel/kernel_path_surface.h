@@ -21,9 +21,9 @@ CCL_NAMESPACE_BEGIN
 /* branched path tracing: connect path directly to position on one or more lights and add it to L
  */
 ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
-    __thread_space KernelGlobals *kg,
-    __thread_space ShaderData *sd,
-    __thread_space ShaderData *emission_sd,
+    __device_space KernelGlobals *kg,
+    __device_space ShaderData *sd,
+    __device_space ShaderData *emission_sd,
     __device_space ccl_addr_space PathState *state,
     float3 throughput,
     float num_samples_adjust,
@@ -140,8 +140,8 @@ ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
 }
 
 /* branched path tracing: bounce off or through surface to with new direction stored in ray */
-ccl_device bool kernel_branched_path_surface_bounce(__thread_space KernelGlobals *kg,
-                                                    __thread_space ShaderData *sd,
+ccl_device bool kernel_branched_path_surface_bounce(__device_space KernelGlobals *kg,
+                                                    __device_space ShaderData *sd,
                                                     __thread_space const ShaderClosure *sc,
                                                     int sample,
                                                     int num_samples,
@@ -211,9 +211,9 @@ ccl_device bool kernel_branched_path_surface_bounce(__thread_space KernelGlobals
 #endif
 
 /* path tracing: connect path directly to position on a light and add it to L */
-ccl_device_inline void kernel_path_surface_connect_light(__thread_space KernelGlobals *kg,
-                                                         __thread_space ShaderData *sd,
-                                                         __thread_space ShaderData *emission_sd,
+ccl_device_inline void kernel_path_surface_connect_light(__device_space KernelGlobals *kg,
+                                                         __device_space ShaderData *sd,
+                                                         __device_space ShaderData *emission_sd,
                                                          float3 throughput,
                                                          __device_space ccl_addr_space PathState *state,
                                                          __thread_space PathRadiance *L)
@@ -267,8 +267,8 @@ ccl_device_inline void kernel_path_surface_connect_light(__thread_space KernelGl
 }
 
 /* path tracing: bounce off or through surface to with new direction stored in ray */
-ccl_device bool kernel_path_surface_bounce(__thread_space KernelGlobals *kg,
-                                           __thread_space ShaderData *sd,
+ccl_device bool kernel_path_surface_bounce(__device_space KernelGlobals *kg,
+                                           __device_space ShaderData *sd,
                                            __device_space ccl_addr_space float3 *throughput,
                                            __device_space ccl_addr_space PathState *state,
                                            __device_space PathRadianceState *L_state,

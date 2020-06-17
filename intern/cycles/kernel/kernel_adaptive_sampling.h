@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
 
 /* Determines whether to continue sampling a given pixel or if it has sufficiently converged. */
 
-ccl_device void kernel_do_adaptive_stopping(__thread_space KernelGlobals *kg,
+ccl_device void kernel_do_adaptive_stopping(__device_space KernelGlobals *kg,
                                             ccl_global __device_space float *buffer,
                                             int sample)
 {
@@ -41,7 +41,7 @@ ccl_device void kernel_do_adaptive_stopping(__thread_space KernelGlobals *kg,
 
 /* Adjust the values of an adaptively sampled pixel. */
 
-ccl_device void kernel_adaptive_post_adjust(__thread_space KernelGlobals *kg,
+ccl_device void kernel_adaptive_post_adjust(__device_space KernelGlobals *kg,
                                             __device_space ccl_global float *buffer,
                                             float sample_multiplier)
 {
@@ -176,7 +176,7 @@ ccl_device void kernel_adaptive_post_adjust(__thread_space KernelGlobals *kg,
 /* This is a simple box filter in two passes.
  * When a pixel demands more adaptive samples, let its neighboring pixels draw more samples too. */
 
-ccl_device bool kernel_do_adaptive_filter_x(__thread_space KernelGlobals *kg, int y, ccl_global __device_space WorkTile *tile)
+ccl_device bool kernel_do_adaptive_filter_x(__device_space KernelGlobals *kg, int y, ccl_global __device_space WorkTile *tile)
 {
   bool any = false;
   bool prev = false;
@@ -205,7 +205,7 @@ ccl_device bool kernel_do_adaptive_filter_x(__thread_space KernelGlobals *kg, in
   return any;
 }
 
-ccl_device bool kernel_do_adaptive_filter_y(__thread_space KernelGlobals *kg, int x, ccl_global __device_space WorkTile *tile)
+ccl_device bool kernel_do_adaptive_filter_y(__device_space KernelGlobals *kg, int x, ccl_global __device_space WorkTile *tile)
 {
   bool prev = false;
   bool any = false;

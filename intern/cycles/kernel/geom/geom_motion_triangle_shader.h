@@ -32,8 +32,8 @@ CCL_NAMESPACE_BEGIN
  * normals */
 
 /* return 3 triangle vertex normals */
-ccl_device_noinline void motion_triangle_shader_setup(__thread_space KernelGlobals *kg,
-                                                      __thread_space ShaderData *sd,
+ccl_device_noinline void motion_triangle_shader_setup(__device_space KernelGlobals *kg,
+                                                      __device_space ShaderData *sd,
                                                       __thread_space const Intersection *isect,
                                                       __thread_space const Ray *ray,
                                                       bool is_local)

@@ -32,8 +32,8 @@ CCL_NAMESPACE_BEGIN
  * a closer distance.
  */
 
-ccl_device_inline float3 motion_triangle_refine(__thread_space KernelGlobals *kg,
-                                                __thread_space ShaderData *sd,
+ccl_device_inline float3 motion_triangle_refine(__device_space KernelGlobals *kg,
+                                                __device_space ShaderData *sd,
                                                 __thread_space const Intersection *isect,
                                                 __thread_space const Ray *ray,
                                                 float3 verts[3])
@@ -100,8 +100,8 @@ ccl_device_noinline
 ccl_device_inline
 #  endif
     float3
-    motion_triangle_refine_local(__thread_space KernelGlobals *kg,
-                                 __thread_space ShaderData *sd,
+    motion_triangle_refine_local(__device_space KernelGlobals *kg,
+                                 __device_space ShaderData *sd,
                                  __thread_space const Intersection *isect,
                                  __thread_space const Ray *ray,
                                  float3 verts[3])
@@ -163,7 +163,7 @@ ccl_device_inline
  * time and do a ray intersection with the resulting triangle.
  */
 
-ccl_device_inline bool motion_triangle_intersect(__thread_space KernelGlobals *kg,
+ccl_device_inline bool motion_triangle_intersect(__device_space KernelGlobals *kg,
                                                  __thread_space Intersection *isect,
                                                  float3 P,
                                                  float3 dir,
@@ -218,7 +218,7 @@ ccl_device_inline bool motion_triangle_intersect(__thread_space KernelGlobals *k
  * Returns whether traversal should be stopped.
  */
 #ifdef __BVH_LOCAL__
-ccl_device_inline bool motion_triangle_intersect_local(__thread_space KernelGlobals *kg,
+ccl_device_inline bool motion_triangle_intersect_local(__device_space KernelGlobals *kg,
                                                        __thread_space LocalIntersection *local_isect,
                                                        float3 P,
                                                        float3 dir,

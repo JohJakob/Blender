@@ -18,9 +18,9 @@ CCL_NAMESPACE_BEGIN
 
 #ifdef __BRANCHED_PATH__
 
-ccl_device_inline void kernel_branched_path_ao(__thread_space KernelGlobals *kg,
-                                               __thread_space ShaderData *sd,
-                                               __thread_space ShaderData *emission_sd,
+ccl_device_inline void kernel_branched_path_ao(__device_space KernelGlobals *kg,
+                                               __device_space ShaderData *sd,
+                                               __device_space ShaderData *emission_sd,
                                                __thread_space PathRadiance *L,
                                                __device_space ccl_addr_space PathState *state,
                                                float3 throughput)

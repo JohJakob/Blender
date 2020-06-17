@@ -18,8 +18,8 @@ CCL_NAMESPACE_BEGIN
 
 /* Node */
 
-ccl_device void svm_node_mix(__thread_space KernelGlobals *kg,
-                             __thread_space ShaderData *sd,
+ccl_device void svm_node_mix(__device_space KernelGlobals *kg,
+                             __device_space ShaderData *sd,
                              __thread_space float *stack,
                              uint fac_offset,
                              uint c1_offset,

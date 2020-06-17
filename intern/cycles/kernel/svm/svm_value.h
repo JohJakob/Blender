@@ -19,13 +19,13 @@ CCL_NAMESPACE_BEGIN
 /* Value Nodes */
 
 ccl_device void svm_node_value_f(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint ivalue, uint out_offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint ivalue, uint out_offset)
 {
   stack_store_float(stack, out_offset, __uint_as_float(ivalue));
 }
 
 ccl_device void svm_node_value_v(
-    __thread_space KernelGlobals *kg, __thread_space ShaderData *sd, __thread_space float *stack, uint out_offset, __thread_space int *offset)
+    __device_space KernelGlobals *kg, __device_space ShaderData *sd, __thread_space float *stack, uint out_offset, __thread_space int *offset)
 {
   /* read extra data */
   uint4 node1 = read_node(kg, offset);
