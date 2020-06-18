@@ -37,13 +37,13 @@ CCL_NAMESPACE_BEGIN
 
 /* REFLECTION */
 
-ccl_device int bsdf_reflection_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_reflection_setup(__device_space MicrofacetBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_REFLECTION_ID;
   return SD_BSDF;
 }
 
-ccl_device float3 bsdf_reflection_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_reflection_eval_reflect(__device_space const ShaderClosure *sc,
                                                const float3 I,
                                                const float3 omega_in,
                                                __thread_space float *pdf)
@@ -51,7 +51,7 @@ ccl_device float3 bsdf_reflection_eval_reflect(__thread_space const ShaderClosur
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_reflection_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_reflection_eval_transmit(__device_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
                                                 __thread_space float *pdf)
@@ -59,7 +59,7 @@ ccl_device float3 bsdf_reflection_eval_transmit(__thread_space const ShaderClosu
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_reflection_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_reflection_sample(__device_space const ShaderClosure *sc,
                                       float3 Ng,
                                       float3 I,
                                       float3 dIdx,
@@ -72,7 +72,7 @@ ccl_device int bsdf_reflection_sample(__thread_space const ShaderClosure *sc,
                                       __thread_space float3 *domega_in_dy,
                                       __thread_space float *pdf)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
   float3 N = bsdf->N;
 
   // only one direction is possible

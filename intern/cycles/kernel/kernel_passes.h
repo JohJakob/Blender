@@ -65,7 +65,7 @@ ccl_device_inline void kernel_update_denoising_features(__device_space KernelGlo
   float sum_weight = 0.0f, sum_nonspecular_weight = 0.0f;
 
   for (int i = 0; i < sd->num_closure; i++) {
-    __thread_space ShaderClosure *sc = &sd->closure[i];
+    __device_space ShaderClosure *sc = &sd->closure[i];
 
     if (!CLOSURE_IS_BSDF_OR_BSSRDF(sc->type))
       continue;
@@ -80,11 +80,11 @@ ccl_device_inline void kernel_update_denoising_features(__device_space KernelGlo
      * To account for this, we scale their weight by the average fresnel factor (the same is also
      * done for the sample weight in the BSDF setup, so we don't need to scale that here). */
     if (CLOSURE_IS_BSDF_MICROFACET_FRESNEL(sc->type)) {
-      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)sc;
+      __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)sc;
       closure_albedo *= bsdf->extra->fresnel_color;
     }
     else if (sc->type == CLOSURE_BSDF_PRINCIPLED_SHEEN_ID) {
-      __thread_space PrincipledSheenBsdf *bsdf = (__thread_space PrincipledSheenBsdf *)sc;
+      __device_space PrincipledSheenBsdf *bsdf = (__device_space PrincipledSheenBsdf *)sc;
       closure_albedo *= bsdf->avg_value;
     }
     else if (sc->type == CLOSURE_BSDF_HAIR_PRINCIPLED_ID) {

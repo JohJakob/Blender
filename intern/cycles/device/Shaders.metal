@@ -304,8 +304,7 @@ inline float4 kernel_tex_image_interp_3d(device KernelGlobals *kg,
     texture3d<float> tex = *info->data3d;
 
     if (info->use_transform_3d) {
-        Transform tf = info->transform_3d;
-        P = transform_point(&tf, P);
+        P = transform_point(&info->transform_3d, P);
     }
 
     const float x = P.x;
@@ -473,14 +472,15 @@ kernel void kernel_metal_background(device uint4 *input [[buffer(0)]],
 kernel void kernel_split_path_trace(
                                     device void* split_data_buffer [[buffer(0)]],
                                     device char* ray_state [[buffer(1)]],
+                                    device void* kg_buffer [[buffer(2)]],
                                     uint2 grid_size [[grid_size]],
                                     uint2 thread_position [[thread_position_in_grid]]) {
-    KernelGlobals kg;
 
+    auto kg = (device KernelGlobals*) kg_buffer;
     if (thread_position.x == thread_position.y == 0) {
         split_data_init(
-                        &kg,
-                        &kg.split_data,
+                        kg,
+                        &kg->split_data,
                         grid_size.x * grid_size.y,
                         split_data_buffer,
                         ray_state
@@ -491,5 +491,5 @@ kernel void kernel_split_path_trace(
 
     // kernel name eval
 
-    kernel_path_init(*kg);
+    kernel_path_init(kg);
 }

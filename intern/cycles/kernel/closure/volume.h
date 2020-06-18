@@ -52,7 +52,7 @@ ccl_device float single_peaked_henyey_greenstein(float cos_theta, float g)
          (M_1_PI_F * 0.25f);
 };
 
-ccl_device int volume_henyey_greenstein_setup(__thread_space HenyeyGreensteinVolume *volume)
+ccl_device int volume_henyey_greenstein_setup(__device_space HenyeyGreensteinVolume *volume)
 {
   volume->type = CLOSURE_VOLUME_HENYEY_GREENSTEIN_ID;
 
@@ -62,20 +62,20 @@ ccl_device int volume_henyey_greenstein_setup(__thread_space HenyeyGreensteinVol
   return SD_SCATTER;
 }
 
-ccl_device bool volume_henyey_greenstein_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool volume_henyey_greenstein_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const HenyeyGreensteinVolume *volume_a = (__thread_space const HenyeyGreensteinVolume *)a;
-  __thread_space const HenyeyGreensteinVolume *volume_b = (__thread_space const HenyeyGreensteinVolume *)b;
+  __device_space const HenyeyGreensteinVolume *volume_a = (__device_space const HenyeyGreensteinVolume *)a;
+  __device_space const HenyeyGreensteinVolume *volume_b = (__device_space const HenyeyGreensteinVolume *)b;
 
   return (volume_a->g == volume_b->g);
 }
 
-ccl_device float3 volume_henyey_greenstein_eval_phase(__thread_space const ShaderClosure *sc,
+ccl_device float3 volume_henyey_greenstein_eval_phase(__device_space const ShaderClosure *sc,
                                                       const float3 I,
                                                       float3 omega_in,
                                                       __thread_space float *pdf)
 {
-  __thread_space const HenyeyGreensteinVolume *volume = (__thread_space const HenyeyGreensteinVolume *)sc;
+  __device_space const HenyeyGreensteinVolume *volume = (__device_space const HenyeyGreensteinVolume *)sc;
   float g = volume->g;
 
   /* note that I points towards the viewer */
@@ -122,7 +122,7 @@ henyey_greenstrein_sample(float3 D, float g, float randu, float randv, __thread_
   return dir;
 }
 
-ccl_device int volume_henyey_greenstein_sample(__thread_space const ShaderClosure *sc,
+ccl_device int volume_henyey_greenstein_sample(__device_space const ShaderClosure *sc,
                                                float3 I,
                                                float3 dIdx,
                                                float3 dIdy,
@@ -134,7 +134,7 @@ ccl_device int volume_henyey_greenstein_sample(__thread_space const ShaderClosur
                                                __thread_space float3 *domega_in_dy,
                                                __thread_space float *pdf)
 {
-  __thread_space const HenyeyGreensteinVolume *volume = (__thread_space const HenyeyGreensteinVolume *)sc;
+  __device_space const HenyeyGreensteinVolume *volume = (__device_space const HenyeyGreensteinVolume *)sc;
   float g = volume->g;
 
   /* note that I points towards the viewer and so is used negated */
@@ -153,7 +153,7 @@ ccl_device int volume_henyey_greenstein_sample(__thread_space const ShaderClosur
 /* VOLUME CLOSURE */
 
 ccl_device float3 volume_phase_eval(__device_space const ShaderData *sd,
-                                    __thread_space const ShaderClosure *sc,
+                                    __device_space const ShaderClosure *sc,
                                     float3 omega_in,
                                     __thread_space float *pdf)
 {
@@ -163,7 +163,7 @@ ccl_device float3 volume_phase_eval(__device_space const ShaderData *sd,
 }
 
 ccl_device int volume_phase_sample(__device_space const ShaderData *sd,
-                                   __thread_space const ShaderClosure *sc,
+                                   __device_space const ShaderClosure *sc,
                                    float randu,
                                    float randv,
                                    __thread_space float3 *eval,

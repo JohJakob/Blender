@@ -34,7 +34,7 @@ static_assert(sizeof(ShaderClosure) >= sizeof(PrincipledDiffuseBsdf),
               "PrincipledDiffuseBsdf is too large!");
 
 ccl_device float3 calculate_principled_diffuse_brdf(
-    __thread_space const PrincipledDiffuseBsdf *bsdf, float3 N, float3 V, float3 L, float3 H, __thread_space float *pdf)
+    __device_space const PrincipledDiffuseBsdf *bsdf, float3 N, float3 V, float3 L, float3 H, __thread_space float *pdf)
 {
   float NdotL = max(dot(N, L), 0.0f);
   float NdotV = max(dot(N, V), 0.0f);
@@ -55,26 +55,26 @@ ccl_device float3 calculate_principled_diffuse_brdf(
   return make_float3(value, value, value);
 }
 
-ccl_device int bsdf_principled_diffuse_setup(__thread_space PrincipledDiffuseBsdf *bsdf)
+ccl_device int bsdf_principled_diffuse_setup(__device_space PrincipledDiffuseBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_PRINCIPLED_DIFFUSE_ID;
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device bool bsdf_principled_diffuse_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool bsdf_principled_diffuse_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const PrincipledDiffuseBsdf *bsdf_a = (__thread_space const PrincipledDiffuseBsdf *)a;
-  __thread_space const PrincipledDiffuseBsdf *bsdf_b = (__thread_space const PrincipledDiffuseBsdf *)b;
+  __device_space const PrincipledDiffuseBsdf *bsdf_a = (__device_space const PrincipledDiffuseBsdf *)a;
+  __device_space const PrincipledDiffuseBsdf *bsdf_b = (__device_space const PrincipledDiffuseBsdf *)b;
 
   return (isequal_float3(bsdf_a->N, bsdf_b->N) && bsdf_a->roughness == bsdf_b->roughness);
 }
 
-ccl_device float3 bsdf_principled_diffuse_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_principled_diffuse_eval_reflect(__device_space const ShaderClosure *sc,
                                                        const float3 I,
                                                        const float3 omega_in,
                                                        __thread_space float *pdf)
 {
-  __thread_space const PrincipledDiffuseBsdf *bsdf = (__thread_space const PrincipledDiffuseBsdf *)sc;
+  __device_space const PrincipledDiffuseBsdf *bsdf = (__device_space const PrincipledDiffuseBsdf *)sc;
 
   float3 N = bsdf->N;
   float3 V = I;         // outgoing
@@ -91,7 +91,7 @@ ccl_device float3 bsdf_principled_diffuse_eval_reflect(__thread_space const Shad
   }
 }
 
-ccl_device float3 bsdf_principled_diffuse_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_principled_diffuse_eval_transmit(__device_space const ShaderClosure *sc,
                                                         const float3 I,
                                                         const float3 omega_in,
                                                         __thread_space float *pdf)
@@ -99,7 +99,7 @@ ccl_device float3 bsdf_principled_diffuse_eval_transmit(__thread_space const Sha
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_principled_diffuse_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_principled_diffuse_sample(__device_space const ShaderClosure *sc,
                                               float3 Ng,
                                               float3 I,
                                               float3 dIdx,
@@ -112,7 +112,7 @@ ccl_device int bsdf_principled_diffuse_sample(__thread_space const ShaderClosure
                                               __thread_space float3 *domega_in_dy,
                                               __thread_space float *pdf)
 {
-  __thread_space const PrincipledDiffuseBsdf *bsdf = (__thread_space const PrincipledDiffuseBsdf *)sc;
+  __device_space const PrincipledDiffuseBsdf *bsdf = (__device_space const PrincipledDiffuseBsdf *)sc;
 
   float3 N = bsdf->N;
 

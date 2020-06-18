@@ -108,8 +108,8 @@ triangle_smooth_normal(__device_space KernelGlobals *kg,
 
 ccl_device_inline void triangle_dPdudv(__device_space KernelGlobals *kg,
                                        int prim,
-                                       __thread_space ccl_addr_space float3 *dPdu,
-                                       __thread_space ccl_addr_space float3 *dPdv)
+                                       __device_space ccl_addr_space float3 *dPdu,
+                                       __device_space ccl_addr_space float3 *dPdv)
 {
   /* fetch triangle vertex coordinates */
   const uint4 tri_vindex = kernel_tex_fetch(__tri_vindex, prim);

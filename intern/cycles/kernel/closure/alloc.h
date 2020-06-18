@@ -16,14 +16,14 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device __thread_space ShaderClosure *closure_alloc(__device_space ShaderData *sd, int size, ClosureType type, float3 weight)
+ccl_device __device_space ShaderClosure *closure_alloc(__device_space ShaderData *sd, int size, ClosureType type, float3 weight)
 {
   kernel_assert(size <= sizeof(ShaderClosure));
 
   if (sd->num_closure_left == 0)
     return NULL;
 
-  __thread_space ShaderClosure *sc = &sd->closure[sd->num_closure];
+  __device_space ShaderClosure *sc = &sd->closure[sd->num_closure];
 
   sc->type = type;
   sc->weight = weight;
@@ -34,7 +34,7 @@ ccl_device __thread_space ShaderClosure *closure_alloc(__device_space ShaderData
   return sc;
 }
 
-ccl_device ccl_addr_space __thread_space void *closure_alloc_extra(__device_space ShaderData *sd, int size)
+ccl_device ccl_addr_space __device_space void *closure_alloc_extra(__device_space ShaderData *sd, int size)
 {
   /* Allocate extra space for closure that need more parameters. We allocate
    * in chunks of sizeof(ShaderClosure) starting from the end of the closure
@@ -52,12 +52,12 @@ ccl_device ccl_addr_space __thread_space void *closure_alloc_extra(__device_spac
   }
 
   sd->num_closure_left -= num_extra;
-  return (ccl_addr_space __thread_space void *)(sd->closure + sd->num_closure + sd->num_closure_left);
+  return (ccl_addr_space __device_space void *)(sd->closure + sd->num_closure + sd->num_closure_left);
 }
 
-ccl_device_inline __thread_space ShaderClosure *bsdf_alloc(__device_space ShaderData *sd, int size, float3 weight)
+ccl_device_inline __device_space ShaderClosure *bsdf_alloc(__device_space ShaderData *sd, int size, float3 weight)
 {
-  __thread_space ShaderClosure *sc = closure_alloc(sd, size, CLOSURE_NONE_ID, weight);
+  __device_space ShaderClosure *sc = closure_alloc(sd, size, CLOSURE_NONE_ID, weight);
 
   if (sc == NULL)
     return NULL;

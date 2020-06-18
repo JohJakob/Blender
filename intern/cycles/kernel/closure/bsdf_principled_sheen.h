@@ -62,7 +62,7 @@ calculate_principled_sheen_brdf(float3 N, float3 V, float3 L, float3 H, __thread
   return make_float3(value, value, value);
 }
 
-ccl_device int bsdf_principled_sheen_setup(__device_space const ShaderData *sd, __thread_space PrincipledSheenBsdf *bsdf)
+ccl_device int bsdf_principled_sheen_setup(__device_space const ShaderData *sd, __device_space PrincipledSheenBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_PRINCIPLED_SHEEN_ID;
   bsdf->avg_value = calculate_avg_principled_sheen_brdf(bsdf->N, sd->I);
@@ -70,12 +70,12 @@ ccl_device int bsdf_principled_sheen_setup(__device_space const ShaderData *sd, 
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device float3 bsdf_principled_sheen_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_principled_sheen_eval_reflect(__device_space const ShaderClosure *sc,
                                                      const float3 I,
                                                      const float3 omega_in,
                                                      __thread_space float *pdf)
 {
-  __thread_space const PrincipledSheenBsdf *bsdf = (__thread_space const PrincipledSheenBsdf *)sc;
+  __device_space const PrincipledSheenBsdf *bsdf = (__device_space const PrincipledSheenBsdf *)sc;
 
   float3 N = bsdf->N;
   float3 V = I;         // outgoing
@@ -92,7 +92,7 @@ ccl_device float3 bsdf_principled_sheen_eval_reflect(__thread_space const Shader
   }
 }
 
-ccl_device float3 bsdf_principled_sheen_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_principled_sheen_eval_transmit(__device_space const ShaderClosure *sc,
                                                       const float3 I,
                                                       const float3 omega_in,
                                                       __thread_space float *pdf)
@@ -100,7 +100,7 @@ ccl_device float3 bsdf_principled_sheen_eval_transmit(__thread_space const Shade
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_principled_sheen_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_principled_sheen_sample(__device_space const ShaderClosure *sc,
                                             float3 Ng,
                                             float3 I,
                                             float3 dIdx,
@@ -113,7 +113,7 @@ ccl_device int bsdf_principled_sheen_sample(__thread_space const ShaderClosure *
                                             __thread_space float3 *domega_in_dy,
                                             __thread_space float *pdf)
 {
-  __thread_space const PrincipledSheenBsdf *bsdf = (__thread_space const PrincipledSheenBsdf *)sc;
+  __device_space const PrincipledSheenBsdf *bsdf = (__device_space const PrincipledSheenBsdf *)sc;
 
   float3 N = bsdf->N;
 

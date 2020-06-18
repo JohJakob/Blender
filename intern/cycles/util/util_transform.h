@@ -55,7 +55,8 @@ typedef struct DecomposedTransform {
 
 /* Functions */
 
-ccl_device_inline float3 transform_point(const __thread_space Transform *t, const float3 a)
+#ifdef __KERNEL_METAL__
+ccl_device_inline float3 transform_point(const thread Transform *t, const float3 a)
 {
   /* TODO(sergey): Disabled for now, causes crashes in certain cases. */
 #if defined(__KERNEL_SSE__) && defined(__KERNEL_SSE2__)
@@ -84,7 +85,75 @@ ccl_device_inline float3 transform_point(const __thread_space Transform *t, cons
 #endif
 }
 
-ccl_device_inline float3 transform_direction(__thread_space const Transform *t, const float3 a)
+ccl_device_inline float3 transform_direction(const thread Transform *t, const float3 a)
+{
+#if defined(__KERNEL_SSE__) && defined(__KERNEL_SSE2__)
+  ssef x, y, z, w, aa;
+  aa = a.m128;
+  x = _mm_loadu_ps(&t->x.x);
+  y = _mm_loadu_ps(&t->y.x);
+  z = _mm_loadu_ps(&t->z.x);
+  w = _mm_setzero_ps();
+
+  _MM_TRANSPOSE4_PS(x, y, z, w);
+
+  ssef tmp = shuffle<0>(aa) * x;
+  tmp = madd(shuffle<1>(aa), y, tmp);
+  tmp = madd(shuffle<2>(aa), z, tmp);
+
+  return float3(tmp.m128);
+#else
+  float3 c = make_float3(a.x * t->x.x + a.y * t->x.y + a.z * t->x.z,
+                         a.x * t->y.x + a.y * t->y.y + a.z * t->y.z,
+                         a.x * t->z.x + a.y * t->z.y + a.z * t->z.z);
+
+  return c;
+#endif
+}
+
+ccl_device_inline float3 transform_direction_transposed(const thread Transform *t, const float3 a)
+{
+  float3 x = make_float3(t->x.x, t->y.x, t->z.x);
+  float3 y = make_float3(t->x.y, t->y.y, t->z.y);
+  float3 z = make_float3(t->x.z, t->y.z, t->z.z);
+
+  return make_float3(dot(x, a), dot(y, a), dot(z, a));
+}
+
+
+
+#endif // METAL
+
+ccl_device_inline float3 transform_point(const __device_space Transform *t, const float3 a)
+{
+  /* TODO(sergey): Disabled for now, causes crashes in certain cases. */
+#if defined(__KERNEL_SSE__) && defined(__KERNEL_SSE2__)
+  ssef x, y, z, w, aa;
+  aa = a.m128;
+
+  x = _mm_loadu_ps(&t->x.x);
+  y = _mm_loadu_ps(&t->y.x);
+  z = _mm_loadu_ps(&t->z.x);
+  w = _mm_set_ps(1.0f, 0.0f, 0.0f, 0.0f);
+
+  _MM_TRANSPOSE4_PS(x, y, z, w);
+
+  ssef tmp = shuffle<0>(aa) * x;
+  tmp = madd(shuffle<1>(aa), y, tmp);
+  tmp = madd(shuffle<2>(aa), z, tmp);
+  tmp += w;
+
+  return float3(tmp.m128);
+#else
+  float3 c = make_float3(a.x * t->x.x + a.y * t->x.y + a.z * t->x.z + t->x.w,
+                         a.x * t->y.x + a.y * t->y.y + a.z * t->y.z + t->y.w,
+                         a.x * t->z.x + a.y * t->z.y + a.z * t->z.z + t->z.w);
+
+  return c;
+#endif
+}
+
+ccl_device_inline float3 transform_direction(__device_space const Transform *t, const float3 a)
 {
 #if defined(__KERNEL_SSE__) && defined(__KERNEL_SSE2__)
   ssef x, y, z, w, aa;
@@ -406,6 +475,44 @@ ccl_device_inline Transform transform_quick_inverse(Transform M)
 }
 
 #if defined(__KERNEL_METAL__)
+ccl_device_inline void transform_compose(__device_space Transform *tfm, thread const DecomposedTransform &decomp)
+{
+  /* rotation */
+  float q0, q1, q2, q3, qda, qdb, qdc, qaa, qab, qac, qbb, qbc, qcc;
+
+  q0 = M_SQRT2_F * decomp.x.w;
+  q1 = M_SQRT2_F * decomp.x.x;
+  q2 = M_SQRT2_F * decomp.x.y;
+  q3 = M_SQRT2_F * decomp.x.z;
+
+  qda = q0 * q1;
+  qdb = q0 * q2;
+  qdc = q0 * q3;
+  qaa = q1 * q1;
+  qab = q1 * q2;
+  qac = q1 * q3;
+  qbb = q2 * q2;
+  qbc = q2 * q3;
+  qcc = q3 * q3;
+
+  float3 rotation_x = make_float3(1.0f - qbb - qcc, -qdc + qab, qdb + qac);
+  float3 rotation_y = make_float3(qdc + qab, 1.0f - qaa - qcc, -qda + qbc);
+  float3 rotation_z = make_float3(-qdb + qac, qda + qbc, 1.0f - qaa - qbb);
+
+  /* scale */
+  float3 scale_x = make_float3(decomp.y.w, decomp.z.z, decomp.w.y);
+  float3 scale_y = make_float3(decomp.z.x, decomp.z.w, decomp.w.z);
+  float3 scale_z = make_float3(decomp.z.y, decomp.w.x, decomp.w.w);
+
+  /* compose with translation */
+  tfm->x = make_float4(
+      dot(rotation_x, scale_x), dot(rotation_x, scale_y), dot(rotation_x, scale_z), decomp.y.x);
+  tfm->y = make_float4(
+      dot(rotation_y, scale_x), dot(rotation_y, scale_y), dot(rotation_y, scale_z), decomp.y.y);
+  tfm->z = make_float4(
+      dot(rotation_z, scale_x), dot(rotation_z, scale_y), dot(rotation_z, scale_z), decomp.y.z);
+}
+
 ccl_device_inline void transform_compose(__thread_space Transform *tfm, thread const DecomposedTransform &decomp)
 {
   /* rotation */
@@ -444,8 +551,9 @@ ccl_device_inline void transform_compose(__thread_space Transform *tfm, thread c
       dot(rotation_z, scale_x), dot(rotation_z, scale_y), dot(rotation_z, scale_z), decomp.y.z);
 }
 
+
 #else
-ccl_device_inline void transform_compose(__thread_space Transform *tfm, __thread_space const DecomposedTransform *decomp)
+ccl_device_inline void transform_compose(__device_space Transform *tfm, __thread_space const DecomposedTransform *decomp)
 {
   /* rotation */
   float q0, q1, q2, q3, qda, qdb, qdc, qaa, qab, qac, qbb, qbc, qcc;
@@ -485,7 +593,7 @@ ccl_device_inline void transform_compose(__thread_space Transform *tfm, __thread
 #endif
 
 /* Interpolate from array of decomposed transforms. */
-ccl_device void transform_motion_array_interpolate(__thread_space Transform *tfm,
+ccl_device void transform_motion_array_interpolate(__device_space Transform *tfm,
                                                    const ccl_global __device_space DecomposedTransform *motion,
                                                    uint numsteps,
                                                    float time)
@@ -512,6 +620,32 @@ ccl_device void transform_motion_array_interpolate(__thread_space Transform *tfm
   transform_compose(tfm, &decomp);
 #endif
 }
+
+#ifdef __KERNEL_METAL__
+ccl_device void transform_motion_array_interpolate(__thread_space Transform *tfm,
+                                                   const ccl_global __device_space DecomposedTransform *motion,
+                                                   uint numsteps,
+                                                   float time)
+{
+  /* Figure out which steps we need to interpolate. */
+  int maxstep = numsteps - 1;
+  int step = min((int)(time * maxstep), maxstep - 1);
+  float t = time * maxstep - step;
+
+  const ccl_global __device_space DecomposedTransform *a = motion + step;
+  const ccl_global __device_space DecomposedTransform *b = motion + step + 1;
+
+  /* Interpolate rotation, translation and scale. */
+  DecomposedTransform decomp;
+  decomp.x = quat_interpolate(a->x, b->x, t);
+  decomp.y = (1.0f - t) * a->y + t * b->y;
+  decomp.z = (1.0f - t) * a->z + t * b->z;
+  decomp.w = (1.0f - t) * a->w + t * b->w;
+
+  /* Compose rotation, translation, scale into matrix. */
+  transform_compose(tfm, decomp);
+}
+#endif // metal
 
 #ifndef __KERNEL_GPU__
 

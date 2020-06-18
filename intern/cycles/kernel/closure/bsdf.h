@@ -39,32 +39,32 @@ CCL_NAMESPACE_BEGIN
 
 /* Returns the square of the roughness of the closure if it has roughness,
  * 0 for singular closures and 1 otherwise. */
-ccl_device_inline float bsdf_get_specular_roughness_squared(__thread_space const ShaderClosure *sc)
+ccl_device_inline float bsdf_get_specular_roughness_squared(__device_space const ShaderClosure *sc)
 {
   if (CLOSURE_IS_BSDF_SINGULAR(sc->type)) {
     return 0.0f;
   }
 
   if (CLOSURE_IS_BSDF_MICROFACET(sc->type)) {
-    __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)sc;
+    __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)sc;
     return bsdf->alpha_x * bsdf->alpha_y;
   }
 
   return 1.0f;
 }
 
-ccl_device_inline float bsdf_get_roughness_squared(__thread_space const ShaderClosure *sc)
+ccl_device_inline float bsdf_get_roughness_squared(__device_space const ShaderClosure *sc)
 {
   /* This version includes diffuse, mainly for baking Principled BSDF
    * where specular and metallic zero otherwise does not bake the
    * specified roughness parameter. */
   if (sc->type == CLOSURE_BSDF_OREN_NAYAR_ID) {
-    __thread_space OrenNayarBsdf *bsdf = (__thread_space OrenNayarBsdf *)sc;
+    __device_space OrenNayarBsdf *bsdf = (__device_space OrenNayarBsdf *)sc;
     return sqr(sqr(bsdf->roughness));
   }
 
   if (sc->type == CLOSURE_BSDF_PRINCIPLED_DIFFUSE_ID) {
-    __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)sc;
+    __device_space PrincipledDiffuseBsdf *bsdf = (__device_space PrincipledDiffuseBsdf *)sc;
     return sqr(sqr(bsdf->roughness));
   }
 
@@ -99,7 +99,7 @@ ccl_device_inline float bump_shadowing_term(float3 Ng, float3 N, float3 I)
 
 ccl_device_inline int bsdf_sample(__device_space KernelGlobals *kg,
                                   __device_space ShaderData *sd,
-                                  __thread_space const ShaderClosure *sc,
+                                  __device_space const ShaderClosure *sc,
                                   float randu,
                                   float randv,
                                   __thread_space float3 *eval,
@@ -465,7 +465,7 @@ ccl_device_inline
     float3
     bsdf_eval(__device_space KernelGlobals *kg,
               __device_space ShaderData *sd,
-              __thread_space const ShaderClosure *sc,
+              __device_space const ShaderClosure *sc,
               const float3 omega_in,
               __thread_space float *pdf)
 {
@@ -665,7 +665,7 @@ ccl_device_inline
   return eval;
 }
 
-ccl_device void bsdf_blur(__device_space KernelGlobals *kg, __thread_space ShaderClosure *sc, float roughness)
+ccl_device void bsdf_blur(__device_space KernelGlobals *kg, __device_space ShaderClosure *sc, float roughness)
 {
   /* ToDo: do we want to blur volume closures? */
 #ifdef __SVM__
@@ -702,7 +702,7 @@ ccl_device void bsdf_blur(__device_space KernelGlobals *kg, __thread_space Shade
 #endif
 }
 
-ccl_device bool bsdf_merge(__thread_space ShaderClosure *a, __thread_space ShaderClosure *b)
+ccl_device bool bsdf_merge(__device_space ShaderClosure *a, __device_space ShaderClosure *b)
 {
 #ifdef __SVM__
   switch (a->type) {

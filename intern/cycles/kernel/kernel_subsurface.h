@@ -23,7 +23,7 @@ CCL_NAMESPACE_BEGIN
  */
 
 ccl_device_inline float3
-subsurface_scatter_eval(__device_space ShaderData *sd, __thread_space const ShaderClosure *sc, float disk_r, float r, bool all)
+subsurface_scatter_eval(__device_space ShaderData *sd, __device_space const ShaderClosure *sc, float disk_r, float r, bool all)
 {
   /* this is the veach one-sample model with balance heuristic, some pdf
    * factors drop out when using balance heuristic weighting */
@@ -75,7 +75,7 @@ ccl_device void subsurface_scatter_setup_diffuse_bsdf(
 
 #ifdef __PRINCIPLED__
   if (type == CLOSURE_BSSRDF_PRINCIPLED_ID || type == CLOSURE_BSSRDF_PRINCIPLED_RANDOM_WALK_ID) {
-    __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)bsdf_alloc(
+    __device_space PrincipledDiffuseBsdf *bsdf = (__device_space PrincipledDiffuseBsdf *)bsdf_alloc(
         sd, sizeof(PrincipledDiffuseBsdf), weight);
 
     if (bsdf) {
@@ -91,7 +91,7 @@ ccl_device void subsurface_scatter_setup_diffuse_bsdf(
   else if (CLOSURE_IS_BSDF_BSSRDF(type) || CLOSURE_IS_BSSRDF(type))
 #endif /* __PRINCIPLED__ */
   {
-    __thread_space DiffuseBsdf *bsdf = (__thread_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
+    __device_space DiffuseBsdf *bsdf = (__device_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
 
     if (bsdf) {
       bsdf->N = N;
@@ -160,7 +160,7 @@ ccl_device void subsurface_color_bump_blur(
 ccl_device_inline int subsurface_scatter_disk(__device_space KernelGlobals *kg,
                                               __thread_space LocalIntersection *ss_isect,
                                               __device_space ShaderData *sd,
-                                              __thread_space const ShaderClosure *sc,
+                                              __device_space const ShaderClosure *sc,
                                               __thread_space uint *lcg_state,
                                               float disk_u,
                                               float disk_v,
@@ -331,12 +331,12 @@ ccl_device void subsurface_random_walk_remap(const float A,
   *sigma_s = *sigma_t * a;
 }
 
-ccl_device void subsurface_random_walk_coefficients(__thread_space const ShaderClosure *sc,
+ccl_device void subsurface_random_walk_coefficients(__device_space const ShaderClosure *sc,
                                                     __thread_space float3 *sigma_t,
                                                     __thread_space float3 *sigma_s,
                                                     __thread_space float3 *weight)
 {
-  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
+  __device_space const Bssrdf *bssrdf = (__device_space const Bssrdf *)sc;
   const float3 A = bssrdf->albedo;
   const float3 d = bssrdf->radius;
   float sigma_t_x, sigma_t_y, sigma_t_z;
@@ -363,7 +363,7 @@ ccl_device_noinline
                            __thread_space LocalIntersection *ss_isect,
                            __device_space ShaderData *sd,
                            __device_space ccl_addr_space PathState *state,
-                           __thread_space const ShaderClosure *sc,
+                           __device_space const ShaderClosure *sc,
                            const float bssrdf_u,
                            const float bssrdf_v)
 {
@@ -489,7 +489,7 @@ ccl_device_inline int subsurface_scatter_multi_intersect(__device_space KernelGl
                                                          __thread_space LocalIntersection *ss_isect,
                                                          __device_space ShaderData *sd,
                                                          __device_space ccl_addr_space PathState *state,
-                                                         __thread_space const ShaderClosure *sc,
+                                                         __device_space const ShaderClosure *sc,
                                                          __thread_space uint *lcg_state,
                                                          float bssrdf_u,
                                                          float bssrdf_v,

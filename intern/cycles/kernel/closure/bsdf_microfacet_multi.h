@@ -362,9 +362,9 @@ ccl_device_forceinline float mf_glass_pdf(const float3 wi,
 #define MF_MULTI_GLOSSY
 #include "kernel/closure/bsdf_microfacet_multi_impl.h"
 
-ccl_device void bsdf_microfacet_multi_ggx_blur(__thread_space ShaderClosure *sc, float roughness)
+ccl_device void bsdf_microfacet_multi_ggx_blur(__device_space ShaderClosure *sc, float roughness)
 {
-  __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)sc;
+  __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)sc;
 
   bsdf->alpha_x = fmaxf(roughness, bsdf->alpha_x);
   bsdf->alpha_y = fmaxf(roughness, bsdf->alpha_y);
@@ -374,7 +374,7 @@ ccl_device void bsdf_microfacet_multi_ggx_blur(__thread_space ShaderClosure *sc,
 
 /* Multiscattering GGX Glossy closure */
 
-ccl_device int bsdf_microfacet_multi_ggx_common_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_microfacet_multi_ggx_common_setup(__device_space MicrofacetBsdf *bsdf)
 {
   bsdf->alpha_x = clamp(bsdf->alpha_x, 1e-4f, 1.0f);
   bsdf->alpha_y = clamp(bsdf->alpha_y, 1e-4f, 1.0f);
@@ -384,7 +384,7 @@ ccl_device int bsdf_microfacet_multi_ggx_common_setup(__thread_space MicrofacetB
   return SD_BSDF | SD_BSDF_HAS_EVAL | SD_BSDF_NEEDS_LCG;
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_aniso_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_microfacet_multi_ggx_aniso_setup(__device_space MicrofacetBsdf *bsdf)
 {
   if (is_zero(bsdf->T))
     bsdf->T = make_float3(1.0f, 0.0f, 0.0f);
@@ -394,7 +394,7 @@ ccl_device int bsdf_microfacet_multi_ggx_aniso_setup(__thread_space MicrofacetBs
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_aniso_fresnel_setup(__thread_space MicrofacetBsdf *bsdf,
+ccl_device int bsdf_microfacet_multi_ggx_aniso_fresnel_setup(__device_space MicrofacetBsdf *bsdf,
                                                              __device_space const ShaderData *sd)
 {
   if (is_zero(bsdf->T))
@@ -407,7 +407,7 @@ ccl_device int bsdf_microfacet_multi_ggx_aniso_fresnel_setup(__thread_space Micr
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_microfacet_multi_ggx_setup(__device_space MicrofacetBsdf *bsdf)
 {
   bsdf->alpha_y = bsdf->alpha_x;
 
@@ -416,7 +416,7 @@ ccl_device int bsdf_microfacet_multi_ggx_setup(__thread_space MicrofacetBsdf *bs
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_fresnel_setup(__thread_space MicrofacetBsdf *bsdf, const __device_space ShaderData *sd)
+ccl_device int bsdf_microfacet_multi_ggx_fresnel_setup(__device_space MicrofacetBsdf *bsdf, const __device_space ShaderData *sd)
 {
   bsdf->alpha_y = bsdf->alpha_x;
 
@@ -427,7 +427,7 @@ ccl_device int bsdf_microfacet_multi_ggx_fresnel_setup(__thread_space Microfacet
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_refraction_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_microfacet_multi_ggx_refraction_setup(__device_space MicrofacetBsdf *bsdf)
 {
   bsdf->alpha_y = bsdf->alpha_x;
 
@@ -436,23 +436,23 @@ ccl_device int bsdf_microfacet_multi_ggx_refraction_setup(__thread_space Microfa
   return bsdf_microfacet_multi_ggx_common_setup(bsdf);
 }
 
-ccl_device float3 bsdf_microfacet_multi_ggx_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_microfacet_multi_ggx_eval_transmit(__device_space const ShaderClosure *sc,
                                                           const float3 I,
                                                           const float3 omega_in,
                                                           __thread_space float *pdf,
-                                                          __thread_space ccl_addr_space uint *lcg_state)
+                                                          __device_space ccl_addr_space uint *lcg_state)
 {
   *pdf = 0.0f;
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_microfacet_multi_ggx_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_microfacet_multi_ggx_eval_reflect(__device_space const ShaderClosure *sc,
                                                          const float3 I,
                                                          const float3 omega_in,
                                                          __thread_space float *pdf,
-                                                         __thread_space ccl_addr_space uint *lcg_state)
+                                                         __device_space ccl_addr_space uint *lcg_state)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
 
   if (bsdf->alpha_x * bsdf->alpha_y < 1e-7f) {
     return make_float3(0.0f, 0.0f, 0.0f);
@@ -488,7 +488,7 @@ ccl_device float3 bsdf_microfacet_multi_ggx_eval_reflect(__thread_space const Sh
 }
 
 ccl_device int bsdf_microfacet_multi_ggx_sample(__device_space KernelGlobals *kg,
-                                                __thread_space const ShaderClosure *sc,
+                                                __device_space const ShaderClosure *sc,
                                                 float3 Ng,
                                                 float3 I,
                                                 float3 dIdx,
@@ -500,9 +500,9 @@ ccl_device int bsdf_microfacet_multi_ggx_sample(__device_space KernelGlobals *kg
                                                 __thread_space float3 *domega_in_dx,
                                                 __thread_space float3 *domega_in_dy,
                                                 __thread_space float *pdf,
-                                                __thread_space ccl_addr_space uint *lcg_state)
+                                                __device_space ccl_addr_space uint *lcg_state)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
 
   float3 X, Y, Z;
   Z = bsdf->N;
@@ -555,7 +555,7 @@ ccl_device int bsdf_microfacet_multi_ggx_sample(__device_space KernelGlobals *kg
 
 /* Multiscattering GGX Glass closure */
 
-ccl_device int bsdf_microfacet_multi_ggx_glass_setup(__thread_space MicrofacetBsdf *bsdf)
+ccl_device int bsdf_microfacet_multi_ggx_glass_setup(__device_space MicrofacetBsdf *bsdf)
 {
   bsdf->alpha_x = clamp(bsdf->alpha_x, 1e-4f, 1.0f);
   bsdf->alpha_y = bsdf->alpha_x;
@@ -567,7 +567,7 @@ ccl_device int bsdf_microfacet_multi_ggx_glass_setup(__thread_space MicrofacetBs
   return SD_BSDF | SD_BSDF_HAS_EVAL | SD_BSDF_NEEDS_LCG;
 }
 
-ccl_device int bsdf_microfacet_multi_ggx_glass_fresnel_setup(__thread_space MicrofacetBsdf *bsdf,
+ccl_device int bsdf_microfacet_multi_ggx_glass_fresnel_setup(__device_space MicrofacetBsdf *bsdf,
                                                              __device_space const ShaderData *sd)
 {
   bsdf->alpha_x = clamp(bsdf->alpha_x, 1e-4f, 1.0f);
@@ -583,13 +583,13 @@ ccl_device int bsdf_microfacet_multi_ggx_glass_fresnel_setup(__thread_space Micr
   return SD_BSDF | SD_BSDF_HAS_EVAL | SD_BSDF_NEEDS_LCG;
 }
 
-ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_transmit(__device_space const ShaderClosure *sc,
                                                                 const float3 I,
                                                                 const float3 omega_in,
                                                                 __thread_space float *pdf,
-                                                                __thread_space ccl_addr_space uint *lcg_state)
+                                                                __device_space ccl_addr_space uint *lcg_state)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
 
   if (bsdf->alpha_x * bsdf->alpha_y < 1e-7f) {
     return make_float3(0.0f, 0.0f, 0.0f);
@@ -615,13 +615,13 @@ ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_transmit(__thread_space c
                        bsdf->extra->color);
 }
 
-ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_reflect(__device_space const ShaderClosure *sc,
                                                                const float3 I,
                                                                const float3 omega_in,
                                                                __thread_space float *pdf,
-                                                               __thread_space ccl_addr_space uint *lcg_state)
+                                                               __device_space ccl_addr_space uint *lcg_state)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
 
   if (bsdf->alpha_x * bsdf->alpha_y < 1e-7f) {
     return make_float3(0.0f, 0.0f, 0.0f);
@@ -650,7 +650,7 @@ ccl_device float3 bsdf_microfacet_multi_ggx_glass_eval_reflect(__thread_space co
 }
 
 ccl_device int bsdf_microfacet_multi_ggx_glass_sample(__device_space KernelGlobals *kg,
-                                                      __thread_space const ShaderClosure *sc,
+                                                      __device_space const ShaderClosure *sc,
                                                       float3 Ng,
                                                       float3 I,
                                                       float3 dIdx,
@@ -662,9 +662,9 @@ ccl_device int bsdf_microfacet_multi_ggx_glass_sample(__device_space KernelGloba
                                                       __thread_space float3 *domega_in_dx,
                                                       __thread_space float3 *domega_in_dy,
                                                       __thread_space float *pdf,
-                                                      __thread_space ccl_addr_space uint *lcg_state)
+                                                      __device_space ccl_addr_space uint *lcg_state)
 {
-  __thread_space const MicrofacetBsdf *bsdf = (__thread_space const MicrofacetBsdf *)sc;
+  __device_space const MicrofacetBsdf *bsdf = (__device_space const MicrofacetBsdf *)sc;
 
   float3 X, Y, Z;
   Z = bsdf->N;

@@ -78,7 +78,7 @@ ccl_device_inline bool volume_shader_sample(__device_space KernelGlobals *kg,
 
   if (sd->flag & SD_SCATTER) {
     for (int i = 0; i < sd->num_closure; i++) {
-      __thread_space const ShaderClosure *sc = &sd->closure[i];
+      __device_space const ShaderClosure *sc = &sd->closure[i];
 
       if (CLOSURE_IS_VOLUME(sc->type))
         coeff->sigma_s += sc->weight;

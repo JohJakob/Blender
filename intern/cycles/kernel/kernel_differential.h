@@ -18,7 +18,7 @@ CCL_NAMESPACE_BEGIN
 
 /* See "Tracing Ray Differentials", Homan Igehy, 1999. */
 
-ccl_device void differential_transfer(ccl_addr_space __thread_space differential3 *dP_,
+ccl_device void differential_transfer(ccl_addr_space __device_space differential3 *dP_,
                                       const differential3 dP,
                                       float3 D,
                                       const differential3 dD,
@@ -36,7 +36,7 @@ ccl_device void differential_transfer(ccl_addr_space __thread_space differential
   dP_->dy = tmpy - dot(tmpy, Ng) * tmp;
 }
 
-ccl_device void differential_incoming(ccl_addr_space __thread_space differential3 *dI, const differential3 dD)
+ccl_device void differential_incoming(ccl_addr_space __device_space differential3 *dI, const differential3 dD)
 {
   /* compute dIdx/dy at a shading point, we just need to negate the
    * differential of the ray direction */
@@ -45,8 +45,8 @@ ccl_device void differential_incoming(ccl_addr_space __thread_space differential
   dI->dy = -dD.dy;
 }
 
-ccl_device void differential_dudv(ccl_addr_space __thread_space differential *du,
-                                  ccl_addr_space __thread_space differential *dv,
+ccl_device void differential_dudv(ccl_addr_space __device_space differential *du,
+                                  ccl_addr_space __device_space differential *dv,
                                   float3 dPdu,
                                   float3 dPdv,
                                   differential3 dP,

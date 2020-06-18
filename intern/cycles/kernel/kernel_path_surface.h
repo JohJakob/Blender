@@ -142,7 +142,7 @@ ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
 /* branched path tracing: bounce off or through surface to with new direction stored in ray */
 ccl_device bool kernel_branched_path_surface_bounce(__device_space KernelGlobals *kg,
                                                     __device_space ShaderData *sd,
-                                                    __thread_space const ShaderClosure *sc,
+                                                    __device_space const ShaderClosure *sc,
                                                     int sample,
                                                     int num_samples,
                                                     __device_space ccl_addr_space float3 *throughput,

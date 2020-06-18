@@ -37,7 +37,7 @@ ccl_device_inline
   float bssrdf_u, bssrdf_v;
   path_state_rng_2D(kg, state, PRNG_BSDF_U, &bssrdf_u, &bssrdf_v);
 
-  __thread_space const ShaderClosure *sc = shader_bssrdf_pick(sd, throughput, &bssrdf_u);
+  __device_space const ShaderClosure *sc = shader_bssrdf_pick(sd, throughput, &bssrdf_u);
 
   /* do bssrdf scatter step if we picked a bssrdf closure */
   if (sc) {
@@ -58,7 +58,7 @@ ccl_device_inline
 #  endif /* __VOLUME__ */
 
     /* Closure memory will be overwritten, so read required variables now. */
-    __thread_space Bssrdf *bssrdf = (__thread_space Bssrdf *)sc;
+    __device_space Bssrdf *bssrdf = (__device_space Bssrdf *)sc;
     ClosureType bssrdf_type = sc->type;
     float bssrdf_roughness = bssrdf->roughness;
 

@@ -44,7 +44,7 @@ typedef ccl_addr_space struct VelvetBsdf {
 
 static_assert(sizeof(ShaderClosure) >= sizeof(VelvetBsdf), "VelvetBsdf is too large!");
 
-ccl_device int bsdf_ashikhmin_velvet_setup(__thread_space VelvetBsdf *bsdf)
+ccl_device int bsdf_ashikhmin_velvet_setup(__device_space VelvetBsdf *bsdf)
 {
   float sigma = fmaxf(bsdf->sigma, 0.01f);
   bsdf->invsigma2 = 1.0f / (sigma * sigma);
@@ -54,20 +54,20 @@ ccl_device int bsdf_ashikhmin_velvet_setup(__thread_space VelvetBsdf *bsdf)
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device bool bsdf_ashikhmin_velvet_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool bsdf_ashikhmin_velvet_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const VelvetBsdf *bsdf_a = (__thread_space const VelvetBsdf *)a;
-  __thread_space const VelvetBsdf *bsdf_b = (__thread_space const VelvetBsdf *)b;
+  __device_space const VelvetBsdf *bsdf_a = (__device_space const VelvetBsdf *)a;
+  __device_space const VelvetBsdf *bsdf_b = (__device_space const VelvetBsdf *)b;
 
   return (isequal_float3(bsdf_a->N, bsdf_b->N)) && (bsdf_a->sigma == bsdf_b->sigma);
 }
 
-ccl_device float3 bsdf_ashikhmin_velvet_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_ashikhmin_velvet_eval_reflect(__device_space const ShaderClosure *sc,
                                                      const float3 I,
                                                      const float3 omega_in,
                                                      __thread_space float *pdf)
 {
-  __thread_space const VelvetBsdf *bsdf = (__thread_space const VelvetBsdf *)sc;
+  __device_space const VelvetBsdf *bsdf = (__device_space const VelvetBsdf *)sc;
   float m_invsigma2 = bsdf->invsigma2;
   float3 N = bsdf->N;
 
@@ -104,7 +104,7 @@ ccl_device float3 bsdf_ashikhmin_velvet_eval_reflect(__thread_space const Shader
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_ashikhmin_velvet_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_ashikhmin_velvet_eval_transmit(__device_space const ShaderClosure *sc,
                                                       const float3 I,
                                                       const float3 omega_in,
                                                       __thread_space float *pdf)
@@ -112,7 +112,7 @@ ccl_device float3 bsdf_ashikhmin_velvet_eval_transmit(__thread_space const Shade
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_ashikhmin_velvet_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_ashikhmin_velvet_sample(__device_space const ShaderClosure *sc,
                                             float3 Ng,
                                             float3 I,
                                             float3 dIdx,
@@ -125,7 +125,7 @@ ccl_device int bsdf_ashikhmin_velvet_sample(__thread_space const ShaderClosure *
                                             __thread_space float3 *domega_in_dy,
                                             __thread_space float *pdf)
 {
-  __thread_space const VelvetBsdf *bsdf = (__thread_space const VelvetBsdf *)sc;
+  __device_space const VelvetBsdf *bsdf = (__device_space const VelvetBsdf *)sc;
   float m_invsigma2 = bsdf->invsigma2;
   float3 N = bsdf->N;
 

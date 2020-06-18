@@ -114,7 +114,7 @@ ccl_device_inline Transform object_fetch_transform_motion_test(__device_space Ke
 /* Transform position from object to world space */
 
 ccl_device_inline void object_position_transform(__device_space KernelGlobals *kg,
-                                                 __thread_space const ShaderData *sd,
+                                                 __device_space const ShaderData *sd,
                                                  __thread_space float3 *P)
 {
 #ifdef __OBJECT_MOTION__
@@ -124,6 +124,21 @@ ccl_device_inline void object_position_transform(__device_space KernelGlobals *k
   *P = transform_point(&tfm, *P);
 #endif
 }
+
+#ifdef __KERNEL_METAL__
+ccl_device_inline void object_position_transform(__device_space KernelGlobals *kg,
+                                                 __device_space const ShaderData *sd,
+                                                 __device_space float3 *P)
+{
+#ifdef __OBJECT_MOTION__
+  *P = transform_point_auto(&sd->ob_tfm, *P);
+#else
+  Transform tfm = object_fetch_transform(kg, sd->object, OBJECT_TRANSFORM);
+  *P = transform_point(&tfm, *P);
+#endif
+}
+
+#endif // metal
 
 /* Transform position from world to object space */
 
@@ -165,6 +180,19 @@ ccl_device_inline void object_inverse_normal_transform(__device_space KernelGlob
 
 ccl_device_inline void object_normal_transform(__device_space KernelGlobals *kg,
                                                __device_space const ShaderData *sd,
+                                               __device_space float3 *N)
+{
+#ifdef __OBJECT_MOTION__
+  *N = normalize(transform_direction_transposed_auto(&sd->ob_itfm, *N));
+#else
+  Transform tfm = object_fetch_transform(kg, sd->object, OBJECT_INVERSE_TRANSFORM);
+  *N = normalize(transform_direction_transposed(&tfm, *N));
+#endif
+}
+
+#ifdef __KERNEL_METAL__
+ccl_device_inline void object_normal_transform(__device_space KernelGlobals *kg,
+                                               __device_space const ShaderData *sd,
                                                __thread_space float3 *N)
 {
 #ifdef __OBJECT_MOTION__
@@ -175,11 +203,25 @@ ccl_device_inline void object_normal_transform(__device_space KernelGlobals *kg,
 #endif
 }
 
+ccl_device_inline void object_dir_transform(__device_space KernelGlobals *kg,
+                                            __device_space const ShaderData *sd,
+                                            __thread_space float3 *D)
+{
+#ifdef __OBJECT_MOTION__
+  *D = transform_direction_auto(&sd->ob_tfm, *D);
+#else
+  Transform tfm = object_fetch_transform(kg, sd->object, OBJECT_TRANSFORM);
+  *D = transform_direction(&tfm, *D);
+#endif
+}
+
+#endif // metal
+
 /* Transform direction vector from object to world space */
 
 ccl_device_inline void object_dir_transform(__device_space KernelGlobals *kg,
                                             __device_space const ShaderData *sd,
-                                            __thread_space float3 *D)
+                                            __device_space float3 *D)
 {
 #ifdef __OBJECT_MOTION__
   *D = transform_direction_auto(&sd->ob_tfm, *D);
@@ -604,7 +646,7 @@ ccl_device_inline void qbvh_instance_motion_push(__device_space KernelGlobals *k
                                                  __thread_space float3 *idir,
                                                  __thread_space float *t,
                                                  __thread_space float *t1,
-                                                 __thread_space Transform *itfm)
+                                                 __device_space Transform *itfm)
 {
   object_fetch_transform_motion_test(kg, object, ray->time, itfm);
 

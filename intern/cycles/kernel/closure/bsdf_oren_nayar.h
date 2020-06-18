@@ -29,12 +29,12 @@ typedef ccl_addr_space struct OrenNayarBsdf {
 
 static_assert(sizeof(ShaderClosure) >= sizeof(OrenNayarBsdf), "OrenNayarBsdf is too large!");
 
-ccl_device float3 bsdf_oren_nayar_get_intensity(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_oren_nayar_get_intensity(__device_space const ShaderClosure *sc,
                                                 float3 n,
                                                 float3 v,
                                                 float3 l)
 {
-  __thread_space const OrenNayarBsdf *bsdf = (__thread_space const OrenNayarBsdf *)sc;
+  __device_space const OrenNayarBsdf *bsdf = (__device_space const OrenNayarBsdf *)sc;
   float nl = max(dot(n, l), 0.0f);
   float nv = max(dot(n, v), 0.0f);
   float t = dot(l, v) - nl * nv;
@@ -45,7 +45,7 @@ ccl_device float3 bsdf_oren_nayar_get_intensity(__thread_space const ShaderClosu
   return make_float3(is, is, is);
 }
 
-ccl_device int bsdf_oren_nayar_setup(__thread_space OrenNayarBsdf *bsdf)
+ccl_device int bsdf_oren_nayar_setup(__device_space OrenNayarBsdf *bsdf)
 {
   float sigma = bsdf->roughness;
 
@@ -61,20 +61,20 @@ ccl_device int bsdf_oren_nayar_setup(__thread_space OrenNayarBsdf *bsdf)
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device bool bsdf_oren_nayar_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool bsdf_oren_nayar_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const OrenNayarBsdf *bsdf_a = (__thread_space const OrenNayarBsdf *)a;
-  __thread_space const OrenNayarBsdf *bsdf_b = (__thread_space const OrenNayarBsdf *)b;
+  __device_space const OrenNayarBsdf *bsdf_a = (__device_space const OrenNayarBsdf *)a;
+  __device_space const OrenNayarBsdf *bsdf_b = (__device_space const OrenNayarBsdf *)b;
 
   return (isequal_float3(bsdf_a->N, bsdf_b->N)) && (bsdf_a->roughness == bsdf_b->roughness);
 }
 
-ccl_device float3 bsdf_oren_nayar_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_oren_nayar_eval_reflect(__device_space const ShaderClosure *sc,
                                                const float3 I,
                                                const float3 omega_in,
                                                __thread_space float *pdf)
 {
-  __thread_space const OrenNayarBsdf *bsdf = (__thread_space const OrenNayarBsdf *)sc;
+  __device_space const OrenNayarBsdf *bsdf = (__device_space const OrenNayarBsdf *)sc;
   if (dot(bsdf->N, omega_in) > 0.0f) {
     *pdf = 0.5f * M_1_PI_F;
     return bsdf_oren_nayar_get_intensity(sc, bsdf->N, I, omega_in);
@@ -85,7 +85,7 @@ ccl_device float3 bsdf_oren_nayar_eval_reflect(__thread_space const ShaderClosur
   }
 }
 
-ccl_device float3 bsdf_oren_nayar_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_oren_nayar_eval_transmit(__device_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
                                                 __thread_space float *pdf)
@@ -93,7 +93,7 @@ ccl_device float3 bsdf_oren_nayar_eval_transmit(__thread_space const ShaderClosu
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_oren_nayar_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_oren_nayar_sample(__device_space const ShaderClosure *sc,
                                       float3 Ng,
                                       float3 I,
                                       float3 dIdx,
@@ -106,7 +106,7 @@ ccl_device int bsdf_oren_nayar_sample(__thread_space const ShaderClosure *sc,
                                       __thread_space float3 *domega_in_dy,
                                       __thread_space float *pdf)
 {
-  __thread_space const OrenNayarBsdf *bsdf = (__thread_space const OrenNayarBsdf *)sc;
+  __device_space const OrenNayarBsdf *bsdf = (__device_space const OrenNayarBsdf *)sc;
   sample_uniform_hemisphere(bsdf->N, randu, randv, omega_in, pdf);
 
   if (dot(Ng, *omega_in) > 0.0f) {

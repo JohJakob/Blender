@@ -139,7 +139,7 @@ ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
 #  ifdef __DENOISING_FEATURES__
   if (ps->denoising_feature_weight > 0.0f) {
     for (int i = 0; i < sd->num_closure; i++) {
-      const __thread_space ShaderClosure *sc = &sd->closure[i];
+      const __device_space ShaderClosure *sc = &sd->closure[i];
 
       /* transparency is not handled here, but in outer loop */
       if (!CLOSURE_IS_BSDF(sc->type) || CLOSURE_IS_BSDF_TRANSPARENT(sc->type)) {
@@ -155,7 +155,7 @@ ccl_device_noinline bool kernel_split_branched_path_surface_indirect_light_iter(
 #  endif /* __DENOISING_FEATURES__ */
 
   for (int i = branched_state->next_closure; i < sd->num_closure; i++) {
-    const __thread_space ShaderClosure *sc = &sd->closure[i];
+    const __device_space ShaderClosure *sc = &sd->closure[i];
 
     if (!CLOSURE_IS_BSDF(sc->type))
       continue;

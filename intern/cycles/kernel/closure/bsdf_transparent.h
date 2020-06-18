@@ -48,7 +48,7 @@ ccl_device void bsdf_transparent_setup(__device_space ShaderData *sd, const floa
 
     /* Add weight to existing transparent BSDF. */
     for (int i = 0; i < sd->num_closure; i++) {
-      __thread_space ShaderClosure *sc = &sd->closure[i];
+      __device_space ShaderClosure *sc = &sd->closure[i];
 
       if (sc->type == CLOSURE_BSDF_TRANSPARENT_ID) {
         sc->weight += weight;
@@ -69,7 +69,7 @@ ccl_device void bsdf_transparent_setup(__device_space ShaderData *sd, const floa
     }
 
     /* Create new transparent BSDF. */
-    __thread_space ShaderClosure *bsdf = closure_alloc(
+    __device_space ShaderClosure *bsdf = closure_alloc(
         sd, sizeof(ShaderClosure), CLOSURE_BSDF_TRANSPARENT_ID, weight);
 
     if (bsdf) {
@@ -82,7 +82,7 @@ ccl_device void bsdf_transparent_setup(__device_space ShaderData *sd, const floa
   }
 }
 
-ccl_device float3 bsdf_transparent_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_transparent_eval_reflect(__device_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
                                                 __thread_space float *pdf)
@@ -90,7 +90,7 @@ ccl_device float3 bsdf_transparent_eval_reflect(__thread_space const ShaderClosu
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_transparent_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_transparent_eval_transmit(__device_space const ShaderClosure *sc,
                                                  const float3 I,
                                                  const float3 omega_in,
                                                  __thread_space float *pdf)
@@ -98,7 +98,7 @@ ccl_device float3 bsdf_transparent_eval_transmit(__thread_space const ShaderClos
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_transparent_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_transparent_sample(__device_space const ShaderClosure *sc,
                                        float3 Ng,
                                        float3 I,
                                        float3 dIdx,

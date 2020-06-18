@@ -207,7 +207,7 @@ ccl_device_inline float3 bssrdf_burley_compatible_mfp(float3 r)
   return 0.25f * M_1_PI_F * r;
 }
 
-ccl_device void bssrdf_burley_setup(__thread_space Bssrdf *bssrdf)
+ccl_device void bssrdf_burley_setup(__device_space Bssrdf *bssrdf)
 {
   /* Mean free path length. */
   const float3 l = bssrdf_burley_compatible_mfp(bssrdf->radius);
@@ -329,9 +329,9 @@ ccl_device void bssrdf_none_sample(const float radius, float xi, __thread_space 
 
 /* Generic */
 
-ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__device_space ShaderData *sd, float3 weight)
+ccl_device_inline __device_space Bssrdf *bssrdf_alloc(__device_space ShaderData *sd, float3 weight)
 {
-  __thread_space Bssrdf *bssrdf = (__thread_space Bssrdf *)closure_alloc(sd, sizeof(Bssrdf), CLOSURE_NONE_ID, weight);
+  __device_space Bssrdf *bssrdf = (__device_space Bssrdf *)closure_alloc(sd, sizeof(Bssrdf), CLOSURE_NONE_ID, weight);
 
   if (bssrdf == NULL) {
     return NULL;
@@ -342,7 +342,7 @@ ccl_device_inline __thread_space Bssrdf *bssrdf_alloc(__device_space ShaderData 
   return (sample_weight >= CLOSURE_WEIGHT_CUTOFF) ? bssrdf : NULL;
 }
 
-ccl_device int bssrdf_setup(__device_space ShaderData *sd, __thread_space Bssrdf *bssrdf, ClosureType type)
+ccl_device int bssrdf_setup(__device_space ShaderData *sd, __device_space Bssrdf *bssrdf, ClosureType type)
 {
   int flag = 0;
   int bssrdf_channels = 3;
@@ -375,7 +375,7 @@ ccl_device int bssrdf_setup(__device_space ShaderData *sd, __thread_space Bssrdf
       float roughness = bssrdf->roughness;
       float3 N = bssrdf->N;
 
-      __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)bsdf_alloc(
+      __device_space PrincipledDiffuseBsdf *bsdf = (__device_space PrincipledDiffuseBsdf *)bsdf_alloc(
           sd, sizeof(PrincipledDiffuseBsdf), diffuse_weight);
 
       if (bsdf) {
@@ -388,7 +388,7 @@ ccl_device int bssrdf_setup(__device_space ShaderData *sd, __thread_space Bssrdf
     else
 #endif /* __PRINCIPLED__ */
     {
-      __thread_space DiffuseBsdf *bsdf = (__thread_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), diffuse_weight);
+      __device_space DiffuseBsdf *bsdf = (__device_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), diffuse_weight);
 
       if (bsdf) {
         bsdf->type = CLOSURE_BSDF_BSSRDF_ID;
@@ -422,9 +422,9 @@ ccl_device int bssrdf_setup(__device_space ShaderData *sd, __thread_space Bssrdf
   return flag;
 }
 
-ccl_device void bssrdf_sample(__thread_space const ShaderClosure *sc, float xi, __thread_space float *r, __thread_space float *h)
+ccl_device void bssrdf_sample(__device_space const ShaderClosure *sc, float xi, __thread_space float *r, __thread_space float *h)
 {
-  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
+  __device_space const Bssrdf *bssrdf = (__device_space const Bssrdf *)sc;
   float radius;
 
   /* Sample color channel and reuse random number. Only a subset of channels
@@ -458,7 +458,7 @@ ccl_device void bssrdf_sample(__thread_space const ShaderClosure *sc, float xi, 
   }
 }
 
-ccl_device float bssrdf_channel_pdf(__thread_space const Bssrdf *bssrdf, float radius, float r)
+ccl_device float bssrdf_channel_pdf(__device_space const Bssrdf *bssrdf, float radius, float r)
 {
   if (radius == 0.0f) {
     return 0.0f;
@@ -475,18 +475,18 @@ ccl_device float bssrdf_channel_pdf(__thread_space const Bssrdf *bssrdf, float r
   }
 }
 
-ccl_device_forceinline float3 bssrdf_eval(__thread_space const ShaderClosure *sc, float r)
+ccl_device_forceinline float3 bssrdf_eval(__device_space const ShaderClosure *sc, float r)
 {
-  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
+  __device_space const Bssrdf *bssrdf = (__device_space const Bssrdf *)sc;
 
   return make_float3(bssrdf_channel_pdf(bssrdf, bssrdf->radius.x, r),
                      bssrdf_channel_pdf(bssrdf, bssrdf->radius.y, r),
                      bssrdf_channel_pdf(bssrdf, bssrdf->radius.z, r));
 }
 
-ccl_device_forceinline float bssrdf_pdf(__thread_space const ShaderClosure *sc, float r)
+ccl_device_forceinline float bssrdf_pdf(__device_space const ShaderClosure *sc, float r)
 {
-  __thread_space const Bssrdf *bssrdf = (__thread_space const Bssrdf *)sc;
+  __device_space const Bssrdf *bssrdf = (__device_space const Bssrdf *)sc;
   float3 pdf = bssrdf_eval(sc, r);
 
   return (pdf.x + pdf.y + pdf.z) / bssrdf->channels;

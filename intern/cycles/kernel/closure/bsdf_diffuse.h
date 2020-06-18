@@ -43,26 +43,26 @@ static_assert(sizeof(ShaderClosure) >= sizeof(DiffuseBsdf), "DiffuseBsdf is too 
 
 /* DIFFUSE */
 
-ccl_device int bsdf_diffuse_setup(__thread_space DiffuseBsdf *bsdf)
+ccl_device int bsdf_diffuse_setup(__device_space DiffuseBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_DIFFUSE_ID;
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device bool bsdf_diffuse_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool bsdf_diffuse_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const DiffuseBsdf *bsdf_a = (__thread_space const DiffuseBsdf *)a;
-  __thread_space const DiffuseBsdf *bsdf_b = (__thread_space const DiffuseBsdf *)b;
+  __device_space const DiffuseBsdf *bsdf_a = (__device_space const DiffuseBsdf *)a;
+  __device_space const DiffuseBsdf *bsdf_b = (__device_space const DiffuseBsdf *)b;
 
   return (isequal_float3(bsdf_a->N, bsdf_b->N));
 }
 
-__thread_space ccl_device float3 bsdf_diffuse_eval_reflect(__thread_space const ShaderClosure *sc,
+__thread_space ccl_device float3 bsdf_diffuse_eval_reflect(__device_space const ShaderClosure *sc,
                                             const float3 I,
                                             const float3 omega_in,
                                             __thread_space float *pdf)
 {
-  __thread_space const DiffuseBsdf *bsdf = (__thread_space const DiffuseBsdf *)sc;
+  __device_space const DiffuseBsdf *bsdf = (__device_space const DiffuseBsdf *)sc;
   float3 N = bsdf->N;
 
   float cos_pi = fmaxf(dot(N, omega_in), 0.0f) * M_1_PI_F;
@@ -70,7 +70,7 @@ __thread_space ccl_device float3 bsdf_diffuse_eval_reflect(__thread_space const 
   return make_float3(cos_pi, cos_pi, cos_pi);
 }
 
-ccl_device float3 bsdf_diffuse_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_diffuse_eval_transmit(__device_space const ShaderClosure *sc,
                                              const float3 I,
                                              const float3 omega_in,
                                              __thread_space float *pdf)
@@ -78,7 +78,7 @@ ccl_device float3 bsdf_diffuse_eval_transmit(__thread_space const ShaderClosure 
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_diffuse_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_diffuse_sample(__device_space const ShaderClosure *sc,
                                    float3 Ng,
                                    float3 I,
                                    float3 dIdx,
@@ -91,7 +91,7 @@ ccl_device int bsdf_diffuse_sample(__thread_space const ShaderClosure *sc,
                                    __thread_space float3 *domega_in_dy,
                                    __thread_space float *pdf)
 {
-  __thread_space const DiffuseBsdf *bsdf = (__thread_space const DiffuseBsdf *)sc;
+  __device_space const DiffuseBsdf *bsdf = (__device_space const DiffuseBsdf *)sc;
   float3 N = bsdf->N;
 
   // distribution over the hemisphere
@@ -113,13 +113,13 @@ ccl_device int bsdf_diffuse_sample(__thread_space const ShaderClosure *sc,
 
 /* TRANSLUCENT */
 
-ccl_device int bsdf_translucent_setup(__thread_space DiffuseBsdf *bsdf)
+ccl_device int bsdf_translucent_setup(__device_space DiffuseBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_TRANSLUCENT_ID;
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device float3 bsdf_translucent_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_translucent_eval_reflect(__device_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
                                                 __thread_space float *pdf)
@@ -127,12 +127,12 @@ ccl_device float3 bsdf_translucent_eval_reflect(__thread_space const ShaderClosu
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_translucent_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_translucent_eval_transmit(__device_space const ShaderClosure *sc,
                                                  const float3 I,
                                                  const float3 omega_in,
                                                  __thread_space float *pdf)
 {
-  __thread_space const DiffuseBsdf *bsdf = (__thread_space const DiffuseBsdf *)sc;
+  __device_space const DiffuseBsdf *bsdf = (__device_space const DiffuseBsdf *)sc;
   float3 N = bsdf->N;
 
   float cos_pi = fmaxf(-dot(N, omega_in), 0.0f) * M_1_PI_F;
@@ -140,7 +140,7 @@ ccl_device float3 bsdf_translucent_eval_transmit(__thread_space const ShaderClos
   return make_float3(cos_pi, cos_pi, cos_pi);
 }
 
-ccl_device int bsdf_translucent_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_translucent_sample(__device_space const ShaderClosure *sc,
                                        float3 Ng,
                                        float3 I,
                                        float3 dIdx,
@@ -153,7 +153,7 @@ ccl_device int bsdf_translucent_sample(__thread_space const ShaderClosure *sc,
                                        __thread_space float3 *domega_in_dy,
                                        __thread_space float *pdf)
 {
-  __thread_space const DiffuseBsdf *bsdf = (__thread_space const DiffuseBsdf *)sc;
+  __device_space const DiffuseBsdf *bsdf = (__device_space const DiffuseBsdf *)sc;
   float3 N = bsdf->N;
 
   // we are viewing the surface from the right side - send a ray out with cosine

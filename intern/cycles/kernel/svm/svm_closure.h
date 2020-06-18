@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* Closure Nodes */
 
 ccl_device void svm_node_glass_setup(
-    __device_space ShaderData *sd, __thread_space MicrofacetBsdf *bsdf, int type, float eta, float roughness, bool refract)
+    __device_space ShaderData *sd, __device_space MicrofacetBsdf *bsdf, int type, float eta, float roughness, bool refract)
 {
   if (type == CLOSURE_BSDF_SHARP_GLASS_ID) {
     if (refract) {
@@ -206,7 +206,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         if (subsurface <= CLOSURE_WEIGHT_CUTOFF && diffuse_weight > CLOSURE_WEIGHT_CUTOFF) {
           float3 diff_weight = weight * base_color * diffuse_weight;
 
-          __thread_space PrincipledDiffuseBsdf *bsdf = (__thread_space PrincipledDiffuseBsdf *)bsdf_alloc(
+          __device_space PrincipledDiffuseBsdf *bsdf = (__device_space PrincipledDiffuseBsdf *)bsdf_alloc(
               sd, sizeof(PrincipledDiffuseBsdf), diff_weight);
 
           if (bsdf) {
@@ -218,7 +218,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
           }
         }
         else if (subsurface > CLOSURE_WEIGHT_CUTOFF) {
-          __thread_space Bssrdf *bssrdf = bssrdf_alloc(sd, subsurf_weight);
+          __device_space Bssrdf *bssrdf = bssrdf_alloc(sd, subsurf_weight);
 
           if (bssrdf) {
             bssrdf->radius = subsurface_radius * subsurface;
@@ -266,7 +266,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
 
         float3 sheen_weight = weight * sheen * sheen_color * diffuse_weight;
 
-        __thread_space PrincipledSheenBsdf *bsdf = (__thread_space PrincipledSheenBsdf *)bsdf_alloc(
+        __device_space PrincipledSheenBsdf *bsdf = (__device_space PrincipledSheenBsdf *)bsdf_alloc(
             sd, sizeof(PrincipledSheenBsdf), sheen_weight);
 
         if (bsdf) {
@@ -285,9 +285,9 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
             (specular > CLOSURE_WEIGHT_CUTOFF || metallic > CLOSURE_WEIGHT_CUTOFF)) {
           float3 spec_weight = weight * specular_weight;
 
-          __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+          __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
               sd, sizeof(MicrofacetBsdf), spec_weight);
-          __thread_space MicrofacetExtra *extra = (bsdf != NULL) ? (__thread_space MicrofacetExtra *)closure_alloc_extra(
+          __device_space MicrofacetExtra *extra = (bsdf != NULL) ? (__device_space MicrofacetExtra *)closure_alloc_extra(
                                                         sd, sizeof(MicrofacetExtra)) :
                                                     NULL;
 
@@ -348,9 +348,9 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
             if (kernel_data.integrator.caustics_reflective || (path_flag & PATH_RAY_DIFFUSE) == 0)
 #  endif
             {
-              __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+              __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
                   sd, sizeof(MicrofacetBsdf), glass_weight * fresnel);
-              __thread_space MicrofacetExtra *extra = (bsdf != NULL) ? (__thread_space MicrofacetExtra *)closure_alloc_extra(
+              __device_space MicrofacetExtra *extra = (bsdf != NULL) ? (__device_space MicrofacetExtra *)closure_alloc_extra(
                                                             sd, sizeof(MicrofacetExtra)) :
                                                         NULL;
 
@@ -377,7 +377,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
             if (kernel_data.integrator.caustics_refractive || (path_flag & PATH_RAY_DIFFUSE) == 0)
 #  endif
             {
-              __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+              __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
                   sd, sizeof(MicrofacetBsdf), base_color * glass_weight * (1.0f - fresnel));
               if (bsdf) {
                 bsdf->N = N;
@@ -400,9 +400,9 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
             }
           }
           else { /* use multi-scatter GGX */
-            __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+            __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
                 sd, sizeof(MicrofacetBsdf), glass_weight);
-            __thread_space MicrofacetExtra *extra = (bsdf != NULL) ? (__thread_space MicrofacetExtra *)closure_alloc_extra(
+            __device_space MicrofacetExtra *extra = (bsdf != NULL) ? (__device_space MicrofacetExtra *)closure_alloc_extra(
                                                           sd, sizeof(MicrofacetExtra)) :
                                                       NULL;
 
@@ -433,8 +433,8 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
       if (kernel_data.integrator.caustics_reflective || (path_flag & PATH_RAY_DIFFUSE) == 0) {
 #  endif
         if (clearcoat > CLOSURE_WEIGHT_CUTOFF) {
-          __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
-          __thread_space MicrofacetExtra *extra = (bsdf != NULL) ? (__thread_space MicrofacetExtra *)closure_alloc_extra(
+          __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
+          __device_space MicrofacetExtra *extra = (bsdf != NULL) ? (__device_space MicrofacetExtra *)closure_alloc_extra(
                                                         sd, sizeof(MicrofacetExtra)) :
                                                     NULL;
 
@@ -464,7 +464,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
 #endif /* __PRINCIPLED__ */
     case CLOSURE_BSDF_DIFFUSE_ID: {
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space OrenNayarBsdf *bsdf = (__thread_space OrenNayarBsdf *)bsdf_alloc(sd, sizeof(OrenNayarBsdf), weight);
+      __device_space OrenNayarBsdf *bsdf = (__device_space OrenNayarBsdf *)bsdf_alloc(sd, sizeof(OrenNayarBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -472,7 +472,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         float roughness = param1;
 
         if (roughness == 0.0f) {
-          sd->flag |= bsdf_diffuse_setup((__thread_space DiffuseBsdf *)bsdf);
+          sd->flag |= bsdf_diffuse_setup((__device_space DiffuseBsdf *)bsdf);
         }
         else {
           bsdf->roughness = roughness;
@@ -483,7 +483,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
     }
     case CLOSURE_BSDF_TRANSLUCENT_ID: {
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space DiffuseBsdf *bsdf = (__thread_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
+      __device_space DiffuseBsdf *bsdf = (__device_space DiffuseBsdf *)bsdf_alloc(sd, sizeof(DiffuseBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -506,7 +506,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         break;
 #endif
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
+      __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
 
       if (!bsdf) {
         break;
@@ -530,7 +530,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         sd->flag |= bsdf_microfacet_ggx_setup(bsdf);
       else if (type == CLOSURE_BSDF_MICROFACET_MULTI_GGX_ID) {
         kernel_assert(stack_valid(data_node.z));
-        bsdf->extra = (__thread_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
+        bsdf->extra = (__device_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
         if (bsdf->extra) {
           bsdf->extra->color = stack_load_float3(stack, data_node.z);
           bsdf->extra->cspec0 = make_float3(0.0f, 0.0f, 0.0f);
@@ -552,7 +552,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         break;
 #endif
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
+      __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -610,7 +610,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
       if (kernel_data.integrator.caustics_reflective || (path_flag & PATH_RAY_DIFFUSE) == 0)
 #endif
       {
-        __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+        __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
             sd, sizeof(MicrofacetBsdf), weight * fresnel);
 
         if (bsdf) {
@@ -626,7 +626,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
       if (kernel_data.integrator.caustics_refractive || (path_flag & PATH_RAY_DIFFUSE) == 0)
 #endif
       {
-        __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(
+        __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(
             sd, sizeof(MicrofacetBsdf), weight * (1.0f - fresnel));
 
         if (bsdf) {
@@ -646,12 +646,12 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         break;
 #endif
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
+      __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
       if (!bsdf) {
         break;
       }
 
-      __thread_space MicrofacetExtra *extra = (__thread_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
+      __device_space MicrofacetExtra *extra = (__device_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
       if (!extra) {
         break;
       }
@@ -684,7 +684,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         break;
 #endif
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space MicrofacetBsdf *bsdf = (__thread_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
+      __device_space MicrofacetBsdf *bsdf = (__device_space MicrofacetBsdf *)bsdf_alloc(sd, sizeof(MicrofacetBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -720,7 +720,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         }
         else if (type == CLOSURE_BSDF_MICROFACET_MULTI_GGX_ANISO_ID) {
           kernel_assert(stack_valid(data_node.w));
-          bsdf->extra = (__thread_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
+          bsdf->extra = (__device_space MicrofacetExtra *)closure_alloc_extra(sd, sizeof(MicrofacetExtra));
           if (bsdf->extra) {
             bsdf->extra->color = stack_load_float3(stack, data_node.w);
             bsdf->extra->cspec0 = make_float3(0.0f, 0.0f, 0.0f);
@@ -735,7 +735,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
     }
     case CLOSURE_BSDF_ASHIKHMIN_VELVET_ID: {
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space VelvetBsdf *bsdf = (__thread_space VelvetBsdf *)bsdf_alloc(sd, sizeof(VelvetBsdf), weight);
+      __device_space VelvetBsdf *bsdf = (__device_space VelvetBsdf *)bsdf_alloc(sd, sizeof(VelvetBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -753,7 +753,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
 #endif
     case CLOSURE_BSDF_DIFFUSE_TOON_ID: {
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space ToonBsdf *bsdf = (__thread_space ToonBsdf *)bsdf_alloc(sd, sizeof(ToonBsdf), weight);
+      __device_space ToonBsdf *bsdf = (__device_space ToonBsdf *)bsdf_alloc(sd, sizeof(ToonBsdf), weight);
 
       if (bsdf) {
         bsdf->N = N;
@@ -800,10 +800,10 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         random = stack_load_float_default(stack, random_ofs, data_node3.y);
       }
 
-      __thread_space PrincipledHairBSDF *bsdf = (__thread_space PrincipledHairBSDF *)bsdf_alloc(
+      __device_space PrincipledHairBSDF *bsdf = (__device_space PrincipledHairBSDF *)bsdf_alloc(
           sd, sizeof(PrincipledHairBSDF), weight);
       if (bsdf) {
-        __thread_space PrincipledHairExtra *extra = (__thread_space PrincipledHairExtra *)closure_alloc_extra(
+        __device_space PrincipledHairExtra *extra = (__device_space PrincipledHairExtra *)closure_alloc_extra(
             sd, sizeof(PrincipledHairExtra));
 
         if (!extra)
@@ -892,7 +892,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
         bsdf_transparent_setup(sd, make_float3(1.0f, 1.0f, 1.0f), path_flag);
       }
       else {
-        __thread_space HairBsdf *bsdf = (__thread_space HairBsdf *)bsdf_alloc(sd, sizeof(HairBsdf), weight);
+        __device_space HairBsdf *bsdf = (__device_space HairBsdf *)bsdf_alloc(sd, sizeof(HairBsdf), weight);
 
         if (bsdf) {
           bsdf->N = N;
@@ -929,7 +929,7 @@ ccl_device void svm_node_closure_bsdf(__device_space KernelGlobals *kg,
     case CLOSURE_BSSRDF_BURLEY_ID:
     case CLOSURE_BSSRDF_RANDOM_WALK_ID: {
       float3 weight = sd->svm_closure_weight * mix_weight;
-      __thread_space Bssrdf *bssrdf = bssrdf_alloc(sd, weight);
+      __device_space Bssrdf *bssrdf = bssrdf_alloc(sd, weight);
 
       if (bssrdf) {
         /* disable in case of diffuse ancestor, can't see it well then and
@@ -990,7 +990,7 @@ ccl_device void svm_node_closure_volume(
 
   /* Add closure for volume scattering. */
   if (type == CLOSURE_VOLUME_HENYEY_GREENSTEIN_ID) {
-    __thread_space HenyeyGreensteinVolume *volume = (__thread_space HenyeyGreensteinVolume *)bsdf_alloc(
+    __device_space HenyeyGreensteinVolume *volume = (__device_space HenyeyGreensteinVolume *)bsdf_alloc(
         sd, sizeof(HenyeyGreensteinVolume), weight);
 
     if (volume) {
@@ -1059,7 +1059,7 @@ ccl_device void svm_node_principled_volume(__device_space KernelGlobals *kg,
     }
 
     /* Add closure for volume scattering. */
-    __thread_space HenyeyGreensteinVolume *volume = (__thread_space HenyeyGreensteinVolume *)bsdf_alloc(
+    __device_space HenyeyGreensteinVolume *volume = (__device_space HenyeyGreensteinVolume *)bsdf_alloc(
         sd, sizeof(HenyeyGreensteinVolume), color * density);
     if (volume) {
       float anisotropy = (stack_valid(anisotropy_offset)) ?

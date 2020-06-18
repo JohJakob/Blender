@@ -291,6 +291,15 @@ ccl_device float lcg_step_float_addrspace(__thread_space ccl_addr_space uint *rn
   return (float)*rng * (1.0f / (float)0xFFFFFFFF);
 }
 
+#ifdef __KERNEL_METAL__
+ccl_device float lcg_step_float_addrspace(__device_space ccl_addr_space uint *rng)
+{
+  /* Implicit mod 2^32 */
+  *rng = (1103515245 * (*rng) + 12345);
+  return (float)*rng * (1.0f / (float)0xFFFFFFFF);
+}
+#endif // metal
+
 ccl_device_inline bool sample_is_even(int pattern, int sample)
 {
   if (pattern == SAMPLING_PATTERN_PMJ) {

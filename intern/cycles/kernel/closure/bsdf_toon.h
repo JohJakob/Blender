@@ -46,7 +46,7 @@ static_assert(sizeof(ShaderClosure) >= sizeof(ToonBsdf), "ToonBsdf is too large!
 
 /* DIFFUSE TOON */
 
-ccl_device int bsdf_diffuse_toon_setup(__thread_space ToonBsdf *bsdf)
+ccl_device int bsdf_diffuse_toon_setup(__device_space ToonBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_DIFFUSE_TOON_ID;
   bsdf->size = saturate(bsdf->size);
@@ -55,10 +55,10 @@ ccl_device int bsdf_diffuse_toon_setup(__thread_space ToonBsdf *bsdf)
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device bool bsdf_toon_merge(__thread_space const ShaderClosure *a, __thread_space const ShaderClosure *b)
+ccl_device bool bsdf_toon_merge(__device_space const ShaderClosure *a, __device_space const ShaderClosure *b)
 {
-  __thread_space const ToonBsdf *bsdf_a = (__thread_space const ToonBsdf *)a;
-  __thread_space const ToonBsdf *bsdf_b = (__thread_space const ToonBsdf *)b;
+  __device_space const ToonBsdf *bsdf_a = (__device_space const ToonBsdf *)a;
+  __device_space const ToonBsdf *bsdf_b = (__device_space const ToonBsdf *)b;
 
   return (isequal_float3(bsdf_a->N, bsdf_b->N)) && (bsdf_a->size == bsdf_b->size) &&
          (bsdf_a->smooth == bsdf_b->smooth);
@@ -83,12 +83,12 @@ ccl_device float bsdf_toon_get_sample_angle(float max_angle, float smooth)
   return fminf(max_angle + smooth, M_PI_2_F);
 }
 
-ccl_device float3 bsdf_diffuse_toon_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_diffuse_toon_eval_reflect(__device_space const ShaderClosure *sc,
                                                  const float3 I,
                                                  const float3 omega_in,
                                                  __thread_space float *pdf)
 {
-  __thread_space const ToonBsdf *bsdf = (__thread_space const ToonBsdf *)sc;
+  __device_space const ToonBsdf *bsdf = (__device_space const ToonBsdf *)sc;
   float max_angle = bsdf->size * M_PI_2_F;
   float smooth = bsdf->smooth * M_PI_2_F;
   float angle = safe_acosf(fmaxf(dot(bsdf->N, omega_in), 0.0f));
@@ -105,7 +105,7 @@ ccl_device float3 bsdf_diffuse_toon_eval_reflect(__thread_space const ShaderClos
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_diffuse_toon_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_diffuse_toon_eval_transmit(__device_space const ShaderClosure *sc,
                                                   const float3 I,
                                                   const float3 omega_in,
                                                   __thread_space float *pdf)
@@ -113,7 +113,7 @@ ccl_device float3 bsdf_diffuse_toon_eval_transmit(__thread_space const ShaderClo
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_diffuse_toon_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_diffuse_toon_sample(__device_space const ShaderClosure *sc,
                                         float3 Ng,
                                         float3 I,
                                         float3 dIdx,
@@ -126,7 +126,7 @@ ccl_device int bsdf_diffuse_toon_sample(__thread_space const ShaderClosure *sc,
                                         __thread_space float3 *domega_in_dy,
                                         __thread_space float *pdf)
 {
-  __thread_space const ToonBsdf *bsdf = (__thread_space const ToonBsdf *)sc;
+  __device_space const ToonBsdf *bsdf = (__device_space const ToonBsdf *)sc;
   float max_angle = bsdf->size * M_PI_2_F;
   float smooth = bsdf->smooth * M_PI_2_F;
   float sample_angle = bsdf_toon_get_sample_angle(max_angle, smooth);
@@ -153,7 +153,7 @@ ccl_device int bsdf_diffuse_toon_sample(__thread_space const ShaderClosure *sc,
 
 /* GLOSSY TOON */
 
-ccl_device int bsdf_glossy_toon_setup(__thread_space ToonBsdf *bsdf)
+ccl_device int bsdf_glossy_toon_setup(__device_space ToonBsdf *bsdf)
 {
   bsdf->type = CLOSURE_BSDF_GLOSSY_TOON_ID;
   bsdf->size = saturate(bsdf->size);
@@ -162,12 +162,12 @@ ccl_device int bsdf_glossy_toon_setup(__thread_space ToonBsdf *bsdf)
   return SD_BSDF | SD_BSDF_HAS_EVAL;
 }
 
-ccl_device float3 bsdf_glossy_toon_eval_reflect(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_glossy_toon_eval_reflect(__device_space const ShaderClosure *sc,
                                                 const float3 I,
                                                 const float3 omega_in,
                                                 __thread_space float *pdf)
 {
-  __thread_space const ToonBsdf *bsdf = (__thread_space const ToonBsdf *)sc;
+  __device_space const ToonBsdf *bsdf = (__device_space const ToonBsdf *)sc;
   float max_angle = bsdf->size * M_PI_2_F;
   float smooth = bsdf->smooth * M_PI_2_F;
   float cosNI = dot(bsdf->N, omega_in);
@@ -190,7 +190,7 @@ ccl_device float3 bsdf_glossy_toon_eval_reflect(__thread_space const ShaderClosu
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device float3 bsdf_glossy_toon_eval_transmit(__thread_space const ShaderClosure *sc,
+ccl_device float3 bsdf_glossy_toon_eval_transmit(__device_space const ShaderClosure *sc,
                                                  const float3 I,
                                                  const float3 omega_in,
                                                  __thread_space float *pdf)
@@ -198,7 +198,7 @@ ccl_device float3 bsdf_glossy_toon_eval_transmit(__thread_space const ShaderClos
   return make_float3(0.0f, 0.0f, 0.0f);
 }
 
-ccl_device int bsdf_glossy_toon_sample(__thread_space const ShaderClosure *sc,
+ccl_device int bsdf_glossy_toon_sample(__device_space const ShaderClosure *sc,
                                        float3 Ng,
                                        float3 I,
                                        float3 dIdx,
@@ -211,7 +211,7 @@ ccl_device int bsdf_glossy_toon_sample(__thread_space const ShaderClosure *sc,
                                        __thread_space float3 *domega_in_dy,
                                        __thread_space float *pdf)
 {
-  __thread_space const ToonBsdf *bsdf = (__thread_space const ToonBsdf *)sc;
+  __device_space const ToonBsdf *bsdf = (__device_space const ToonBsdf *)sc;
   float max_angle = bsdf->size * M_PI_2_F;
   float smooth = bsdf->smooth * M_PI_2_F;
   float cosNO = dot(bsdf->N, I);
