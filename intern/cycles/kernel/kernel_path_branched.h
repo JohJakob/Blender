@@ -21,7 +21,7 @@ CCL_NAMESPACE_BEGIN
 ccl_device_inline void kernel_branched_path_ao(__device_space KernelGlobals *kg,
                                                __device_space ShaderData *sd,
                                                __device_space ShaderData *emission_sd,
-                                               __thread_space PathRadiance *L,
+                                               __device_space PathRadiance *L,
                                                __device_space ccl_addr_space PathState *state,
                                                float3 throughput)
 {
@@ -67,7 +67,7 @@ ccl_device_inline void kernel_branched_path_ao(__device_space KernelGlobals *kg,
 #  ifndef __SPLIT_KERNEL__
 
 #    ifdef __VOLUME__
-ccl_device_forceinline void kernel_branched_path_volume(KernelGlobals *kg,
+ccl_device_forceinline void kernel_branched_path_volume(__device_space KernelGlobals *kg,
                                                         ShaderData *sd,
                                                         PathState *state,
                                                         Ray *ray,
@@ -198,7 +198,7 @@ ccl_device_forceinline void kernel_branched_path_volume(KernelGlobals *kg,
 #    endif /* __VOLUME__ */
 
 /* bounce off surface and integrate indirect light */
-ccl_device_noinline_cpu void kernel_branched_path_surface_indirect_light(KernelGlobals *kg,
+ccl_device_noinline_cpu void kernel_branched_path_surface_indirect_light(__device_space KernelGlobals *kg,
                                                                          ShaderData *sd,
                                                                          ShaderData *indirect_sd,
                                                                          ShaderData *emission_sd,
@@ -281,7 +281,7 @@ ccl_device_noinline_cpu void kernel_branched_path_surface_indirect_light(KernelG
 }
 
 #    ifdef __SUBSURFACE__
-ccl_device void kernel_branched_path_subsurface_scatter(KernelGlobals *kg,
+ccl_device void kernel_branched_path_subsurface_scatter(__device_space KernelGlobals *kg,
                                                         ShaderData *sd,
                                                         ShaderData *indirect_sd,
                                                         ShaderData *emission_sd,
@@ -366,7 +366,7 @@ ccl_device void kernel_branched_path_subsurface_scatter(KernelGlobals *kg,
 }
 #    endif /* __SUBSURFACE__ */
 
-ccl_device void kernel_branched_path_integrate(KernelGlobals *kg,
+ccl_device void kernel_branched_path_integrate(__device_space KernelGlobals *kg,
                                                uint rng_hash,
                                                int sample,
                                                Ray ray,

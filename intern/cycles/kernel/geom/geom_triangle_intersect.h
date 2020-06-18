@@ -73,7 +73,7 @@ ccl_device_inline bool triangle_intersect(__device_space KernelGlobals *kg,
 
 #ifdef __KERNEL_AVX2__
 #  define cross256(A, B, C, D) _mm256_fmsub_ps(A, B, _mm256_mul_ps(C, D))
-ccl_device_inline int ray_triangle_intersect8(KernelGlobals *kg,
+ccl_device_inline int ray_triangle_intersect8(__device_space KernelGlobals *kg,
                                               float3 ray_P,
                                               float3 ray_dir,
                                               Intersection **isect,
@@ -359,7 +359,7 @@ ccl_device_inline int ray_triangle_intersect8(KernelGlobals *kg,
   }
 }
 
-ccl_device_inline int triangle_intersect8(KernelGlobals *kg,
+ccl_device_inline int triangle_intersect8(__device_space KernelGlobals *kg,
                                           Intersection **isect,
                                           float3 P,
                                           float3 dir,

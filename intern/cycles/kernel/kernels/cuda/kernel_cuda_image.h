@@ -118,7 +118,7 @@ ccl_device T kernel_tex_image_interp_bicubic_3d(
                 g1y * (g0x * tex3D<T>(tex, x0, y1, z1) + g1x * tex3D<T>(tex, x1, y1, z1)));
 }
 
-ccl_device float4 kernel_tex_image_interp(KernelGlobals *kg, int id, float x, float y)
+ccl_device float4 kernel_tex_image_interp(__device_space KernelGlobals *kg, int id, float x, float y)
 {
   const TextureInfo &info = kernel_tex_fetch(__texture_info, id);
   CUtexObject tex = (CUtexObject)info.data;
@@ -149,7 +149,7 @@ ccl_device float4 kernel_tex_image_interp(KernelGlobals *kg, int id, float x, fl
   }
 }
 
-ccl_device float4 kernel_tex_image_interp_3d(KernelGlobals *kg,
+ccl_device float4 kernel_tex_image_interp_3d(__device_space KernelGlobals *kg,
                                              int id,
                                              float3 P,
                                              InterpolationType interp)

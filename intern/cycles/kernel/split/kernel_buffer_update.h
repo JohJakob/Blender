@@ -38,8 +38,8 @@ CCL_NAMESPACE_BEGIN
  *     RAY_REGENERATED rays.
  *   - QUEUE_HITBG_BUFF_UPDATE_TOREGEN_RAYS will be empty.
  */
-ccl_device void kernel_buffer_update(KernelGlobals *kg,
-                                     ccl_local_param unsigned int *local_queue_atomics)
+ccl_device void kernel_buffer_update(__device_space KernelGlobals *kg,
+                                     ccl_local_param __device_space unsigned int *local_queue_atomics)
 {
   if (ccl_local_id(0) == 0 && ccl_local_id(1) == 0) {
     *local_queue_atomics = 0;
@@ -76,18 +76,18 @@ ccl_device void kernel_buffer_update(KernelGlobals *kg,
   if (ray_index != QUEUE_EMPTY_SLOT) {
 #endif
 
-    ccl_global char *ray_state = kernel_split_state.ray_state;
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
-    PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-    ccl_global Ray *ray = &kernel_split_state.ray[ray_index];
-    ccl_global float3 *throughput = &kernel_split_state.throughput[ray_index];
+    ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
+    ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
+    __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+    ccl_global __device_space Ray *ray = &kernel_split_state.ray[ray_index];
+    ccl_global __device_space float3 *throughput = &kernel_split_state.throughput[ray_index];
     bool ray_was_updated = false;
 
     if (IS_STATE(ray_state, ray_index, RAY_UPDATE_BUFFER)) {
       ray_was_updated = true;
       uint sample = state->sample;
       uint buffer_offset = kernel_split_state.buffer_offset[ray_index];
-      ccl_global float *buffer = kernel_split_params.tile.buffer + buffer_offset;
+      ccl_global __device_space float *buffer = kernel_split_params.tile.buffer + buffer_offset;
 
       /* accumulate result in output buffer */
       kernel_write_result(kg, buffer, sample, L);
@@ -100,15 +100,15 @@ ccl_device void kernel_buffer_update(KernelGlobals *kg,
       ccl_barrier(CCL_LOCAL_MEM_FENCE);
       if (ray_was_updated && state->sample - 1 == kernel_data.integrator.aa_samples) {
         uint buffer_offset = kernel_split_state.buffer_offset[ray_index];
-        ccl_global float *buffer = kernel_split_params.tile.buffer + buffer_offset;
-        ccl_global float *cryptomatte_buffer = buffer + kernel_data.film.pass_cryptomatte;
+        ccl_global __device_space float *buffer = kernel_split_params.tile.buffer + buffer_offset;
+        ccl_global __device_space float *cryptomatte_buffer = buffer + kernel_data.film.pass_cryptomatte;
         kernel_sort_id_slots(cryptomatte_buffer, 2 * kernel_data.film.cryptomatte_depth);
       }
     }
 
     if (IS_STATE(ray_state, ray_index, RAY_TO_REGENERATE)) {
       /* We have completed current work; So get next work */
-      ccl_global uint *work_pools = kernel_split_params.work_pools;
+      ccl_global __device_space uint *work_pools = kernel_split_params.work_pools;
       uint total_work_size = kernel_split_params.total_work_size;
       uint work_index;
 
@@ -118,7 +118,7 @@ ccl_device void kernel_buffer_update(KernelGlobals *kg,
       }
 
       if (IS_STATE(ray_state, ray_index, RAY_TO_REGENERATE)) {
-        ccl_global WorkTile *tile = &kernel_split_params.tile;
+        ccl_global __device_space WorkTile *tile = &kernel_split_params.tile;
         uint x, y, sample;
         get_work_pixel(tile, work_index, &x, &y, &sample);
 

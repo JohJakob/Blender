@@ -23,7 +23,7 @@ ccl_device_inline void kernel_path_volume_connect_light(__device_space KernelGlo
                                                         __device_space ShaderData *emission_sd,
                                                         float3 throughput,
                                                         __device_space ccl_addr_space PathState *state,
-                                                        __thread_space PathRadiance *L)
+                                                        __device_space PathRadiance *L)
 {
 #  ifdef __EMISSION__
   /* sample illumination from lights to find path contribution */
@@ -133,7 +133,7 @@ ccl_device void kernel_branched_path_volume_connect_light(__device_space KernelG
                                                           __device_space ShaderData *emission_sd,
                                                           float3 throughput,
                                                           __thread_space ccl_addr_space PathState *state,
-                                                          __thread_space PathRadiance *L,
+                                                          __device_space PathRadiance *L,
                                                           bool sample_all_lights,
                                                           __thread_space Ray *ray,
                                                           __thread_space const VolumeSegment *segment)

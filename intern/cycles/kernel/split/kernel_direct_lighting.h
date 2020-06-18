@@ -40,8 +40,8 @@ CCL_NAMESPACE_BEGIN
  *   shadow_blocked function must be executed, after this kernel call
  *    Before this kernel call the QUEUE_SHADOW_RAY_CAST_DL_RAYS will be empty.
  */
-ccl_device void kernel_direct_lighting(KernelGlobals *kg,
-                                       ccl_local_param unsigned int *local_queue_atomics)
+ccl_device void kernel_direct_lighting(__device_space KernelGlobals *kg,
+                                       ccl_local_param __device_space unsigned int *local_queue_atomics)
 {
   if (ccl_local_id(0) == 0 && ccl_local_id(1) == 0) {
     *local_queue_atomics = 0;
@@ -58,8 +58,8 @@ ccl_device void kernel_direct_lighting(KernelGlobals *kg,
                             0);
 
   if (IS_STATE(kernel_split_state.ray_state, ray_index, RAY_ACTIVE)) {
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
+    ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
 
     /* direct lighting */
 #ifdef __EMISSION__

@@ -35,7 +35,7 @@ __kernel void KERNEL_NAME_EVAL(kernel_ocl_path_trace,
   ccl_local LOCALS_TYPE locals;
 #endif
 
-  KernelGlobals *kg = (KernelGlobals *)kg_global;
+  KernelGlobals *kg = (__device_space KernelGlobals *)kg_global;
 
   if (ccl_local_id(0) + ccl_local_id(1) == 0) {
     kg->data = data;

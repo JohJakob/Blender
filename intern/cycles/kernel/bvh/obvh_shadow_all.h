@@ -29,7 +29,7 @@
 #  define NODE_INTERSECT obvh_aligned_node_intersect
 #endif
 
-ccl_device bool BVH_FUNCTION_FULL_NAME(OBVH)(KernelGlobals *kg,
+ccl_device bool BVH_FUNCTION_FULL_NAME(OBVH)(__device_space KernelGlobals *kg,
                                              const Ray *ray,
                                              Intersection *isect_array,
                                              const int skip_object,

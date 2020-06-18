@@ -20,7 +20,7 @@ CCL_NAMESPACE_BEGIN
  * It processes rays of state RAY_ACTIVE and RAY_HIT_BACKGROUND.
  * We will empty QUEUE_ACTIVE_AND_REGENERATED_RAYS queue in this kernel.
  */
-ccl_device void kernel_lamp_emission(KernelGlobals *kg)
+ccl_device void kernel_lamp_emission(__device_space KernelGlobals *kg)
 {
 #ifndef __VOLUME__
   /* We will empty this queue in this kernel. */
@@ -52,13 +52,13 @@ ccl_device void kernel_lamp_emission(KernelGlobals *kg)
 
   if (IS_STATE(kernel_split_state.ray_state, ray_index, RAY_ACTIVE) ||
       IS_STATE(kernel_split_state.ray_state, ray_index, RAY_HIT_BACKGROUND)) {
-    PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+    __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+    ccl_global __device_space  PathState *state = &kernel_split_state.path_state[ray_index];
 
     float3 throughput = kernel_split_state.throughput[ray_index];
     Ray ray = kernel_split_state.ray[ray_index];
-    ccl_global Intersection *isect = &kernel_split_state.isect[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
+    ccl_global __device_space  Intersection *isect = &kernel_split_state.isect[ray_index];
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
 
     kernel_path_lamp_emission(kg, state, &ray, throughput, isect, sd, L);
   }

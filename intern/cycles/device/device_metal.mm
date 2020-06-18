@@ -58,6 +58,8 @@ private:
     library = lib;
 
     setupPipelines();
+
+      NSLog(@"done with metal setup");
   }
 
   virtual ~MetalDevice()

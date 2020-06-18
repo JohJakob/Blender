@@ -18,12 +18,12 @@ CCL_NAMESPACE_BEGIN
 
 #if defined(__BRANCHED_PATH__) && defined(__SUBSURFACE__)
 
-ccl_device_inline void kernel_split_branched_path_subsurface_indirect_light_init(KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_subsurface_indirect_light_init(__device_space KernelGlobals *kg,
                                                                                  int ray_index)
 {
   kernel_split_branched_path_indirect_loop_init(kg, ray_index);
 
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
   branched_state->ss_next_closure = 0;
   branched_state->ss_next_sample = 0;
@@ -35,22 +35,22 @@ ccl_device_inline void kernel_split_branched_path_subsurface_indirect_light_init
 }
 
 ccl_device_noinline bool kernel_split_branched_path_subsurface_indirect_light_iter(
-    KernelGlobals *kg, int ray_index)
+    __device_space KernelGlobals *kg, int ray_index)
 {
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
-  ShaderData *sd = kernel_split_sd(branched_state_sd, ray_index);
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
+  __device_space ShaderData *sd = kernel_split_sd(branched_state_sd, ray_index);
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  __device_space ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
 
   for (int i = branched_state->ss_next_closure; i < sd->num_closure; i++) {
-    ShaderClosure *sc = &sd->closure[i];
+    __device_space ShaderClosure *sc = &sd->closure[i];
 
     if (!CLOSURE_IS_BSSRDF(sc->type))
       continue;
 
     /* Closure memory will be overwritten, so read required variables now. */
-    Bssrdf *bssrdf = (Bssrdf *)sc;
+    __device_space Bssrdf *bssrdf = (__device_space Bssrdf *)sc;
     ClosureType bssrdf_type = sc->type;
     float bssrdf_roughness = bssrdf->roughness;
 
@@ -67,12 +67,12 @@ ccl_device_noinline bool kernel_split_branched_path_subsurface_indirect_light_it
     /* do subsurface scatter step with copy of shader data, this will
      * replace the BSSRDF with a diffuse BSDF closure */
     for (int j = branched_state->ss_next_sample; j < num_samples; j++) {
-      ccl_global PathState *hit_state = &kernel_split_state.path_state[ray_index];
+      ccl_global __device_space PathState *hit_state = &kernel_split_state.path_state[ray_index];
       *hit_state = branched_state->path_state;
       hit_state->rng_hash = bssrdf_rng_hash;
       path_state_branch(hit_state, j, num_samples);
 
-      ccl_global LocalIntersection *ss_isect = &branched_state->ss_isect;
+      ccl_global __device_space LocalIntersection *ss_isect = &branched_state->ss_isect;
       float bssrdf_u, bssrdf_v;
       path_branched_rng_2D(
           kg, bssrdf_rng_hash, hit_state, j, num_samples, PRNG_BSDF_U, &bssrdf_u, &bssrdf_v);
@@ -100,7 +100,7 @@ ccl_device_noinline bool kernel_split_branched_path_subsurface_indirect_light_it
 
       /* compute lighting with the BSDF closure */
       for (int hit = branched_state->next_hit; hit < branched_state->num_hits; hit++) {
-        ShaderData *bssrdf_sd = kernel_split_sd(sd, ray_index);
+        __device_space ShaderData *bssrdf_sd = kernel_split_sd(sd, ray_index);
         *bssrdf_sd = *sd; /* note: copy happens each iteration of inner loop, this is
                            * important as the indirect path will write into bssrdf_sd */
 
@@ -175,7 +175,7 @@ ccl_device_noinline bool kernel_split_branched_path_subsurface_indirect_light_it
 
 #endif /* __BRANCHED_PATH__ && __SUBSURFACE__ */
 
-ccl_device void kernel_subsurface_scatter(KernelGlobals *kg)
+ccl_device void kernel_subsurface_scatter(__device_space KernelGlobals *kg)
 {
   int thread_index = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
   if (thread_index == 0) {
@@ -199,16 +199,16 @@ ccl_device void kernel_subsurface_scatter(KernelGlobals *kg)
                 1);
 
 #ifdef __SUBSURFACE__
-  ccl_global char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
 
   if (IS_STATE(ray_state, ray_index, RAY_ACTIVE)) {
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
-    PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-    ccl_global Ray *ray = &kernel_split_state.ray[ray_index];
-    ccl_global float3 *throughput = &kernel_split_state.throughput[ray_index];
-    ccl_global SubsurfaceIndirectRays *ss_indirect = &kernel_split_state.ss_rays[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
-    ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
+    ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
+    __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+    ccl_global __device_space Ray *ray = &kernel_split_state.ray[ray_index];
+    ccl_global __device_space float3 *throughput = &kernel_split_state.throughput[ray_index];
+    ccl_global __device_space SubsurfaceIndirectRays *ss_indirect = &kernel_split_state.ss_rays[ray_index];
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
+    __device_space ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
 
     if (sd->flag & SD_BSSRDF) {
 

@@ -127,8 +127,8 @@ ccl_device_inline void qbvh_stack_sort(QBVHStackItem *ccl_restrict s1,
 
 /* Axis-aligned nodes intersection */
 
-// ccl_device_inline int qbvh_aligned_node_intersect(KernelGlobals *ccl_restrict kg,
-static int qbvh_aligned_node_intersect(KernelGlobals *ccl_restrict kg,
+// ccl_device_inline int qbvh_aligned_node_intersect(__device_space KernelGlobals *ccl_restrict kg,
+static int qbvh_aligned_node_intersect(__device_space KernelGlobals *ccl_restrict kg,
                                        const ssef &isect_near,
                                        const ssef &isect_far,
 #ifdef __KERNEL_AVX2__
@@ -183,7 +183,7 @@ static int qbvh_aligned_node_intersect(KernelGlobals *ccl_restrict kg,
 
 /* Unaligned nodes intersection */
 
-ccl_device_inline int qbvh_unaligned_node_intersect(KernelGlobals *ccl_restrict kg,
+ccl_device_inline int qbvh_unaligned_node_intersect(__device_space KernelGlobals *ccl_restrict kg,
                                                     const ssef &isect_near,
                                                     const ssef &isect_far,
 #ifdef __KERNEL_AVX2__
@@ -268,7 +268,7 @@ ccl_device_inline int qbvh_unaligned_node_intersect(KernelGlobals *ccl_restrict 
  * They'll check node type and call appropriate intersection code.
  */
 
-ccl_device_inline int qbvh_node_intersect(KernelGlobals *ccl_restrict kg,
+ccl_device_inline int qbvh_node_intersect(__device_space KernelGlobals *ccl_restrict kg,
                                           const ssef &isect_near,
                                           const ssef &isect_far,
 #ifdef __KERNEL_AVX2__

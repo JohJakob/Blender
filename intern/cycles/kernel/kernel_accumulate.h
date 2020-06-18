@@ -302,7 +302,7 @@ ccl_device_forceinline void path_radiance_clamp_throughput(__device_space Kernel
 #endif
 
 ccl_device_inline void path_radiance_accum_emission(__device_space KernelGlobals *kg,
-                                                    __thread_space PathRadiance *L,
+                                                    __device_space PathRadiance *L,
                                                     __device_space ccl_addr_space PathState *state,
                                                     float3 throughput,
                                                     float3 value)
@@ -335,7 +335,7 @@ ccl_device_inline void path_radiance_accum_emission(__device_space KernelGlobals
 }
 
 ccl_device_inline void path_radiance_accum_ao(__device_space KernelGlobals *kg,
-                                              __thread_space PathRadiance *L,
+                                              __device_space PathRadiance *L,
                                               __device_space ccl_addr_space PathState *state,
                                               float3 throughput,
                                               float3 alpha,
@@ -382,7 +382,7 @@ ccl_device_inline void path_radiance_accum_ao(__device_space KernelGlobals *kg,
   }
 }
 
-ccl_device_inline void path_radiance_accum_total_ao(__thread_space PathRadiance *L,
+ccl_device_inline void path_radiance_accum_total_ao(__device_space PathRadiance *L,
                                                     __device_space ccl_addr_space PathState *state,
                                                     float3 throughput,
                                                     float3 bsdf)
@@ -400,7 +400,7 @@ ccl_device_inline void path_radiance_accum_total_ao(__thread_space PathRadiance 
 }
 
 ccl_device_inline void path_radiance_accum_light(__device_space KernelGlobals *kg,
-                                                 __thread_space PathRadiance *L,
+                                                 __device_space PathRadiance *L,
                                                  __device_space ccl_addr_space PathState *state,
                                                  float3 throughput,
                                                  __thread_space BsdfEval *bsdf_eval,
@@ -458,7 +458,7 @@ ccl_device_inline void path_radiance_accum_light(__device_space KernelGlobals *k
   }
 }
 
-ccl_device_inline void path_radiance_accum_total_light(__thread_space PathRadiance *L,
+ccl_device_inline void path_radiance_accum_total_light(__device_space PathRadiance *L,
                                                        __device_space ccl_addr_space PathState *state,
                                                        float3 throughput,
                                                        __thread_space const BsdfEval *bsdf_eval)
@@ -476,7 +476,7 @@ ccl_device_inline void path_radiance_accum_total_light(__thread_space PathRadian
 }
 
 ccl_device_inline void path_radiance_accum_background(__device_space KernelGlobals *kg,
-                                                      __thread_space PathRadiance *L,
+                                                      __device_space PathRadiance *L,
                                                       __device_space ccl_addr_space PathState *state,
                                                       float3 throughput,
                                                       float3 value)
@@ -519,7 +519,7 @@ ccl_device_inline void path_radiance_accum_background(__device_space KernelGloba
 #endif /* __DENOISING_FEATURES__ */
 }
 
-ccl_device_inline void path_radiance_accum_transparent(__thread_space PathRadiance *L,
+ccl_device_inline void path_radiance_accum_transparent(__device_space PathRadiance *L,
                                                        __device_space ccl_addr_space PathState *state,
                                                        float3 throughput)
 {
@@ -527,7 +527,7 @@ ccl_device_inline void path_radiance_accum_transparent(__thread_space PathRadian
 }
 
 #ifdef __SHADOW_TRICKS__
-ccl_device_inline void path_radiance_accum_shadowcatcher(__thread_space PathRadiance *L,
+ccl_device_inline void path_radiance_accum_shadowcatcher(__device_space PathRadiance *L,
                                                          float3 throughput,
                                                          float3 background)
 {

@@ -27,7 +27,7 @@ ccl_device_noinline_cpu void kernel_branched_path_surface_connect_light(
     __device_space ccl_addr_space PathState *state,
     float3 throughput,
     float num_samples_adjust,
-    __thread_space PathRadiance *L,
+    __device_space PathRadiance *L,
     int sample_all_lights)
 {
 #  ifdef __EMISSION__
@@ -216,7 +216,7 @@ ccl_device_inline void kernel_path_surface_connect_light(__device_space KernelGl
                                                          __device_space ShaderData *emission_sd,
                                                          float3 throughput,
                                                          __device_space ccl_addr_space PathState *state,
-                                                         __thread_space PathRadiance *L)
+                                                         __device_space PathRadiance *L)
 {
   PROFILING_INIT(kg, PROFILING_CONNECT_LIGHT);
 

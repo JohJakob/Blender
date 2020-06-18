@@ -35,7 +35,7 @@ CCL_NAMESPACE_BEGIN
  *   - QUEUE_HITBG_BUFF_UPDATE_TOREGEN_RAYS will be filled with
  *     RAY_TO_REGENERATE, RAY_UPDATE_BUFFER, RAY_HIT_BACKGROUND rays.
  */
-ccl_device void kernel_queue_enqueue(KernelGlobals *kg, ccl_local_param QueueEnqueueLocals *locals)
+ccl_device void kernel_queue_enqueue(__device_space KernelGlobals *kg, ccl_local_param __device_space QueueEnqueueLocals *locals)
 {
   /* We have only 2 cases (Hit/Not-Hit) */
   int lidx = ccl_local_id(1) * ccl_local_size(0) + ccl_local_id(0);

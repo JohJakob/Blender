@@ -19,7 +19,7 @@
 void KERNEL_FUNCTION_FULL_NAME(path_trace)(
     KernelGlobals *kg, float *buffer, int sample, int x, int y, int offset, int stride);
 
-void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(__device_space KernelGlobals *kg,
                                                 uchar4 *rgba,
                                                 float *buffer,
                                                 float sample_scale,
@@ -28,7 +28,7 @@ void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(KernelGlobals *kg,
                                                 int offset,
                                                 int stride);
 
-void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(__device_space KernelGlobals *kg,
                                                       uchar4 *rgba,
                                                       float *buffer,
                                                       float sample_scale,
@@ -37,7 +37,7 @@ void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(KernelGlobals *kg,
                                                       int offset,
                                                       int stride);
 
-void KERNEL_FUNCTION_FULL_NAME(shader)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(shader)(__device_space KernelGlobals *kg,
                                        uint4 *input,
                                        float4 *output,
                                        int type,
@@ -48,7 +48,7 @@ void KERNEL_FUNCTION_FULL_NAME(shader)(KernelGlobals *kg,
 
 /* Split kernels */
 
-void KERNEL_FUNCTION_FULL_NAME(data_init)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(data_init)(__device_space KernelGlobals *kg,
                                           ccl_constant KernelData *data,
                                           ccl_global void *split_data_buffer,
                                           int num_elements,
@@ -69,7 +69,7 @@ void KERNEL_FUNCTION_FULL_NAME(data_init)(KernelGlobals *kg,
                                           ccl_global float *buffer);
 
 #define DECLARE_SPLIT_KERNEL_FUNCTION(name) \
-  void KERNEL_FUNCTION_FULL_NAME(name)(KernelGlobals * kg, KernelData * data);
+  void KERNEL_FUNCTION_FULL_NAME(name)(__device_space KernelGlobals * kg, KernelData * data);
 
 DECLARE_SPLIT_KERNEL_FUNCTION(path_init)
 DECLARE_SPLIT_KERNEL_FUNCTION(scene_intersect)

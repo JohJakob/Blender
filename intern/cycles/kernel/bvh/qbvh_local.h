@@ -28,7 +28,7 @@
 #  define NODE_INTERSECT qbvh_aligned_node_intersect
 #endif
 
-ccl_device bool BVH_FUNCTION_FULL_NAME(QBVH)(KernelGlobals *kg,
+ccl_device bool BVH_FUNCTION_FULL_NAME(QBVH)(__device_space KernelGlobals *kg,
                                              const Ray *ray,
                                              LocalIntersection *local_isect,
                                              int local_object,

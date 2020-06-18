@@ -49,7 +49,7 @@ struct CCLIntersectContext {
   int local_object_id;
   uint *lcg_state;
 
-  CCLIntersectContext(KernelGlobals *kg_, RayType type_)
+  CCLIntersectContext(__device_space KernelGlobals *kg_, RayType type_)
   {
     kg = kg_;
     type = type_;
@@ -98,7 +98,7 @@ ccl_device_inline void kernel_embree_setup_rayhit(const Ray &ray,
   rayhit.hit.primID = RTC_INVALID_GEOMETRY_ID;
 }
 
-ccl_device_inline void kernel_embree_convert_hit(KernelGlobals *kg,
+ccl_device_inline void kernel_embree_convert_hit(__device_space KernelGlobals *kg,
                                                  const RTCRay *ray,
                                                  const RTCHit *hit,
                                                  Intersection *isect)
@@ -124,7 +124,7 @@ ccl_device_inline void kernel_embree_convert_hit(KernelGlobals *kg,
   isect->type = kernel_tex_fetch(__prim_type, isect->prim);
 }
 
-ccl_device_inline void kernel_embree_convert_sss_hit(KernelGlobals *kg,
+ccl_device_inline void kernel_embree_convert_sss_hit(__device_space KernelGlobals *kg,
                                                      const RTCRay *ray,
                                                      const RTCHit *hit,
                                                      Intersection *isect,

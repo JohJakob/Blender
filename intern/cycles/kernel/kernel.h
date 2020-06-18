@@ -32,13 +32,13 @@ struct KernelGlobals;
 struct KernelData;
 
 KernelGlobals *kernel_globals_create();
-void kernel_globals_free(KernelGlobals *kg);
+void kernel_globals_free(__device_space KernelGlobals *kg);
 
-void *kernel_osl_memory(KernelGlobals *kg);
-bool kernel_osl_use(KernelGlobals *kg);
+void *kernel_osl_memory(__device_space KernelGlobals *kg);
+bool kernel_osl_use(__device_space KernelGlobals *kg);
 
-void kernel_const_copy(KernelGlobals *kg, const char *name, void *host, size_t size);
-void kernel_global_memory_copy(KernelGlobals *kg, const char *name, void *mem, size_t size);
+void kernel_const_copy(__device_space KernelGlobals *kg, const char *name, void *host, size_t size);
+void kernel_global_memory_copy(__device_space KernelGlobals *kg, const char *name, void *mem, size_t size);
 
 #define KERNEL_ARCH cpu
 #include "kernel/kernels/cpu/kernel_cpu.h"

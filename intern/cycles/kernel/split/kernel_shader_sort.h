@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void kernel_shader_sort(KernelGlobals *kg, ccl_local_param ShaderSortLocals *locals)
+ccl_device void kernel_shader_sort(__device_space KernelGlobals *kg, ccl_local_param __device_space ShaderSortLocals *locals)
 {
 #ifndef __KERNEL_CUDA__
   int tid = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
@@ -33,8 +33,8 @@ ccl_device void kernel_shader_sort(KernelGlobals *kg, ccl_local_param ShaderSort
   int lid = ccl_local_id(1) * ccl_local_size(0) + ccl_local_id(0);
   uint input = QUEUE_ACTIVE_AND_REGENERATED_RAYS * (kernel_split_params.queue_size);
   uint output = QUEUE_SHADER_SORTED_RAYS * (kernel_split_params.queue_size);
-  ccl_local uint *local_value = &locals->local_value[0];
-  ccl_local ushort *local_index = &locals->local_index[0];
+  ccl_local __device_space uint *local_value = &locals->local_value[0];
+  ccl_local __device_space ushort *local_index = &locals->local_index[0];
 
   /* copy to local memory */
   for (uint i = 0; i < SHADER_SORT_BLOCK_SIZE; i += SHADER_SORT_LOCAL_SIZE) {

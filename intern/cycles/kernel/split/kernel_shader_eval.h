@@ -19,7 +19,7 @@ CCL_NAMESPACE_BEGIN
 /* This kernel evaluates ShaderData structure from the values computed
  * by the previous kernels.
  */
-ccl_device void kernel_shader_eval(KernelGlobals *kg)
+ccl_device void kernel_shader_eval(__device_space KernelGlobals *kg)
 {
 
   int ray_index = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
@@ -47,11 +47,11 @@ ccl_device void kernel_shader_eval(KernelGlobals *kg)
     return;
   }
 
-  ccl_global char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
   if (IS_STATE(ray_state, ray_index, RAY_ACTIVE)) {
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+    ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
     uint buffer_offset = kernel_split_state.buffer_offset[ray_index];
-    ccl_global float *buffer = kernel_split_params.tile.buffer + buffer_offset;
+    ccl_global __device_space float *buffer = kernel_split_params.tile.buffer + buffer_offset;
 
     shader_eval_surface(kg, kernel_split_sd(sd, ray_index), state, buffer, state->flag);
 #ifdef __BRANCHED_PATH__

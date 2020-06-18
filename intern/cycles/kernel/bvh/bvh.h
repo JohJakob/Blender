@@ -563,7 +563,7 @@ ccl_device_intersect bool scene_intersect_volume(__device_space KernelGlobals *k
 #endif /* __VOLUME__ */
 
 #ifdef __VOLUME_RECORD_ALL__
-ccl_device_intersect uint scene_intersect_volume_all(KernelGlobals *kg,
+ccl_device_intersect uint scene_intersect_volume_all(__device_space KernelGlobals *kg,
                                                      const Ray *ray,
                                                      Intersection *isect,
                                                      const uint max_hits,

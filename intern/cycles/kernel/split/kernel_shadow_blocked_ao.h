@@ -17,7 +17,7 @@
 CCL_NAMESPACE_BEGIN
 
 /* Shadow ray cast for AO. */
-ccl_device void kernel_shadow_blocked_ao(KernelGlobals *kg)
+ccl_device void kernel_shadow_blocked_ao(__device_space KernelGlobals *kg)
 {
   unsigned int ao_queue_length = kernel_split_params.queue_index[QUEUE_SHADOW_RAY_CAST_AO_RAYS];
   ccl_barrier(CCL_LOCAL_MEM_FENCE);
@@ -37,10 +37,10 @@ ccl_device void kernel_shadow_blocked_ao(KernelGlobals *kg)
     return;
   }
 
-  ShaderData *sd = kernel_split_sd(sd, ray_index);
-  ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+  __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
+  __device_space ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
   float3 throughput = kernel_split_state.throughput[ray_index];
 
 #ifdef __BRANCHED_PATH__

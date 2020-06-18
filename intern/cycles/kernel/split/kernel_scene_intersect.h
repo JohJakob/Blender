@@ -23,7 +23,7 @@ CCL_NAMESPACE_BEGIN
  * This kernel determines the rays that have hit the background and changes
  * their ray state to RAY_HIT_BACKGROUND.
  */
-ccl_device void kernel_scene_intersect(KernelGlobals *kg)
+ccl_device void kernel_scene_intersect(__device_space KernelGlobals *kg)
 {
   /* Fetch use_queues_flag */
   char local_use_queues_flag = *kernel_split_params.use_queues_flag;
@@ -60,9 +60,9 @@ ccl_device void kernel_scene_intersect(KernelGlobals *kg)
     return;
   }
 
-  ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+  ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
   Ray ray = kernel_split_state.ray[ray_index];
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
 
   Intersection isect;
   bool hit = kernel_path_scene_intersect(kg, state, &ray, &isect, L);

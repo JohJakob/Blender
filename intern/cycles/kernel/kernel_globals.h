@@ -168,7 +168,7 @@ typedef ccl_addr_space struct KernelGlobals {
 
 #  define KERNEL_BUFFER_ARGS buffer0, buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7
 
-ccl_device_inline void kernel_set_buffer_pointers(KernelGlobals *kg, KERNEL_BUFFER_PARAMS)
+ccl_device_inline void kernel_set_buffer_pointers(__device_space KernelGlobals *kg, KERNEL_BUFFER_PARAMS)
 {
 #  ifdef __SPLIT_KERNEL__
   if (ccl_local_id(0) + ccl_local_id(1) == 0)
@@ -189,7 +189,7 @@ ccl_device_inline void kernel_set_buffer_pointers(KernelGlobals *kg, KERNEL_BUFF
 #  endif
 }
 
-ccl_device_inline void kernel_set_buffer_info(KernelGlobals *kg)
+ccl_device_inline void kernel_set_buffer_info(__device_space KernelGlobals *kg)
 {
 #  ifdef __SPLIT_KERNEL__
   if (ccl_local_id(0) + ccl_local_id(1) == 0)

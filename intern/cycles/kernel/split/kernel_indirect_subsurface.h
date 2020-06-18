@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void kernel_indirect_subsurface(KernelGlobals *kg)
+ccl_device void kernel_indirect_subsurface(__device_space KernelGlobals *kg)
 {
   int thread_index = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
   if (thread_index == 0) {
@@ -44,14 +44,14 @@ ccl_device void kernel_indirect_subsurface(KernelGlobals *kg)
     return;
   }
 
-  ccl_global char *ray_state = kernel_split_state.ray_state;
-  ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  ccl_global Ray *ray = &kernel_split_state.ray[ray_index];
-  ccl_global float3 *throughput = &kernel_split_state.throughput[ray_index];
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  ccl_global __device_space Ray *ray = &kernel_split_state.ray[ray_index];
+  ccl_global __device_space float3 *throughput = &kernel_split_state.throughput[ray_index];
 
   if (IS_STATE(ray_state, ray_index, RAY_UPDATE_BUFFER)) {
-    ccl_addr_space SubsurfaceIndirectRays *ss_indirect = &kernel_split_state.ss_rays[ray_index];
+    ccl_addr_space __device_space SubsurfaceIndirectRays *ss_indirect = &kernel_split_state.ss_rays[ray_index];
 
     /* Trace indirect subsurface rays by restarting the loop. this uses less
      * stack memory than invoking kernel_path_indirect.

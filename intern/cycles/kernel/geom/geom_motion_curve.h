@@ -180,7 +180,7 @@ ccl_device_inline void motion_cardinal_curve_keys(__device_space KernelGlobals *
 /* Similar to above, but returns keys as pair of two AVX registers with each
  * holding two float4.
  */
-ccl_device_inline void motion_cardinal_curve_keys_avx(KernelGlobals *kg,
+ccl_device_inline void motion_cardinal_curve_keys_avx(__device_space KernelGlobals *kg,
                                                       int object,
                                                       int prim,
                                                       float time,

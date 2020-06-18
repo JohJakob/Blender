@@ -100,7 +100,7 @@ void KERNEL_FUNCTION_FULL_NAME(path_trace)(
 
 /* Film */
 
-void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(__device_space KernelGlobals *kg,
                                                 uchar4 *rgba,
                                                 float *buffer,
                                                 float sample_scale,
@@ -116,7 +116,7 @@ void KERNEL_FUNCTION_FULL_NAME(convert_to_byte)(KernelGlobals *kg,
 #  endif /* KERNEL_STUB */
 }
 
-void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(__device_space KernelGlobals *kg,
                                                       uchar4 *rgba,
                                                       float *buffer,
                                                       float sample_scale,
@@ -134,7 +134,7 @@ void KERNEL_FUNCTION_FULL_NAME(convert_to_half_float)(KernelGlobals *kg,
 
 /* Shader Evaluate */
 
-void KERNEL_FUNCTION_FULL_NAME(shader)(KernelGlobals *kg,
+void KERNEL_FUNCTION_FULL_NAME(shader)(__device_space KernelGlobals *kg,
                                        uint4 *input,
                                        float4 *output,
                                        int type,
@@ -166,25 +166,25 @@ void KERNEL_FUNCTION_FULL_NAME(shader)(KernelGlobals *kg,
 
 #  ifdef KERNEL_STUB
 #    define DEFINE_SPLIT_KERNEL_FUNCTION(name) \
-      void KERNEL_FUNCTION_FULL_NAME(name)(KernelGlobals * kg, KernelData * /*data*/) \
+      void KERNEL_FUNCTION_FULL_NAME(name)(__device_space KernelGlobals * kg, KernelData * /*data*/) \
       { \
         STUB_ASSERT(KERNEL_ARCH, name); \
       }
 
 #    define DEFINE_SPLIT_KERNEL_FUNCTION_LOCALS(name, type) \
-      void KERNEL_FUNCTION_FULL_NAME(name)(KernelGlobals * kg, KernelData * /*data*/) \
+      void KERNEL_FUNCTION_FULL_NAME(name)(__device_space KernelGlobals * kg, KernelData * /*data*/) \
       { \
         STUB_ASSERT(KERNEL_ARCH, name); \
       }
 #  else
 #    define DEFINE_SPLIT_KERNEL_FUNCTION(name) \
-      void KERNEL_FUNCTION_FULL_NAME(name)(KernelGlobals * kg, KernelData * /*data*/) \
+      void KERNEL_FUNCTION_FULL_NAME(name)(__device_space KernelGlobals * kg, KernelData * /*data*/) \
       { \
         kernel_##name(kg); \
       }
 
 #    define DEFINE_SPLIT_KERNEL_FUNCTION_LOCALS(name, type) \
-      void KERNEL_FUNCTION_FULL_NAME(name)(KernelGlobals * kg, KernelData * /*data*/) \
+      void KERNEL_FUNCTION_FULL_NAME(name)(__device_space KernelGlobals * kg, KernelData * /*data*/) \
       { \
         ccl_local type locals; \
         kernel_##name(kg, &locals); \

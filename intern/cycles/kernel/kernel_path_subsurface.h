@@ -26,10 +26,10 @@ ccl_device_inline
     kernel_path_subsurface_scatter(__device_space KernelGlobals *kg,
                                    __device_space ShaderData *sd,
                                    __device_space ShaderData *emission_sd,
-                                   __thread_space PathRadiance *L,
+                                   __device_space PathRadiance *L,
                                    __device_space ccl_addr_space PathState *state,
-                                   __thread_space ccl_addr_space Ray *ray,
-                                   __thread_space ccl_addr_space float3 *throughput,
+                                   __device_space ccl_addr_space Ray *ray,
+                                   __device_space ccl_addr_space float3 *throughput,
                                    __device_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect)
 {
   PROFILING_INIT(kg, PROFILING_SUBSURFACE);
@@ -114,11 +114,11 @@ ccl_device_inline void kernel_path_subsurface_init_indirect(
 
 ccl_device void kernel_path_subsurface_setup_indirect(
     __device_space KernelGlobals *kg,
-    __thread_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
-    __thread_space ccl_addr_space PathState *state,
-    __thread_space ccl_addr_space Ray *ray,
+    __device_space ccl_addr_space SubsurfaceIndirectRays *ss_indirect,
+    __device_space ccl_addr_space PathState *state,
+    __device_space ccl_addr_space Ray *ray,
     __device_space PathRadiance *L,
-    __thread_space ccl_addr_space float3 *throughput)
+    __device_space ccl_addr_space float3 *throughput)
 {
   /* Setup state, ray and throughput for indirect SSS rays. */
   ss_indirect->num_rays--;

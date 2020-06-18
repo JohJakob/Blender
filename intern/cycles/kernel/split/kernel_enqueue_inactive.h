@@ -16,8 +16,8 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void kernel_enqueue_inactive(KernelGlobals *kg,
-                                        ccl_local_param unsigned int *local_queue_atomics)
+ccl_device void kernel_enqueue_inactive(__device_space KernelGlobals *kg,
+                                        ccl_local_param __device_space unsigned int *local_queue_atomics)
 {
 #ifdef __BRANCHED_PATH__
   /* Enqeueue RAY_INACTIVE rays into QUEUE_INACTIVE_RAYS queue. */

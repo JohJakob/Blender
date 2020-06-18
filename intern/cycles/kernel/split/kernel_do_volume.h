@@ -18,7 +18,7 @@ CCL_NAMESPACE_BEGIN
 
 #if defined(__BRANCHED_PATH__) && defined(__VOLUME__)
 
-ccl_device_inline void kernel_split_branched_path_volume_indirect_light_init(KernelGlobals *kg,
+ccl_device_inline void kernel_split_branched_path_volume_indirect_light_init(__device_space KernelGlobals *kg,
                                                                              int ray_index)
 {
   kernel_split_branched_path_indirect_loop_init(kg, ray_index);
@@ -26,14 +26,14 @@ ccl_device_inline void kernel_split_branched_path_volume_indirect_light_init(Ker
   ADD_RAY_FLAG(kernel_split_state.ray_state, ray_index, RAY_BRANCHED_VOLUME_INDIRECT);
 }
 
-ccl_device_noinline bool kernel_split_branched_path_volume_indirect_light_iter(KernelGlobals *kg,
+ccl_device_noinline bool kernel_split_branched_path_volume_indirect_light_iter(__device_space KernelGlobals *kg,
                                                                                int ray_index)
 {
-  SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
+  __device_space SplitBranchedState *branched_state = &kernel_split_state.branched_state[ray_index];
 
-  ShaderData *sd = kernel_split_sd(sd, ray_index);
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
+  __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  __device_space ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
 
   /* GPU: no decoupled ray marching, scatter probalistically */
   int num_samples = kernel_data.integrator.volume_samples;
@@ -47,13 +47,13 @@ ccl_device_noinline bool kernel_split_branched_path_volume_indirect_light_iter(K
   float step_size = volume_stack_step_size(kg, branched_state->path_state.volume_stack);
 
   for (int j = branched_state->next_sample; j < num_samples; j++) {
-    ccl_global PathState *ps = &kernel_split_state.path_state[ray_index];
+    ccl_global __device_space PathState *ps = &kernel_split_state.path_state[ray_index];
     *ps = branched_state->path_state;
 
-    ccl_global Ray *pray = &kernel_split_state.ray[ray_index];
+    ccl_global __device_space Ray *pray = &kernel_split_state.ray[ray_index];
     *pray = branched_state->ray;
 
-    ccl_global float3 *tp = &kernel_split_state.throughput[ray_index];
+    ccl_global __device_space float3 *tp = &kernel_split_state.throughput[ray_index];
     *tp = branched_state->throughput * num_samples_inv;
 
     /* branch RNG state */
@@ -114,7 +114,7 @@ ccl_device_noinline bool kernel_split_branched_path_volume_indirect_light_iter(K
 
 #endif /* __BRANCHED_PATH__ && __VOLUME__ */
 
-ccl_device void kernel_do_volume(KernelGlobals *kg)
+ccl_device void kernel_do_volume(__device_space KernelGlobals *kg)
 {
 #ifdef __VOLUME__
   /* We will empty this queue in this kernel. */
@@ -136,18 +136,18 @@ ccl_device void kernel_do_volume(KernelGlobals *kg)
                               1);
   }
 
-  ccl_global char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
 
-  PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-  ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+  __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+  ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
 
   if (IS_STATE(ray_state, ray_index, RAY_ACTIVE) ||
       IS_STATE(ray_state, ray_index, RAY_HIT_BACKGROUND)) {
-    ccl_global float3 *throughput = &kernel_split_state.throughput[ray_index];
-    ccl_global Ray *ray = &kernel_split_state.ray[ray_index];
-    ccl_global Intersection *isect = &kernel_split_state.isect[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
-    ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
+    ccl_global __device_space float3 *throughput = &kernel_split_state.throughput[ray_index];
+    ccl_global __device_space Ray *ray = &kernel_split_state.ray[ray_index];
+    ccl_global __device_space Intersection *isect = &kernel_split_state.isect[ray_index];
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
+    __device_space ShaderData *emission_sd = AS_SHADER_DATA(&kernel_split_state.sd_DL_shadow[ray_index]);
 
     bool hit = !IS_STATE(ray_state, ray_index, RAY_HIT_BACKGROUND);
 

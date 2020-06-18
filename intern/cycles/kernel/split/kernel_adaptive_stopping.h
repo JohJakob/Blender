@@ -16,7 +16,7 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void kernel_adaptive_stopping(KernelGlobals *kg)
+ccl_device void kernel_adaptive_stopping(__device_space KernelGlobals *kg)
 {
   int pixel_index = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
   if (pixel_index < kernel_split_params.tile.w * kernel_split_params.tile.h &&
@@ -27,7 +27,7 @@ ccl_device void kernel_adaptive_stopping(KernelGlobals *kg)
     int buffer_offset = (kernel_split_params.tile.offset + x +
                          y * kernel_split_params.tile.stride) *
                         kernel_data.film.pass_stride;
-    ccl_global float *buffer = kernel_split_params.tile.buffer + buffer_offset;
+    ccl_global __device_space float *buffer = kernel_split_params.tile.buffer + buffer_offset;
     kernel_do_adaptive_stopping(kg,
                                 buffer,
                                 kernel_split_params.tile.start_sample +

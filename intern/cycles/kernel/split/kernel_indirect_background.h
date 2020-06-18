@@ -16,9 +16,9 @@
 
 CCL_NAMESPACE_BEGIN
 
-ccl_device void kernel_indirect_background(KernelGlobals *kg)
+ccl_device void kernel_indirect_background(__device_space KernelGlobals *kg)
 {
-  ccl_global char *ray_state = kernel_split_state.ray_state;
+  ccl_global __device_space char *ray_state = kernel_split_state.ray_state;
 
   int thread_index = ccl_global_id(1) * ccl_global_size(0) + ccl_global_id(0);
   int ray_index;
@@ -33,7 +33,7 @@ ccl_device void kernel_indirect_background(KernelGlobals *kg)
 
     if (ray_index != QUEUE_EMPTY_SLOT) {
       if (IS_STATE(ray_state, ray_index, RAY_ACTIVE)) {
-        ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
+        ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
         if (path_state_ao_bounce(kg, state)) {
           kernel_split_path_end(kg, ray_index);
         }
@@ -53,13 +53,13 @@ ccl_device void kernel_indirect_background(KernelGlobals *kg)
   }
 
   if (IS_STATE(ray_state, ray_index, RAY_HIT_BACKGROUND)) {
-    ccl_global PathState *state = &kernel_split_state.path_state[ray_index];
-    PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
-    ccl_global Ray *ray = &kernel_split_state.ray[ray_index];
+    ccl_global __device_space PathState *state = &kernel_split_state.path_state[ray_index];
+    __device_space PathRadiance *L = &kernel_split_state.path_radiance[ray_index];
+    ccl_global __device_space Ray *ray = &kernel_split_state.ray[ray_index];
     float3 throughput = kernel_split_state.throughput[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
     uint buffer_offset = kernel_split_state.buffer_offset[ray_index];
-    ccl_global float *buffer = kernel_split_params.tile.buffer + buffer_offset;
+    ccl_global __device_space float *buffer = kernel_split_params.tile.buffer + buffer_offset;
 
     kernel_path_background(kg, state, ray, throughput, sd, buffer, L);
     kernel_split_path_end(kg, ray_index);

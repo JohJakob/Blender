@@ -553,7 +553,7 @@ ccl_device_inline void shader_merge_closures(__device_space ShaderData *sd)
 
 /* Defensive sampling. */
 
-ccl_device_inline void shader_prepare_closures(__device_space ShaderData *sd, __thread_space ccl_addr_space PathState *state)
+ccl_device_inline void shader_prepare_closures(__device_space ShaderData *sd, __device_space ccl_addr_space PathState *state)
 {
   /* We can likely also do defensive sampling at deeper bounces, particularly
    * for cases like a perfect mirror but possibly also others. This will need
@@ -709,7 +709,7 @@ ccl_device_inline __device_space const ShaderClosure *shader_bsdf_pick(__device_
 }
 
 ccl_device_inline __device_space const ShaderClosure *shader_bssrdf_pick(__device_space ShaderData *sd,
-                                                          __thread_space ccl_addr_space float3 *throughput,
+                                                          __device_space ccl_addr_space float3 *throughput,
                                                           __thread_space float *randu)
 {
   /* Note the sampling here must match shader_bsdf_pick,

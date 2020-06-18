@@ -443,8 +443,8 @@ kernel_volume_integrate_homogeneous(__device_space KernelGlobals *kg,
                                     __device_space ccl_addr_space PathState *state,
                                     __thread_space Ray *ray,
                                     __device_space ShaderData *sd,
-                                    __thread_space PathRadiance *L,
-                                    __thread_space ccl_addr_space float3 *throughput,
+                                    __device_space PathRadiance *L,
+                                    __device_space ccl_addr_space float3 *throughput,
                                     bool probalistic_scatter)
 {
   VolumeShaderCoefficients coeff ccl_optional_struct_init;
@@ -551,8 +551,8 @@ kernel_volume_integrate_heterogeneous_distance(__device_space KernelGlobals *kg,
                                                __device_space ccl_addr_space PathState *state,
                                                __thread_space Ray *ray,
                                                __device_space ShaderData *sd,
-                                               __thread_space PathRadiance *L,
-                                               __thread_space ccl_addr_space float3 *throughput,
+                                               __device_space PathRadiance *L,
+                                               __device_space ccl_addr_space float3 *throughput,
                                                const float object_step_size)
 {
   float3 tp = *throughput;
@@ -697,8 +697,8 @@ kernel_volume_integrate(__device_space KernelGlobals *kg,
                         __device_space ccl_addr_space PathState *state,
                         __device_space ShaderData *sd,
                         __thread_space Ray *ray,
-                        __thread_space PathRadiance *L,
-                        __thread_space ccl_addr_space float3 *throughput,
+                        __device_space PathRadiance *L,
+                        __device_space ccl_addr_space float3 *throughput,
                         float step_size)
 {
   shader_setup_from_volume(kg, sd, ray);
@@ -751,7 +751,7 @@ typedef struct VolumeSegment {
  * hitting or missing the volume. if we don't know the transmittance at the end of the
  * volume we can't generate stratified distance samples up to that transmittance */
 #    ifdef __VOLUME_DECOUPLED__
-ccl_device void kernel_volume_decoupled_record(KernelGlobals *kg,
+ccl_device void kernel_volume_decoupled_record(__device_space KernelGlobals *kg,
                                                PathState *state,
                                                Ray *ray,
                                                ShaderData *sd,
@@ -910,7 +910,7 @@ ccl_device void kernel_volume_decoupled_record(KernelGlobals *kg,
   }
 }
 
-ccl_device void kernel_volume_decoupled_free(KernelGlobals *kg, VolumeSegment *segment)
+ccl_device void kernel_volume_decoupled_free(__device_space KernelGlobals *kg, VolumeSegment *segment)
 {
   if (segment->steps != &segment->stack_step) {
 #      ifdef __KERNEL_CPU__
@@ -1410,7 +1410,7 @@ ccl_device void kernel_volume_stack_update_for_subsurface(__device_space KernelG
  * the world's one after the last bounce to avoid render artifacts.
  */
 ccl_device_inline void kernel_volume_clean_stack(__device_space KernelGlobals *kg,
-                                                 __thread_space ccl_addr_space VolumeStack *volume_stack)
+                                                 __device_space ccl_addr_space VolumeStack *volume_stack)
 {
   if (kernel_data.background.volume_shader != SHADER_NONE) {
     /* Keep the world's volume in stack. */

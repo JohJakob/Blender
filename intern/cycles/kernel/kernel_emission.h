@@ -235,7 +235,7 @@ ccl_device_noinline_cpu float3 indirect_primitive_emission(
 ccl_device_noinline_cpu void indirect_lamp_emission(__device_space KernelGlobals *kg,
                                                     __device_space ShaderData *emission_sd,
                                                     __device_space ccl_addr_space PathState *state,
-                                                    __thread_space PathRadiance *L,
+                                                    __device_space PathRadiance *L,
                                                     __thread_space Ray *ray,
                                                     float3 throughput)
 {
@@ -289,7 +289,7 @@ ccl_device_noinline_cpu float3 indirect_background(__device_space KernelGlobals 
                                                    __device_space ShaderData *emission_sd,
                                                    __device_space ccl_addr_space PathState *state,
                                                    ccl_global __device_space float *buffer,
-                                                   __thread_space ccl_addr_space Ray *ray)
+                                                   __device_space ccl_addr_space Ray *ray)
 {
 #ifdef __BACKGROUND__
   int shader = kernel_data.background.surface_shader;

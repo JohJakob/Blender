@@ -22,8 +22,8 @@ CCL_NAMESPACE_BEGIN
  * It also identifies the rays of state RAY_TO_REGENERATE and enqueues them
  * in QUEUE_HITBG_BUFF_UPDATE_TOREGEN_RAYS queue.
  */
-ccl_device void kernel_shader_setup(KernelGlobals *kg,
-                                    ccl_local_param unsigned int *local_queue_atomics)
+ccl_device void kernel_shader_setup(__device_space KernelGlobals *kg,
+                                    ccl_local_param __device_space unsigned int *local_queue_atomics)
 {
   /* Enqeueue RAY_TO_REGENERATE rays into QUEUE_HITBG_BUFF_UPDATE_TOREGEN_RAYS queue. */
   if (ccl_local_id(0) == 0 && ccl_local_id(1) == 0) {
@@ -61,7 +61,7 @@ ccl_device void kernel_shader_setup(KernelGlobals *kg,
   if (IS_STATE(kernel_split_state.ray_state, ray_index, RAY_ACTIVE)) {
     Intersection isect = kernel_split_state.isect[ray_index];
     Ray ray = kernel_split_state.ray[ray_index];
-    ShaderData *sd = kernel_split_sd(sd, ray_index);
+    __device_space ShaderData *sd = kernel_split_sd(sd, ray_index);
 
     shader_setup_from_ray(kg, sd, &isect, &ray);
 

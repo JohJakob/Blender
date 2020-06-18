@@ -28,7 +28,7 @@
 #  define NODE_INTERSECT qbvh_aligned_node_intersect
 #endif
 
-ccl_device uint BVH_FUNCTION_FULL_NAME(QBVH)(KernelGlobals *kg,
+ccl_device uint BVH_FUNCTION_FULL_NAME(QBVH)(__device_space KernelGlobals *kg,
                                              const Ray *ray,
                                              Intersection *isect_array,
                                              const uint max_hits,
