@@ -27,7 +27,7 @@
 #define ccl_global_id(x) (kg->global_id[x])
 #define ccl_global_size(x) (kg->global_size[x])
 
-#define ccl_barrier(x)
+#define ccl_barrier(x) threadgroup_barrier(mem_flags::mem_none)
 #define CCL_LOCAL_MEM_FENCE
 
 #ifndef NULL
