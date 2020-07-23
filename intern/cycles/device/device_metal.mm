@@ -52,9 +52,8 @@ private:
     // TODO: grab the specific device that was asked for
     metalDevice = MTLCreateSystemDefaultDevice();
     commandQueue = [metalDevice newCommandQueue];
-    NSURL *libURL = [NSBundle.mainBundle URLForResource:@"Shaders" withExtension:@"metallib"];
     NSError *error;
-    id<MTLLibrary> lib = [metalDevice newLibraryWithURL:libURL error:&error];
+    id<MTLLibrary> lib = [metalDevice newDefaultLibraryWithBundle:NSBundle.mainBundle error:&error];
     library = lib;
 
     setupPipelines();
